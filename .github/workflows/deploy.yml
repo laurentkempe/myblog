@@ -19,6 +19,7 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
+
       - name: Install, build, and upload your site
         uses: withastro/action@v3
         with:
@@ -28,11 +29,21 @@ jobs:
 
   deploy:
     needs: build
+    permissions:
+      pages: write       # to deploy to Pages
+      id-token: write    # to verify the deployment originates from an appropriate source
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: github-pages
+          path: dist
+
+      - name: Deploy to GitHub Pages on external repository
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: laurentkempe/techheadbrothers
+          publish_branch: main
+          publish_dir: dist
