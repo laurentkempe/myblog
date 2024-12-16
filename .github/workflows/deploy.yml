@@ -40,6 +40,8 @@ jobs:
           name: github-pages          
       - name: Display structure of downloaded files
         run: ls -R
+      - name: Create dist directory
+        run: mkdir -p ./dist
       - name: Extract artifact
         run: tar -xvf ./artifact.tar -C ./dist
       - name: Deploy to GitHub Pages on external repository
