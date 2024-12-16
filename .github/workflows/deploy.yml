@@ -41,7 +41,7 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
       - name: Extract artifact
-        run: tar -xvf artifact.tar -C ./dist
+        run: tar -xvf ./artifact.tar -C ./dist
       - name: Deploy to GitHub Pages on external repository
         uses: peaceiris/actions-gh-pages@v4
         with:
