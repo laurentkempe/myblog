@@ -11,10 +11,24 @@ import { Icon } from 'astro-icon/components'
                 class="rounded-full aspect-square w-[min(100%,16rem)] md:w-64 object-cover"
             />
         </div>
-        <div class="md:col-span-2 p-4 text-black text-lg md:text-xl leading-relaxed flex items-center">
-            Hi, my name is Laurent Kempé. I am an experienced Team Leader & Distinguished Solution Architect with a passion for shipping high-quality products by empowering development team and culture toward an agile mindset. I bring technical vision and strategy, leading engineering teams to move product, processes and architecture forward.
-			<Icon name="logos/astro" />
-        </div>
+        <div class="md:col-span-2 p-4 flex flex-col justify-center">
+            <div class="text-black text-lg md:text-xl leading-relaxed">
+                Hi, my name is Laurent Kempé. I am an experienced Team Leader & Distinguished Solution Architect with a passion for shipping high-quality products by empowering development team and culture toward an agile mindset. I bring technical vision and strategy, leading engineering teams to move product, processes and architecture forward.
+            </div>
+            <div class="mt-4 text-md flex gap-4">
+                <a href="https://bsky.app/profile/laurentkempe.com" class="flex items-center gap-1">
+                    <Icon name="fa6-brands:bluesky" title='Laurent Kempé' desc='Laurent Kempé bluesky account' />
+                    <span>Bluesky</span>
+                </a>
+                <a href="https://github.com/laurentkempe" class="flex items-center gap-1">
+                    <Icon name="fa6-brands:github" title='Laurent Kempé' desc='Laurent Kempé bluesky account' />
+                    <span>GitHub</span>
+                </a>
+                <a href="https://www.linkedin.com/in/laurentkempe/" class="flex items-center gap-1">
+                    <Icon name="fa6-brands:linkedin" title='Laurent Kempé' desc='Laurent Kempé bluesky account' />
+                    <span>LinkedIn</span>
+                </a>
+            </div>
+        </div>      
     </div>
 </div>
-	
