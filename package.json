@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@astrojs/tailwind": "^5.1.4",
+    "@iconify-json/fa6-brands": "^1.2.5",
     "astro": "^5.1.1",
     "astro-icon": "^1.1.4",
     "tailwindcss": "^3.4.16"
