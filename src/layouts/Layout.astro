@@ -1,13 +1,23 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/ico" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Laurent Kempé</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/ico" href="/favicon.ico" />
+        <meta name="generator" content={Astro.generator} />
+        <title>Laurent Kempé</title>
+    </head>
+    <body>
+        <slot />
+        <footer class="py-8">
+            <div class="container mx-auto gap-4 px-4 text-sm text-gray-600 text-center">
+                <div>
+                    &copy; {new Date().getFullYear()} Laurent Kempé. All rights reserved.
+                </div>
+                <div>
+					The expressed opinions are my own and do not reflect those of my employer or any third-party entities.
+                </div>
+            </div>
+        </footer>
+    </body>
 </html>
