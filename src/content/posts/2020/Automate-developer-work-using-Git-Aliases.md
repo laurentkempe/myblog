@@ -24,7 +24,7 @@ On top of those two, I added [posh-git](https://github.com/dahlbyk/posh-git), a 
 
 ![cmder ConEmu posh-git oh-my-posh](https://live.staticflickr.com/65535/49566323082_e1817988c2_c.jpg)
 
-That's a working environment that suites me. I have even cmder pinned on the first position of the Windows taskbar so that I can press **Win + 1 shortcut** and either run it or get back to it as fast as possible.
+That's a working environment that suits me. I have even cmder pinned on the first position of the Windows taskbar so that I can press **Win + 1 shortcut** and either run it or get back to it as fast as possible.
 
 I felt great about it, but as a developer, I want more! Why? Cause **I want to automate repetitive tasks, so that my life is easier**.
 
