@@ -1,0 +1,17 @@
+---
+import BlogPost from '../components/BlogPost.astro';
+import BaseLayout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection("posts");
+const sortedPosts = allPosts.sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+---
+<BaseLayout pageTitle="My Blog">
+	<ul>
+		{sortedPosts.map((post) => 
+			<BlogPost url={post.data.permalink} title={post.data.title} />
+		)}
+	</ul>
+</BaseLayout>
