@@ -1,6 +1,6 @@
 ﻿---
 title: 'MAUI - .NET Multi-platform app UI'
-permalink: /presentations/2021/10/19/maui-dotnet-multi-platform-app-ui/
+permalink: /2021/10/19/maui-dotnet-multi-platform-app-ui/
 date: 5/20/2020 17:31:00
 disqusIdentifier: 20211019013205
 tags: [.NET, MAUI]
