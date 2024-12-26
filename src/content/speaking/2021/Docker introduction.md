@@ -1,6 +1,6 @@
 ﻿---
 title: 'Docker introduction'
-permalink: /presentations/2021/10/19/docker-introduction/
+permalink: /2021/10/19/docker-introduction/
 date: 03/13/2020 14:20:00
 disqusIdentifier: 20211019013205
 tags: [Docker]

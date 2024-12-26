@@ -1,6 +1,6 @@
 ﻿---
 title: 'Github Codespaces'
-permalink: /presentations/2021/10/19/github-codespaces/
+permalink: /2021/10/19/github-codespaces/
 date: 09/30/2020 17:25:00
 disqusIdentifier: 20211019013205
 tags: [GitHub, Devs]

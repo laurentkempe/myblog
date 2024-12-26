@@ -10,7 +10,7 @@ const sortedPresentations = allPresentations.sort((a, b) =>
 <BaseLayout pageTitle="Presentations">
 	<ul>
 		{sortedPresentations.map((presentation) => 
-			<li><a href={presentation.data.permalink}>{presentation.data.title}</a></li>
+			<li><a href={`/speaking/${presentation.data.permalink}`}>{presentation.data.title}</a></li>
 		)}
 	</ul>
 </BaseLayout>

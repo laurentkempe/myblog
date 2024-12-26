@@ -1,6 +1,6 @@
 ﻿---
 title: 'Git Diff Margin'
-permalink: /presentations/2021/10/19/git-diff-margin/
+permalink: /2021/10/19/git-diff-margin/
 date: 04/22/2020 17:30:00
 disqusIdentifier: 20211019013205
 tags: [.NET, VisualStudio]
