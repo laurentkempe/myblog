@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const allPresentations = await getCollection("presentations");
+const sortedPresentations = allPresentations.sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+---
+<BaseLayout pageTitle="Presentations">
+	<ul>
+		{sortedPresentations.map((presentation) => 
+			<li><a href={presentation.data.permalink}>{presentation.data.title}</a></li>
+		)}
+	</ul>
+</BaseLayout>
