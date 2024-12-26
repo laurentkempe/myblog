@@ -1,7 +1,7 @@
 ﻿---
 title: 'MAUI - .NET Multi-platform app UI'
 permalink: /2021/10/19/maui-dotnet-multi-platform-app-ui/
-date: 5/20/2020 17:31:00
+date: 05/20/2020 17:31:00
 disqusIdentifier: 20211019013205
 tags: [.NET, MAUI]
 excerpt: Presentation, in French, during DevApps S01 Ep08 online meetup
