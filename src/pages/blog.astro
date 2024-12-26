@@ -11,7 +11,11 @@ const sortedPosts = allPosts.sort((a, b) =>
 <BaseLayout pageTitle="My Blog">
 	<ul>
 		{sortedPosts.map((post) => 
-			<BlogPost url={post.data.permalink} title={post.data.title} />
+            <li>
+                <a href={`${post.data.permalink}`}>
+                    {post.data.title}
+                </a>
+            </li>
 		)}
 	</ul>
 </BaseLayout>
