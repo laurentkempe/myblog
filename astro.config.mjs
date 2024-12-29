@@ -20,6 +20,8 @@ export default defineConfig({
       imports :[
         './src/components/Plyr.astro',
         './src/components/GitHubCard.astro',
+        './src/components/AlertInfo.astro',
+        './src/components/AlertWarning.astro',
         './src/components/Reveal.astro'
       ]
     }), 

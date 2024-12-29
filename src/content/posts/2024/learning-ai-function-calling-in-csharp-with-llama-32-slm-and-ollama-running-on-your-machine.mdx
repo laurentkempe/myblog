@@ -102,9 +102,9 @@ public record FunctionDetails(
 public record FunctionParameters([property: JsonPropertyName("city")] string City);
 ```
 
-{% alert info %}
+<AlertInfo>
 Note that the source generator is not handling the parameter and we currently hardcode the parameter name `city` in the `FunctionParameters` record. I leave that as an exercise for the reader to improve the source generator to handle multiple parameters and their types.
-{% endalert %}
+</AlertInfo>
 
 We are now able to provide a prompt to the AI model specifying functions that the model can use. To simplify this, we created `ChatRequestBuilder` allowing to build an OllamaSharp `ChatRequest` with the user prompt, defining the model and the functions.
 
@@ -472,5 +472,5 @@ I hope this tutorial has provided you with a clear understanding of AI function 
 Get the source code on GitHub [laurentkempe/aiPlayground/OllamaToolConsoleApp](https://github.com/laurentkempe/aiPlayground/tree/main/OllamaToolConsoleApp).
 
 <p></p>
-{% githubCard user:laurentkempe repo:aiPlayground align:left %}
+<GitHubCard user="laurentkempe" repo="aiPlayground" align="left" />
 
