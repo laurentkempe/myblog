@@ -12,7 +12,7 @@ thumbnailImage: 'https://live.staticflickr.com/65535/51872954907_ef93021c01_q.jp
 In the past, within my team at [Innoveo](http://www.innoveo.com/), we had several discussions about the best way to unit test async WPF ICommand. We value quality, so testing is essential to us. We decided to make the methods called by the command `internal` so that our tests could call those.
 
 What is the problem with unit testing an Async WPF ICommand? The problem is that the command is an `async void` method! So, you have no way to `await` the end of the execution of your command. So, your test might assert on things that are still executing.
-<!-- more -->
+{/* <!-- more --> */}
 Some weeks ago, a question about "Extract and Override call" taken from the book "Working Effectively with Legacy Code" for testing was raised on the [French DevApps community](https://devapps.ms/devenirmembre). I immediately thought of the discussions about testing async WPF ICommand and proposed that solution as a pragmatic solution that is not only easy to implement but also very simple to understand. Some did not like that solution because it was not perfect. I agree, but sometimes it is good to be pragmatic.
 
 The discussion went further about `async void` testing and [Gérald Barré](https://twitter.com/meziantou) from [Meziantou's blog](https://meziantou.net/), which I highly recommend, answered it interestingly! He made a blog post about his solution "[Awaiting an async void method in .NET](https://www.meziantou.net/awaiting-an-async-void-method-in-dotnet.htm)" which leverage his own implementation of a [SynchronizationContext](https://docs.microsoft.com/en-us/dotnet/api/system.threading.synchronizationcontext?view=net-6.0) and `TaskCompletionSource`.
@@ -118,4 +118,4 @@ public async Task OtherClick_ExpectUpperToBeUpperCase()
 
 As a developer, I think it is always good to be pragmatic but this does not avoid to search for better solutions.
 
-<?# githubCard user=laurentkempe repo=AsyncVoidCommandTesting align=left /?>
+<GitHubCard user="laurentkempe" repo="AsyncVoidCommandTesting" align="left" />
