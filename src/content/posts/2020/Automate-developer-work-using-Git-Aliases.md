@@ -138,7 +138,7 @@ cfb = "!f() { featureBranch=$(git fb $1);
 
 # Presentation
 
-<?# Reveal Src=https://laurentkempe.com/presentations/Automate%20Dev%20work%20using%20Git%20aliases/index.html#/ /?>
+<?# Reveal src=https://laurentkempe.com/presentations/Automate%20Dev%20work%20using%20Git%20aliases/index.html#/ /?>
 
 Press f key to see the presentation full screen, or [navigate to it](https://laurentkempe.com/presentations/Automate%20Dev%20work%20using%20Git%20aliases/index.html#/).
 
