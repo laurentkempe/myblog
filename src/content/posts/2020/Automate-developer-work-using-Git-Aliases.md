@@ -20,7 +20,7 @@ Over the years, I have used different Git clients, tried to work only from my ID
 
 Then, I started to use more the Console through a tool that I love [cmder](https://cmder.net/) ❤. It is bundling other awesome tools like [ConEmu](https://conemu.github.io/)...
 
-On top of those two, I added [posh-git](https://github.com/dahlbyk/posh-git), a PowerShell module integrating Git and PowerShell by providing Git status summary information that can be displayed in the PowerShell prompt. To which, I added, [oh-my-posh](https://github.com/JanDeDobbeleer/oh-my-posh) a prompt theming engine for PowersShell. 
+On top of those two, I added [posh-git](https://github.com/dahlbyk/posh-git), a PowerShell module integrating Git and PowerShell by providing Git status summary information that can be displayed in the PowerShell prompt. To which, I added, [oh-my-posh](https://github.com/JanDeDobbeleer/oh-my-posh) a prompt theming engine for PowerShell. 
 
 ![cmder ConEmu posh-git oh-my-posh](https://live.staticflickr.com/65535/49566323082_e1817988c2_c.jpg)
 
