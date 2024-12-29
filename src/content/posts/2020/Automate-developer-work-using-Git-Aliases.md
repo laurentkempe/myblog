@@ -20,7 +20,7 @@ Over the years, I have used different Git clients, tried to work only from my ID
 
 Then, I started to use more the Console through a tool that I love [cmder](https://cmder.net/) ❤. It is bundling other awesome tools like [ConEmu](https://conemu.github.io/)...
 
-On top of those two, I added [posh-git](https://github.com/dahlbyk/posh-git), a PowerShell module integrating Git and PowerShell by providing Git status summary information that can be displayed in the PowerShell prompt. To which, I added, [oh-my-posh](https://github.com/JanDeDobbeleer/oh-my-posh) a prompt theming engine for PowersShell. 
+On top of those two, I added [posh-git](https://github.com/dahlbyk/posh-git), a PowerShell module integrating Git and PowerShell by providing Git status summary information that can be displayed in the PowerShell prompt. To which, I added, [oh-my-posh](https://github.com/JanDeDobbeleer/oh-my-posh) a prompt theming engine for PowerShell. 
 
 ![cmder ConEmu posh-git oh-my-posh](https://live.staticflickr.com/65535/49566323082_e1817988c2_c.jpg)
 
@@ -138,7 +138,7 @@ cfb = "!f() { featureBranch=$(git fb $1);
 
 # Presentation
 
-<?# Reveal Src=https://laurentkempe.com/presentations/Automate%20Dev%20work%20using%20Git%20aliases/index.html#/ /?>
+<?# Reveal src=https://laurentkempe.com/presentations/Automate%20Dev%20work%20using%20Git%20aliases/index.html#/ /?>
 
 Press f key to see the presentation full screen, or [navigate to it](https://laurentkempe.com/presentations/Automate%20Dev%20work%20using%20Git%20aliases/index.html#/).
 
