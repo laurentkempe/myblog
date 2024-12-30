@@ -1,5 +1,7 @@
 ---
-import { Image } from 'astro:assets';
+const { title = "One of the Tech Head Brothers", frontmatter } = Astro.props;
+const pageTitle = frontmatter?.title || title;
+
 ---
 <!doctype html>
 <html lang="en">
@@ -9,7 +11,7 @@ import { Image } from 'astro:assets';
         <link rel="icon" type="image/ico" href="/favicon.ico" />
         <link rel="stylesheet" href="https://cdn.vidstack.io/player.css" />
         <meta name="generator" content={Astro.generator} />
-        <title>Laurent Kempé</title>
+        <title>Laurent Kempé - {pageTitle}</title>
     </head>
     <body>
         <header class="py-6 border-b container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">

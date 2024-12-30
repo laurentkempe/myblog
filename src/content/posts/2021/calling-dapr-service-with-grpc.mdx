@@ -10,7 +10,7 @@ coverImage: 'https://live.staticflickr.com/65535/51063269481_b31f5a9d09_h.jpg'
 thumbnailImage: 'https://live.staticflickr.com/65535/51063269481_4d617ff8ac_q.jpg'
 ---
 In previous posts, we focused on Dapr service invocation using the HTTP protocol. Dapr, through its service invocation, can also reliably and securely communicate with other applications using gRPC. We will have a look at this other capability in this post.
-<!-- more -->
+{/* <!-- more --> */}
 # Introduction
 
 We want to show how you can avoid having a dependency on another third party other than the one dealing with the transport protocol. That's one of the advantages of Dapr, you can integrate with it just by relying on HTTP and/or gRPC. In the previous cases, with HTTP, we could do it without any dependencies. In the case of gRPC, we need to bring at least this dependency so that we can call Dapr services.
@@ -109,9 +109,9 @@ foreach (var weatherForecast in weatherForecasts)
 
 Notice that we connect to the *app-id* **proxy** on the URI **127.0.0.1:3500** which is the gRPC port of our proxy service. We are invoking the **weatherforecastproxy** method on the service. The proxy service is an HTTP service that we are calling with gRPC thanks to Dapr sidecar. That proxy service is then calling the **backend** service also exposed through HTTP but accessible through gRPC again thanks to the Dapr sidecar.
 
-<?! alert info ?>
+<AlertInfo>
 [All calls between Dapr sidecars go over gRPC](https://docs.dapr.io/developing-applications/building-blocks/service-invocation/service-invocation-overview/#service-invocation) for performance. Only calls between services and Dapr sidecars can be either HTTP or gRPC
-<?!/ alert ?>
+</AlertInfo>
 
 # Starting proxy and backend Dapr sidecar
 
@@ -130,4 +130,4 @@ We have seen that Dapr provides a way to communicate with other applications usi
 
 You can get access to the code of this blog post on GitHub in the [GrpcServiceToService folder](https://github.com/laurentkempe/daprPlayground/tree/master/GrpcServiceToService).
 <p></p>
-<?# githubCard user=laurentkempe repo=daprPlayground align=left /?>
+<GitHubCard user="laurentkempe" repo="daprPlayground" align="left" />

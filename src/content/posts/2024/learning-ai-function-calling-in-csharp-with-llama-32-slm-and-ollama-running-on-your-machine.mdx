@@ -10,7 +10,7 @@ coverImage: 'https://live.staticflickr.com/4303/36283818966_6ff2197d3e_h.jpg'
 thumbnailImage: 'https://live.staticflickr.com/4303/36283818966_e3fb80e9eb_q.jpg'
 ---
 I've been trying to wrap my head around function/tool calling for a while now, and I'm excited to share what I've learned with you. It's a powerful way to let developers integrate advanced AI features directly into their applications. We'll walk through understanding the core concepts, setting up your environment, and implementing a practical example using a C# source generator.
-<!-- more -->
+{/* <!-- more --> */}
 
 # Introduction
 
@@ -102,9 +102,9 @@ public record FunctionDetails(
 public record FunctionParameters([property: JsonPropertyName("city")] string City);
 ```
 
-{% alert info %}
+<AlertInfo>
 Note that the source generator is not handling the parameter and we currently hardcode the parameter name `city` in the `FunctionParameters` record. I leave that as an exercise for the reader to improve the source generator to handle multiple parameters and their types.
-{% endalert %}
+</AlertInfo>
 
 We are now able to provide a prompt to the AI model specifying functions that the model can use. To simplify this, we created `ChatRequestBuilder` allowing to build an OllamaSharp `ChatRequest` with the user prompt, defining the model and the functions.
 
@@ -472,5 +472,5 @@ I hope this tutorial has provided you with a clear understanding of AI function 
 Get the source code on GitHub [laurentkempe/aiPlayground/OllamaToolConsoleApp](https://github.com/laurentkempe/aiPlayground/tree/main/OllamaToolConsoleApp).
 
 <p></p>
-{% githubCard user:laurentkempe repo:aiPlayground align:left %}
+<GitHubCard user="laurentkempe" repo="aiPlayground" align="left" />
 
