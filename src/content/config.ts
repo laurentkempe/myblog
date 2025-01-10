@@ -10,6 +10,7 @@ const posts = defineCollection({
       permalink: z.string(),
       description: z.string().optional(),
       coverImage: z.string().optional(),
+      thumbnailImage: z.string().optional(),
       coverCaption: z.string().optional(),
       image: z.object({
         url: z.string(),
