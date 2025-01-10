@@ -1,7 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import markdownit from 'markdown-it'
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
+
+
+function getExcerpt(content) {
+  const md = markdownit()
+  const moreIndex = content.indexOf('{/* <!-- more --> */}');
+  if (moreIndex === -1) {
+    return content;
+  }
+  const excerpt = content.slice(0, moreIndex);
+  return md.render(excerpt);
+}
 
 export async function getStaticPaths( {paginate} ) {  
   const posts = await getCollection('posts');
@@ -13,14 +25,14 @@ export async function getStaticPaths( {paginate} ) {
 }
 
 const { page } = Astro.props;
-console.log(page.data);
 ---
 <Layout title="Blog">
-		{page.data.map((post) => 
+		{
+      page.data.map((post) => 
         <article class="bg-white p-6 flex">
           <div class="flex-1">
             <h2 class="text-2xl font-bold mb-4"><a href={`${post.data.permalink}`}>{post.data.title}</a></h2>
-            <p class="mb-4">Excerpt...</p>
+            <p class="mb-4" set:html={getExcerpt(post.body)}></p>
             <a href={`${post.data.permalink}`} class="text-blue-500 hover:underline">Continue reading</a>
           </div>
           <div class="ml-6">
@@ -31,7 +43,8 @@ console.log(page.data);
                    height="150" />
           </div>
         </article>
-		)}
+		  )
+    }
 <div class="flex justify-between items-center p-6">
   <div class="space-x-2">
     {page.url.first ? <a href={page.url.first} class="text-blue-500 hover:underline">First</a> : null}
