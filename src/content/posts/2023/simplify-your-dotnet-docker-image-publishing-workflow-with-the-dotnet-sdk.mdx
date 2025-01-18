@@ -1,0 +1,122 @@
+---
+title: 'Simplify your .NET Docker image publishing workflow with the .NET SDK'
+permalink: /2023/10/24/simplify-your-dotnet-docker-image-publishing-workflow-with-the-dotnet-sdk/
+date: 10/24/2023 12:14:09
+disqusIdentifier: 20231024121409
+coverSize: partial
+tags: [.NET SDK, Docker, GitHub]
+coverCaption: 'Fort du Lomont, France'
+coverImage: 'https://live.staticflickr.com/65535/46849237035_950332fe54_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/46849237035_5e06cc389a_q.jpg'
+---
+In my previous blog posts, I wrote about the **built-in container support** in the **.NET 7 SDK** that allows you to create and publish Docker images for your .NET applications without writing any Dockerfile. I also showed how to use the **Chiseled Ubuntu** base images optimized for .NET and containers.
+
+For this blog post, I will explain how to publish your Docker images using the .NET SDK to **GitHub Packages / Container Registry**. It is possible to publish to different **container registries**, such as Docker Hub, GitHub, Azure Container Registry, or your own private registry. I will show you how to publish to GitHub Packages / Container Registry, but the process is similar for other registries. 
+
+This blog post will help you learn how to leverage the .NET SDK's built-in container support to effortlessly distribute and run your .NET applications in the cloud using Docker. Stay tuned!
+{/* <!-- more --> */}
+
+
+# Prerequisites
+
+To follow along with this blog post, you will need the following
+
+* [.NET 7 SDK](https://dotnet.microsoft.com/download/dotnet/7.0) or later
+
+If you target a remote container registry, only the .NET SDK is required.
+
+To publish your Docker images to a local container registry, you will also need
+* [Docker Desktop](https://www.docker.com/products/docker-desktop) installed
+
+# Publish profiles
+
+Like my previous blog post, I will use the publishing profiles to define the Docker image name and tag. I will also use publishing profiles to set the base image and the registry name for the Docker image.
+
+In this blog post, we are focusing on `ContainerRegistry` and `ContainerImageName` properties.
+
+## GitHub Packages / Container Registry publish profile
+
+Where the new image goes after being created depends on the container registry property, `ContainerRegistry`, which specifies the target registry. In the case of GitHub Container Registry you need to set `ContainerRegistry` to `ghcr.io`.
+
+The `ContainerImageName` needs to be set as a path using your GitHub username, `laurentkempe`, then `/` and the name of the image, `containerplayground`. `ContainerImageTag` specifies the tag of the image, e.g. `1.0.0`. To automate the versioning of your Docker image, you can glance my previous blog in the section "[Tagging your image](https://laurentkempe.com/2023/03/13/dotnet-7-sdk-built-in-container-improvements/)".
+
+```xml github.pubxml
+<Project>
+    <PropertyGroup>
+        <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+        <WebPublishMethod>Container</WebPublishMethod>
+        <ContainerRegistry>ghcr.io</ContainerRegistry>
+        <ContainerImageName>laurentkempe/containerplayground</ContainerImageName>
+        <ContainerImageTag>1.0.0</ContainerImageTag>
+        <ContainerBaseImage>mcr.microsoft.com/dotnet/aspnet:7.0</ContainerBaseImage>
+    </PropertyGroup>
+    <ItemGroup>
+        <ContainerPort Include="80" Type="tcp" />
+    </ItemGroup>
+</Project>
+```
+
+To be able to publish, it is extremely simple with the command specifying the GitHub publish profile.
+
+```powershell
+dotnet publish --os linux --arch x64 -p:PublishProfile=github -c Release
+```
+
+This publishing profile will create a Docker image named `ghcr.io/laurentkempe/containerplayground:1.0.0`.
+
+You will then be able to pull it using the following command:
+
+```powershell
+docker pull ghcr.io/laurentkempe/containerplayground:1.0.0
+```
+or run it
+    
+```powershell
+docker run -it --rm -p 8080:80 ghcr.io/laurentkempe/containerplayground:1.0.0
+```
+Finally, browse to http://localhost:8080/ to see the "Hello World!" message.
+
+# Authentication
+
+To publish to a remote container registry, you need to authenticate. The authentication method depends on the registry you are targeting.
+
+Publishing to GitHub Container Registry uses a [Personal Access Token (classic)](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) (PAT) with the `read:packages` and `write:packages` scopes. You can then use this PAT as your password when authenticating to GitHub Container Registry.
+
+To authenticate to GitHub Container Registry, you can use the `docker login` command:
+
+```powershell
+docker login ghcr.io -u <username> -p <token>
+```
+
+It is a way of interacting with a Docker config file containing rules for authenticating with specific registries.
+
+You can read more about authenticating to container registries for the .NET SDK [here](https://github.com/dotnet/sdk-container-builds/blob/main/docs/RegistryAuthentication.md). Or, in our case, about the authentication methods for GitHub Container Registry [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-github-container-registry).
+
+# Supported registries
+
+The .NET SDK supports publishing to any registry that supports the Docker Registry HTTP API V2.
+
+Here is a list of supported registries:
+* [Azure Container Registry](https://azure.microsoft.com/products/container-registry)
+* [Amazon Elastic Container Registry](https://aws.amazon.com/ecr/)
+* [Google Artifact Registry](https://cloud.google.com/artifact-registry)
+* [Docker Hub](https://hub.docker.com/)
+* [GitHub Packages](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+* [GitLab-hosted Container Registry](https://docs.gitlab.com/ee/user/packages/container_registry/)
+* [Quay.io](https://quay.io/)
+
+# Conclusion
+
+In this blog post, I showed you how to use the .NET SDK's built-in container support to publish your .NET applications to Docker image. I also demonstrated how to use variables in your project file to customize base image, image tag, and registry name for your Docker images. Finally, I showed you how to publish your Docker images to different container registries, such as GitHub, Azure Container Registry or Docker Hub.
+
+# References
+
+* [Announcing built-in container support for the .NET SDK](https://devblogs.microsoft.com/dotnet/announcing-builtin-container-support-for-the-dotnet-sdk/)
+* [.NET 7 SDK built-in container improvements](https://laurentkempe.com/2023/03/13/dotnet-7-sdk-built-in-container-improvements/)
+* [.NET 7 SDK built-in container support and Ubuntu Chiseled](https://laurentkempe.com/2022/11/14/dotnet-7-sdk-built-in-container-support-and-ubuntu-chiseled/)
+* [Containerize an app with dotnet publish - .NET | Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/core/docker/publish-as-container)
+* [Development workflow for Docker apps | Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/architecture/microservices/docker-application-development-process/docker-app-development-workflow)
+* [Containerize an app with Docker tutorial - .NET | Microsoft Learn](https://learn.microsoft.com/en-us/dotnet/core/docker/build-container)
+* [Docker Registry HTTP API V2](https://docs.docker.com/registry/)
+
+<GitHubCard user="laurentkempe" repo="containerPlayground" />

@@ -16,7 +16,7 @@ const posts = defineCollection({
         url: z.string(),
         alt: z.string().optional()
       }).optional(),
-      tags: z.array(z.string())
+      tags: z.array(z.string()).optional()
     })
 });
 const presentations = defineCollection({

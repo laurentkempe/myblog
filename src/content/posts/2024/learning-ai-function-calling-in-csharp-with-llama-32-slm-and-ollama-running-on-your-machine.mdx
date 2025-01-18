@@ -102,9 +102,9 @@ public record FunctionDetails(
 public record FunctionParameters([property: JsonPropertyName("city")] string City);
 ```
 
-<AlertInfo>
+<Alert mode="info" title="Improvement">
 Note that the source generator is not handling the parameter and we currently hardcode the parameter name `city` in the `FunctionParameters` record. I leave that as an exercise for the reader to improve the source generator to handle multiple parameters and their types.
-</AlertInfo>
+</Alert>
 
 We are now able to provide a prompt to the AI model specifying functions that the model can use. To simplify this, we created `ChatRequestBuilder` allowing to build an OllamaSharp `ChatRequest` with the user prompt, defining the model and the functions.
 

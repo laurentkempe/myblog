@@ -1,0 +1,169 @@
+---
+title: 'Refactoring huge C# code base in minutes'
+permalink: /2023/02/20/refactoring-huge-csharp-code-base-in-minutes/
+date: 2/20/2023 1:38:00 PM
+disqusIdentifier: 20230220133800
+coverSize: partial
+tags: [.NET, C#, ReSharper, Rider]
+coverCaption: 'Moʻorea, Polynésie, France'
+coverImage: 'https://live.staticflickr.com/4440/36229431203_0b829098fb_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/4440/36229431203_2b8f512b62_q.jpg'
+---
+With my team, we like to keep our C# code base updated. So, recently we went to .NET 7 and C# 11. At the same time, we were still adopting some of the new capabilities of .NET 6 and C# 10. Our code base is large, so it takes some time. One of the new features that we planned to use was the `ArgumentNullException.ThrowIfNull` method, which throws an exception if an argument is null. In this post, I will show you how I effortlessly did that refactoring by letting the machine work and not the human 😁 (me). In the past, I used the same approach to migrate lots of code that used `Assert.True()` to `Assert.That(, Is.True)` and for some other even more complex cases. We will use ReSharper and Rider for that.
+{/* <!-- more --> */}
+
+
+# Why going to ArgumentNullException.ThrowIfNull
+
+The original code might look something like this:
+```csharp
+public void DoSomething(string name)
+{
+    if (name == null)
+    {
+        throw new ArgumentNullException(nameof(name));
+    }
+    // do something
+}
+```
+
+After refactoring toward the new `ArgumentNullException.ThrowIfNull` method, the code looks like this.
+```csharp
+public void DoSomething(string name)
+{
+    ArgumentNullException.ThrowIfNull(name);
+    // do something
+}
+```
+
+The immediate and obvious advantage of using the new method is the **reduction of code** that we have to write.
+
+Another less obvious advantage, is that this code is **less error prone**. Looking at the first implementation, a mismatch between `name == null` and `nameof(name)` is easily made. EEspecially with multiple similar line checking arguments. With The new method this is not possible anymore. 
+
+As we know why we want to use the new method, let's see how we can refactor our large code base.
+
+# How to automate the refactoring of huge code base
+
+The first step that comes to mind is to find all the places where `ArgumentNullException` constructor is used. For that, we use the find functionality of our IDE. We use ReSharper/Rider **Search Everywhere** feature, specifying `throw new ArgumentNullException` constructor as the search term.
+
+![Rider Search Everywhere](/images/RiderSearchEverywhere.png)
+
+We can find all the places where we are using the `ArgumentNullException`. And start to replace by hand all the places. But this is a tedious task.
+
+You can have this form
+
+```csharp
+    if (spans == null) throw new ArgumentNullException(nameof(spans));
+```
+ 
+and this form
+
+```csharp
+    if (spans == null)
+    {
+        throw new ArgumentNullException(nameof(spans));
+    }
+```
+
+or even
+
+```csharp
+    if (spans is null) throw new ArgumentNullException(nameof(spans));
+```
+
+Finding, is easy. It is more the replacement that will be tedious.
+
+Is there a better way? Yes, using **ReSharper - Search with Pattern**.
+
+![ReSharper Search With Pattern](/images/ReSharperSearchWithPattern.png)
+
+We see that we can use placeholders to specify the name of the parameter. In our case `$spans$` specifies the identifier placeholder meaning any symbol identifier. Each placeholder must be defined once and can be used several times in the pattern. When defining a placeholder, you need to define its kind and optional constraints. There are five kinds of placeholders:
+
+<Alert mode="info">
+* **Argument Placeholder** — one or more arguments in a method invocation. If necessary, you can specify minimal or maximal number of arguments that should be matched.
+
+* **Expression Placeholder** — a sequence of operators and operands. You can optionally specify a type that is returned by this expression.
+
+* **Identifier Placeholder** — any symbol identifier. You can additionally specify a regular expression that will be used to match symbol names.
+
+* **Statement Placeholder** — a single-line statement that ends with a semicolon or a block of statements. If necessary, you can specify minimal or maximal number of statements that should be matched.
+
+* **Type Placeholder** — a value type or a reference type. By default, a placeholder of this kind will match any type, but you can specify a specific type explicitly.
+</Alert>
+
+In our code base it's finding 131 occurrences of the pattern.
+
+![ReSharper Search With Pattern Findinds](/images/ReSharperSearchWithPatternFindings.png)
+
+If we use the Search Anywhere feature, we can see that it's finding 166 occurrences of the string `throw new ArgumentNullException`. 
+
+![ReSharper Search Anywhere Findinds](/images/ReSharperSearchAnywhereFindings.png)
+
+Why this difference? Because we have some places in the code where we are using the `ArgumentNullException` constructor with two parameters which is not handled in the search pattern defined in our Search with Pattern. We could modify it to find the missing 35 occurrences, however we want to review those ones and see if the second parameter is really needed.
+
+So, let's replace all the occurrences found by the Search with Pattern. Click on the Replace and then specify the replace pattern in which we re-use the placeholder `$spans$` and add the `ArgumentNullException.ThrowIfNull` method.
+
+![ReSharper Search With Pattern Replace](/images/ReSharperSearchWithPatternReplace.png)
+
+I could click on Replace and have a good part of the work done. A question then comes to mind. What if a developer after that refactoring reintroduce old way of doing things? How can I prevent that?
+
+# Prevent reintroducing the old way of doing things
+
+The great thing is that ReSharper is not only a tool to help you refactor your code, but also to help you keep your code base clean. For that, we can use the **Pattern Catalog** and share the pattern with the team.
+
+Click save
+
+![ReSharper Save Pattern Catalog.png](/images/ReSharperSavePatternCatalog.png)
+
+Now go to the pattern catalog
+
+![ReSharper Pattern Catalog](/images/ReSharperPatternCatalog.png)
+
+Find your pattern
+
+![ReSharper Pattern Catalog Dialog](/images/ReSharperPatternCatalogDialog.png)
+
+Double click to edit it
+
+![ReSharper Edit Highlighting Pattern](/images/ReSharperEditHighlightingPattern.png)
+
+Here select _Pattern severity_ to _Show as error_ or to the value that you prefer. Then add a description and save.
+
+Now, if someone uses the old way of doing, the following error is shown.
+
+![InspectCode Squiggles](/images/InspectCodeSquiggles.png)
+
+# Help other developers to fix their code
+
+Now we can do even better because we can propose a way to fix the code. For that we can use the **Quick Fix** feature of ReSharper/Rider.
+
+Edit the pattern again, and choose now to replace the pattern with the following in _Replace pattern_ and click save
+
+![Edit Highlighting Pattern Replace](/images/EditHighlightingPatternReplace.png)
+
+Your code will still display the red squiggles and now the bulb menu will appear, proposing a way to fix the code to the way.
+
+![Apply Replacement In Solution](/images/ApplyReplacementInSolution.png)
+
+And the beauty is that you can use "_Apply replacement in solution_" to fix all the occurrences in the solution. This where we let the machine do the work for us 😁.
+
+# Sharing the Custom patterns in your team
+
+Finally, we can share that new _custom pattern_ with our team by saving the settings to the team-shared settings layer.
+
+![Custom Pattern Save To Team Shared](/images/CustomPatternSaveToTeamShared.png)
+
+# ReSharper and Rider settings
+
+At the moment of writing this post, Rider doesn't have any way to edit the custom patterns in a settings dialog. Nevertheless, you can define the custom patterns in ReSharper and share those with your team, and the error and quick fix will be shown in Rider.
+
+# Conclusion
+
+We have seen how easy it is to put in place a custom pattern in ReSharper, share it with the team, and use it in Rider. We have also seen how we can use the custom pattern to prevent reintroducing old code and how we can use the quick fix to fix the code. It requires a bit of effort to define the pattern, but it will pay off overall! It will also help you to keep your code base clean and consistent and help other developers, especially new ones, apply the same patterns. I would also recommend running those inspections during your CI build and breaking the build if some new ones are introduced.
+
+# References
+
+* [Rider Search Everywhere](https://www.jetbrains.com/help/rider/Searching_Everywhere.html)
+* [Structural Search and Replace](https://www.jetbrains.com/help/resharper/Navigation_and_Search__Structural_Search_and_Replace.html)
+* [Share patterns](https://www.jetbrains.com/help/resharper/Navigation_and_Search__Structural_Search_and_Replace.html#sharing-patterns)
+* [Manage and share ReSharper settings](https://www.jetbrains.com/help/resharper/Sharing_Configuration_Options.html)

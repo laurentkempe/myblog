@@ -1,0 +1,120 @@
+---
+title: 'Run Phi-3 SLM on your machine with C# Semantic Kernel and Ollama'
+permalink: /2024/05/01/run-phi-3-slm-on-your-machine-with-csharp-semantic-kernel-and-ollama/
+date: 05/01/2024 10:31:03
+disqusIdentifier: 20240501103103
+coverSize: partial
+tags: [Semantic Kernel, C#, Ollama, LLM, SLM, AI]
+coverCaption: 'Mona Vale, Australia'
+coverImage: 'https://live.staticflickr.com/4256/35608224685_e639ee9960_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/4256/35608224685_3186752dc8_q.jpg'
+---
+Microsoft recently unveiled Phi-3, the latest iteration of their Small Language Model (SLM). And hot on its heels is Ollama, a powerful tool that enables you to run SLMs and LLMs right on your own machine.
+
+Excited to dive in? In this guide, I'll show you how to harness the power of Phi-3 and Ollama using C# and Semantic Kernel. I'll walk you through the process of creating a simple console application to get you started on your SLM journey.
+
+So, let's get coding and unlock the potential of Phi-3 and Ollama on your machine!
+{/* <!-- more --> */}
+
+# Introduction
+
+Phi-3 is the third generation of Microsoft's Small Language Model (SLM). It's a powerful tool that enables you to generate text based on a given prompt. Phi-3 is trained on a diverse range of data sources, making it capable of generating high-quality text across a wide variety of topics.
+
+Ollama is a tool that allows you to run SLMs and LLMs on your own machine. It provides a simple and efficient way to interact with these models, enabling you to generate text quickly and easily. Ollama has built-in compatibility with the OpenAI Chat Completions API, making it easy to integrate them into your own applications.
+
+In this guide, we'll show you how to use Phi-3 and Ollama with C# and Semantic Kernel. We'll walk you through the process of creating a simple console application that interacts with Phi-3 using Ollama. By the end of this guide, you'll have a basic understanding of how to harness the power of Phi-3 and Ollama in your own applications.
+
+# Prerequisites
+
+To get started, you'll need to have to install Ollama on your machine and to download the Phi-3 model.
+
+To install Ollama, you can download the installer [from their download page](https://www.ollama.com/download) or just run `winget install ollama`.
+
+Then you need to download the Phi-3 model using `ollama pull phi3:latest` which is around 2Gb.
+
+# Creating a simple console application
+
+Now that you have Ollama and the Phi-3 model installed, let's create a simple console application that interacts with Phi-3. We'll use C# and Semantic Kernel to achieve this.
+
+First, create a new console application and navigate to the project directory using 
+
+```powershell
+dotnet new console -n Phi3SKConsoleApp
+cd Phi3SKConsoleApp
+```
+
+Next, add the Semantic Kernel package to your project using .
+
+```powershell
+dotnet add package Microsoft.SemanticKernel
+```
+
+Now, open the `Program.cs` file in your favorite code editor and add the following code:
+
+```csharp
+using Microsoft.SemanticKernel;
+using System.Text;
+using Microsoft.SemanticKernel.ChatCompletion;
+
+// Initialize the Semantic kernel
+var kernelBuilder = Kernel.CreateBuilder();
+var kernel = kernelBuilder
+    .AddOpenAIChatCompletion(                        // We use Semantic Kernel OpenAI API
+        modelId: "phi3",
+        apiKey: null,
+        endpoint: new Uri("http://localhost:11434")) // With Ollama OpenAI API endpoint
+    .Build();
+
+// Create a new chat
+var ai = kernel.GetRequiredService<IChatCompletionService>();
+ChatHistory chat = new("You are an AI assistant that helps people find information.");
+StringBuilder builder = new();
+
+// User question & answer loop
+while (true)
+{
+    Console.Write("Question: ");
+    chat.AddUserMessage(Console.ReadLine()!);
+
+    builder.Clear();
+
+    // Get the AI response streamed back to the console
+    await foreach (var message in ai.GetStreamingChatMessageContentsAsync(chat, kernel: kernel))
+    {
+        Console.Write(message);
+        builder.Append(message.Content);
+    }
+    Console.WriteLine();
+    chat.AddAssistantMessage(builder.ToString());
+
+    Console.WriteLine();
+}
+```
+
+We use the `Microsoft.SemanticKernel` package to interact with the Phi-3 model through Ollama. We create a new chat and loop through a series of user questions and AI responses. The AI response is streamed back to the console, allowing you to interact with the Phi-3 model in real-time. And this, in 37 lines of code!
+
+The trick is to use the `OpenAIChatCompletion` service from the Semantic Kernel and to provide the Ollama OpenAI API endpoint at `http://localhost:11434` 🤯 specifying the model we downloaded `phi3`.
+
+# Running the console application
+
+Make sure that Ollama is running on your machine before running the console application.
+
+To run the console application, simply `dotnet run`.
+
+![Run Phi-3 SLM on your machine with C# Semantic Kernel and Ollama](/images/Phi-3-Semantic-Kernel-Ollama.gif)
+
+# Conclusion
+
+In this blog post, I've shown you how to harness the power of Phi-3 and Ollama using C# and Semantic Kernel. We've created a simple console application that interacts with the Phi-3 model, allowing you to generate text based on a given prompt. This is just the tip of the iceberg when it comes to the capabilities of Semantic Kernel, Phi-3 and Ollama, so I encourage you to explore further and see what you can create!
+
+# References
+
+* [Introducing Phi-3: Redefining what’s possible with SLMs](https://azure.microsoft.com/en-us/blog/introducing-phi-3-redefining-whats-possible-with-slms/)
+* [Ollama](https://www.ollama.com/)
+* [Ollama OpenAI compatibility](https://github.com/ollama/ollama/blob/main/docs/openai.md)
+* [Ollama Models](https://www.ollama.com/library)
+* [What is Semantic Kernel?](https://learn.microsoft.com/en-us/semantic-kernel/overview/?tabs=Csharp)
+
+
+Get the source code on GitHub [laurentkempe/aiPlayground/Phi3SKConsoleApp](https://github.com/laurentkempe/aiPlayground/tree/main/Phi3SKConsoleApp)
+<GitHubCard user="laurentkempe" repo="aiPlayground" />
