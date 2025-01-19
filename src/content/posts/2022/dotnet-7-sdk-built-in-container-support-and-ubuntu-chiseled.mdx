@@ -1,0 +1,271 @@
+---
+title: '.NET 7 SDK built-in container support and Ubuntu Chiseled'
+permalink: /2022/11/14/dotnet-7-sdk-built-in-container-support-and-ubuntu-chiseled/
+date: 11/14/2022 13:40:41
+disqusIdentifier: 20221114014041
+coverSize: partial
+tags: [ASP.NET Core, Docker, Ubuntu, .NET SDK]
+coverCaption: 'Moʻorea, Polynésie, France'
+coverImage: 'https://live.staticflickr.com/4401/36848984906_a51b695ef2_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/4401/36848984906_f7a10e1aca_q.jpg'
+---
+End of summer 2022, the .NET team at Microsoft announced two things related to containers: .NET in Chiseled Ubuntu containers and then a week after built-in container support in the .NET 7 SDK. I have talked about both topics on two episodes of the French podcast [devdevdev.net](https://devdevdev.net/) by my friend [Richard Clark](https://twitter.com/c2iClark). In this post, I will explain what those are and how to combine them.
+{/* <!-- more --> */}
+
+# .NET in Chiseled Ubuntu containers
+
+.NET in Chiseled Ubuntu containers are new **small** and **secure containers** offered by Canonical. Those images are **100MB smaller** than the Ubuntu image.
+
+Why does it improve security? Because small images reduce the attack surface. Based on images with only the packages required to run the container, no package manager, no shell, and non-root user.   
+
+The idea originates from distroless concept introduced in 2017 by Google. On top of that, it brings the following features: polished tools and trusted packages from platform providers, choice of free or paid support, choice of fast-moving releases or LTS, possibility to customize the images.
+
+![Standard vs Chiseled .NET Images](/images/standardvsChiseledDotNETimages.png)
+
+To take advantage of those new images, in .NET 6 and 7 for Arm64 and x64, you need to use one of the three layers of Chiseled Ubuntu container images. 
+
+* mcr.microsoft.com/dotnet/nightly/runtime-deps:7.0-jammy-chiseled 
+* mcr.microsoft.com/dotnet/nightly/runtime:7.0-jammy-chiseled 
+* mcr.microsoft.com/dotnet/nightly/aspnet:7.0-jammy-chiseled
+
+<Alert mode="info">
+Today this is still in preview, and images are served from the nightly repository. Final images will be available before end of this year.
+</Alert>
+
+# Built-in container support in the .NET 7 SDK
+
+You can use Dockerfile to bundle your .NET application in a container. You create a Dockerfile, install the .NET SDK, restore the packages, build the application, and copy the output in the container. It implies quite some steps and is not easy to do right.
+
+Today, .NET 7 SDK supports **container images** as a new output type through a simple **dotnet publish**. This was already the case on other platforms Ko for Go, Jib for Java, and even in .NET with projects like konet.
+
+It requires only adding one NuGet package reference to the project file:
+
+```xml
+<PackageReference Include="Microsoft.NET.Build.Containers" Version="0.2.7"/>
+```
+
+<Alert mode="info">
+In the future it will be part of the SDK, so you will not need to add this NuGet package reference.
+</Alert>
+
+<Alert mode="info">
+Currently, only Linux containers are supported.
+</Alert>
+
+Then you can run the following command:
+
+```powershell
+ ❯  dotnet publish --os linux --arch x64 -p:PublishProfile=DefaultContainer -c Release
+MSBuild version 17.4.0+18d5aef85 for .NET
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  WebApp -> C:\Users\laure\projects\dotnet\7rtm\ParsableStatic\WebApp\bin\Release\net7.0\linux-x64\WebApp.dll
+  WebApp -> C:\Users\laure\projects\dotnet\7rtm\ParsableStatic\WebApp\bin\Release\net7.0\linux-x64\publish\
+  'WebApp' was not a valid container image name, it was normalized to webapp
+  Building image 'webapp' with tags 1.0.0 on top of base image mcr.microsoft.com/dotnet/aspnet:7.0
+  Pushed container 'webapp:1.0.0' to Docker daemon
+```
+
+The image created is **216MB**
+
+```powershell
+ ❯  docker image list
+REPOSITORY   TAG       IMAGE ID       CREATED         SIZE
+webapp       1.0.0     e2d2de6a8878   4 seconds ago   216MB
+ ```
+
+You can control many of the properties of the image created, like the image name and tags, through MSBuild properties. See, [Configure container image](https://learn.microsoft.com/en-us/dotnet/core/docker/publish-as-container#configure-container-image).
+
+```xml
+    <PropertyGroup>
+        <ContainerImageName>dotnet-webapp-image</ContainerImageName>
+        <ContainerImageTag>1.1.0</ContainerImageTag>
+    </PropertyGroup>
+```
+
+After dotnet publish, the image with the new name and version is created
+
+```powershell
+ ❯  docker image list
+REPOSITORY            TAG       IMAGE ID       CREATED          SIZE
+dotnet-webapp-image   1.1.0     d63f313397aa   2 seconds ago    216MB
+webapp                1.0.0     e2d2de6a8878   50 seconds ago   216MB
+```
+
+# Can we combine the two?
+
+Sure. We can combine the two and create a .NET application in a Chiseled Ubuntu container using the .NET SDK. It is a great way to create a small and secure container for your .NET application.
+
+We need to add MSBuild property **ContainerBaseImage** to our csproj file to specify the Chiseled Ubuntu base image to use, in this case, **aspnet:7.0-jammy-chiseled**.
+
+```xml
+    <PropertyGroup>
+        <ContainerImageName>dotnet-webapp-chiseled</ContainerImageName>
+        <ContainerImageTag>1.1.0</ContainerImageTag>
+        <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/aspnet:7.0-jammy-chiseled</ContainerBaseImage>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.2.7"/>
+    </ItemGroup>
+```
+
+This time the image is **112MB** compared to the 216MB. We **won 104MB** on top of all other advantages from the Chiseled Ubuntu container.
+
+```powershell
+ ❯  dotnet publish --os linux --arch x64 -p:PublishProfile=DefaultContainer -c Release
+ ...
+ ❯  docker image list
+REPOSITORY               TAG       IMAGE ID       CREATED              SIZE
+dotnet-webapp-chiseled   1.1.0     a0456f5d4b27   4 seconds ago        112MB
+dotnet-webapp-image      1.1.0     d63f313397aa   About a minute ago   216MB
+webapp                   1.0.0     e2d2de6a8878   2 minutes ago        216MB
+```
+
+# Can we do better?
+
+Yes, we can 😉 mixing chiseling and trimming. 
+
+We can use the base image **runtime-deps:7.0-jammy-chiseled**, which is 13MB and publish our ASP.NET application as a self-contained and trimmed application.
+
+```xml
+    <PropertyGroup>
+        <ContainerImageName>dotnet-webapp-chiseled-trimmed</ContainerImageName>
+        <ContainerImageTag>1.1.0</ContainerImageTag>
+        <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/runtime-deps:7.0-jammy-chiseled</ContainerBaseImage>
+        <PublishTrimmed>true</PublishTrimmed>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.2.7"/>
+    </ItemGroup>
+```
+
+We need to add **--self-contained** to the dotnet publish command. Now, the image is **56.5MB** compared to the 112MB, we won 55.5MB.
+
+```powershell
+ ❯  dotnet publish --os linux --arch x64 -p:PublishProfile=DefaultContainer -c Release --self-contained
+ ...
+   Optimizing assemblies for size. This process might take a while.
+ ...
+ ❯  docker image list
+REPOSITORY                       TAG       IMAGE ID       CREATED          SIZE
+dotnet-webapp-chiseled-trimmed   1.1.0     f1ba30048ef8   11 seconds ago   56.5MB
+dotnet-webapp-chiseled           1.1.0     a0456f5d4b27   2 minutes ago    112MB
+dotnet-webapp-image              1.1.0     d63f313397aa   4 minutes ago    216MB
+webapp                           1.0.0     e2d2de6a8878   5 minutes ago    216MB
+```
+
+# Can we do even better?
+
+Yes, we can by publishing to a single file
+
+```xml
+    <PropertyGroup>
+        <ContainerImageName>dotnet-webapp-chiseled-trimmed-singlefile</ContainerImageName>
+        <ContainerImageTag>1.1.0</ContainerImageTag>
+        <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/runtime-deps:7.0-jammy-chiseled</ContainerBaseImage>
+        <PublishTrimmed>true</PublishTrimmed>
+    </PropertyGroup>
+```
+
+We need to add **-p:PublishSingleFile=true** to the dotnet publish command. Now, the image is **48.4MB** compared to the 56.5MB, we won 8.1MB.
+
+```powershell
+ ❯  dotnet publish --os linux --arch x64 -p:PublishProfile=DefaultContainer -c Release --self-contained true -p:PublishSingleFile=true
+...
+ ❯  docker image list
+REPOSITORY                                  TAG       IMAGE ID       CREATED          SIZE
+dotnet-webapp-chiseled-trimmed-singlefile   1.1.0     2643c10fa1d9   56 seconds ago   48.4MB
+dotnet-webapp-chiseled-trimmed              1.1.0     f1ba30048ef8   11 seconds ago   56.5MB
+dotnet-webapp-chiseled                      1.1.0     a369967b535a   15 minutes ago   112MB
+dotnet-webapp-image                         1.1.0     d63f313397aa   31 minutes ago   216MB
+webapp                                      1.0.0     e2d2de6a8878   32 minutes ago   216MB
+```
+
+# A tiny bit better?
+
+If you don't need globalization in your application, you can turn on the [globalization invariant mode](https://github.com/dotnet/runtime/blob/main/docs/design/features/globalization-invariant-mode.md
+).
+
+```xml
+    <PropertyGroup>
+        <ContainerImageName>dotnet-webapp-chiseled-trimmed-singlefile-invariant</ContainerImageName>
+        <ContainerImageTag>1.1.0</ContainerImageTag>
+        <ContainerBaseImage>mcr.microsoft.com/dotnet/nightly/runtime-deps:7.0-jammy-chiseled</ContainerBaseImage>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <PublishTrimmed>true</PublishTrimmed>
+    </PropertyGroup>
+```
+
+Finally, the image is **48.3MB** compared to the 48.4MB. We won 0.1MB.
+
+```powershell
+ ❯  dotnet publish --os linux --arch x64 -p:PublishProfile=DefaultContainer -c Release --self-contained true -p:PublishSingleFile=true
+ ...
+ ❯  docker image list
+REPOSITORY                                            TAG       IMAGE ID       CREATED          SIZE
+dotnet-webapp-chiseled-trimmed-singlefile-invariant   1.1.0     fd7c4aca6501   19 seconds ago   48.3MB
+dotnet-webapp-chiseled-trimmed-singlefile             1.1.0     2643c10fa1d9   8 minutes ago    48.4MB
+dotnet-webapp-chiseled-trimmed                        1.1.0     df989eda0f7f   13 minutes ago   48.4MB
+dotnet-webapp-chiseled                                1.1.0     a369967b535a   22 minutes ago   112MB
+dotnet-webapp-image                                   1.1.0     d63f313397aa   38 minutes ago   216MB
+webapp                                                1.0.0     e2d2de6a8878   39 minutes ago   216MB
+```
+
+I expected better results with this last step. The runtime-deps:6.0-jammy-chiseled [removes ICU](https://github.com/dotnet/dotnet-docker/blob/nightly/src/runtime-deps/6.0/jammy-chiseled/amd64/Dockerfile#L52-L53) and sets `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true`. I guess runtime-deps:7.0-jammy-chiseled does the same, but the code is not yet available.
+
+<blockquote class="twitter-tweet" data-lang="en" data-dnt="true" data-theme="light"><p lang="en" dir="ltr">Hey <a href="https://twitter.com/runfaster2000?ref_src=twsrc%5Etfw">@runfaster2000</a> and <a href="https://twitter.com/ValentinViennot?ref_src=twsrc%5Etfw">@ValentinViennot</a> Great presentation during the <a href="https://twitter.com/hashtag/dotnetConf?src=hash&amp;ref_src=twsrc%5Etfw">#dotnetConf</a> 👍🏼 Any plan to ship another 7.0-jammy-chiseled without ICU?</p>&mdash; Laurent Kempé (@laurentkempe) <a href="https://twitter.com/laurentkempe/status/1591729789345599488?ref_src=twsrc%5Etfw">November 13, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+# Run
+
+```powershell
+ ❯  docker run --rm -it -p 8080:80  dotnet-webapp-chiseled-trimmed-singlefile-invariant:1.1.0
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://[::]:80
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /app
+```
+
+Then you can browse to http://localhost:8080/weatherforecast to see 
+
+![dotnet-webapp-chiseled-trimmed-singlefile-invariant running](/images/dotnet-webapp-chiseled-trimmed-singlefile-invariant.png)
+
+# Conclusion
+
+Now that .NET 7 RTM shipped, we can leverage those new capabilities. It lets us create small and secure containers for our .NET applications easily.
+
+We went from a first docker image of **216MB** to a final docker image of **48.3MB**. That's more than a **77% reduction in size**.
+
+I hope you enjoyed this post and learned something new that you want to try out. If you have any questions or comments, please leave them below. Thanks for reading!
+
+# Code
+
+<GitHubCard user="laurentkempe" repo="ChiseledDocker" />
+
+# Presentation
+
+### Using .NET with Chiseled Ubuntu Containers
+
+> Chiseled Ubuntu Containers are new and exciting. You'll see how easy it is to switch to using them with .NET and what the benefits are. We'll show using them at your desktop, deploying them to the cloud, and also making an evil hacker fail to compromise an app (that might otherwise succeed).
+
+<Plyr video="FLGFzlWF4Gs" />
+
+### .NET in Ubuntu and Chiseled Containers - Canonical & Microsoft
+
+> Folks at Microsoft reached out to Canonical with a "simple" request, for Ubuntu distroless container images. The two companies partnered together to produce super small and secure container images, about 100MB smaller than regular container images. You can start using these images now, for much better performance.
+
+<Plyr video="pnsYc8GskCw" />
+
+# References
+
+* [.NET in Chiseled Ubuntu Containers](https://devblogs.microsoft.com/dotnet/dotnet-6-is-now-in-ubuntu-2204/#net-in-chiseled-ubuntu-containers)
+* [Announcing built-in container support for the .NET SDK](https://devblogs.microsoft.com/dotnet/announcing-builtin-container-support-for-the-dotnet-sdk/)
+* [Publish to a container](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-7#publish-to-a-container)
+* [dotnet / sdk-container-builds](https://github.com/dotnet/sdk-container-builds)
+* [.NET Core Globalization Invariant Mode](https://github.com/dotnet/runtime/blob/main/docs/design/features/globalization-invariant-mode.md)
+* [devdevdev.net](https://devdevdev.net/)
