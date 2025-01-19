@@ -15,12 +15,11 @@ Till now, we have seen two [Dapr building blocks](https://laurentkempe.com/tags/
 
 Today's applications often need to be called from other external applications or call external services.
 
-<AlertInfo>
+<Alert mode="info">
 A binding provides a bi-directional connection to an external cloud/on-premise service or system. Dapr allows you to invoke the external service through the Dapr binding API, and it allows your application to be triggered by events sent by the connected service.
-</AlertInfo>
+</Alert>
 
 What is the difference between just being called or calling yourself the external service? Like for previous building blocks the benefits are mostly similar
-<p></p>
 
 * Focus on your business logic and avoid implementation details of how to interact with an external system keeping your code free from other SDKs or third parties libraries
 * Being able to swap between Dapr bindings for different environments without any code change
@@ -29,7 +28,6 @@ What is the difference between just being called or calling yourself the externa
 # Sample application
 
 We will implement a very simple application that will poll an external [Time service](http://worldtimeapi.org/) on a configured interval to get the current time in that place. To achieve that we will use two [Dapr bindings](https://docs.dapr.io/developing-applications/building-blocks/bindings/bindings-overview/)
-<p></p>
 
 1. An input [Cron binding](https://docs.dapr.io/reference/components-reference/supported-bindings/cron/)
 1. An output [HTTP binding](https://docs.dapr.io/reference/components-reference/supported-bindings/http/)
@@ -119,6 +117,6 @@ And here are the results displayed after starting the application and waiting te
 We have seen that Dapr provides a great way to integrate with external systems using its binding building block. By leveraging Dapr building blocks your code becomes independent from the external systems you are integrating with keeping your code free from SDKs or third parties libraries. We will see that in a future post showing the integration of an external system using GraphQL.
 
 You can get access to the code of this blog post on GitHub in the [CronHttpBindings folder](https://github.com/laurentkempe/daprPlayground/tree/master/CronHttpBindings).
-<p></p>
 
-<GitHubCard user="laurentkempe" repo="daprPlayground" align="left" />
+
+<GitHubCard user="laurentkempe" repo="daprPlayground" />

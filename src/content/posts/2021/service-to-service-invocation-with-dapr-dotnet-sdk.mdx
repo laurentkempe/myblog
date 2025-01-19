@@ -117,9 +117,9 @@ You can use the `start.ps1` PowerShell script if you have Windows Terminal insta
 As I wrote previously, you can access the **proxy** API through its Dapr sidecar at http://localhost:3501/v1.0/invoke/proxy/method/weatherforecastproxy?count=2.
 It is interesting to note that it is also accessible through the **backend** sidecar at http://localhost:3500/v1.0/invoke/proxy/method/weatherforecastproxy?count=2, notice the port number difference from *3501* to *3500*.
 
-<AlertInfo>
+<Alert mode="info">
 This means that the Dapr runtime handles correctly the routing of our call to the correct service.
-</AlertInfo>
+</Alert>
 
 Here is the result
 
@@ -130,5 +130,5 @@ Here is the result
 In this post, we saw again how easy it is to get the advantage of [Dapr](https://dapr.io/) and its [Dapr .NET SDK](https://github.com/dapr/dotnet-sdk) to ease our developer work and focus on the functionalities of our application and delegate the infrastructure work to Dapr, in that case, the service location again.
 
 You can get access to the code of this blog post on GitHub in the [ServiceToService folder](https://github.com/laurentkempe/daprPlayground/tree/master/ServiceToService)
-<p></p>
-<GitHubCard user="laurentkempe" repo="daprPlayground" align="left" />
+
+<GitHubCard user="laurentkempe" repo="daprPlayground" />
