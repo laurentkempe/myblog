@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/mdx": "^4.0.8",
     "@iconify-json/fa6-brands": "^1.2.5",
+    "@tailwindcss/vite": "^4.0.4",
     "astro": "^5.2.5",
     "astro-auto-import": "^0.4.4",
     "astro-icon": "^1.1.5",
