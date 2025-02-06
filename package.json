@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.8",
-    "@astrojs/tailwind": "^6.0.0",
     "@iconify-json/fa6-brands": "^1.2.5",
     "astro": "^5.2.5",
     "astro-auto-import": "^0.4.4",
