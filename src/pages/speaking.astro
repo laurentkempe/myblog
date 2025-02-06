@@ -8,9 +8,9 @@ const sortedPresentations = allPresentations.sort((a, b) =>
 );
 ---
 <Layout title="Speaking">
-	<ul>
+	<ul class="text-gray-600 dark:text-gray-300">
 		{sortedPresentations.map((presentation) => 
-			<li><a href={`/speaking${presentation.data.permalink}`}>{presentation.data.title}</a></li>
+			<li><a href={`/speaking${presentation.data.permalink}`} class="hover:text-blue-600 dark:hover:text-blue-400">{presentation.data.title}</a></li>
 		)}
 	</ul>
 </Layout>

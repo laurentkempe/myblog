@@ -15,7 +15,7 @@ const { Content } = await render(presentation);
 <MarkdownPostLayout frontmatter={presentation.data}>
     <article class="prose prose-lg max-w-none dark:prose-invert
              prose-h1:font-bold prose-h1:text-xl
-             prose-a:text-blue-600 prose-p:text-justify prose-img:rounded-xl
+             prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-p:text-justify prose-img:rounded-xl
              prose-headings:underline">
         <h1>{presentation.data.title}</h1>
         <Content />

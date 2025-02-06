@@ -7,15 +7,15 @@ interface Props {
 const { mode, title } = Astro.props;
 
 const color = {
-  warning: 'bg-orange-100 border-l-4 border-orange-500 text-orange-700',
-  info: 'bg-blue-100 border-l-4 border-blue-500 text-white-700',
-  alert: 'bg-red-100 border-l-4 border-red-500 text-red-700'
+  warning: 'bg-orange-100 border-l-4 border-orange-500 text-orange-700 dark:bg-orange-900 dark:border-orange-700 dark:text-orange-300',
+  info: 'bg-blue-100 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-300',
+  alert: 'bg-red-100 border-l-4 border-red-500 text-red-700 dark:bg-red-900 dark:border-red-700 dark:text-red-300'
 };
 
 const iconColor = {
-  warning: 'text-orange-500',
-  info: 'text-blue-500',
-  alert: 'text-red-500'
+  warning: 'text-orange-500 dark:text-orange-300',
+  info: 'text-blue-500 dark:text-blue-300',
+  alert: 'text-red-500 dark:text-red-300'
 };
 ---
 <div class={` ${color[mode]} rounded-lg shadow-md`}>

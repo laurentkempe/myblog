@@ -43,7 +43,7 @@ const { stargazers_count, forks, description, owner, open_issues_count } = respo
 ---
 <div class="my-5">
   <a
-    class="block max-w-[700px] p-8 rounded-lg border border-text/5 bg-text/[0.025] transition-all duration-200 ease-in-out hover:bg-text/[0.12] hover:border-text/10 text-text no-underline"
+    class="block max-w-[700px] p-8 rounded-lg border border-text/5 bg-text/[0.025] transition-all duration-200 ease-in-out hover:bg-text/[0.12] hover:border-text/10 text-text dark:bg-text/[0.15] dark:border-text/20 dark:hover:bg-text/[0.25] dark:hover:border-text/30 no-underline"
     href={githubUrl}
     target="_blank"
     style="color: inherit; text-decoration: none;">
@@ -60,7 +60,7 @@ const { stargazers_count, forks, description, owner, open_issues_count } = respo
     <div class="flex items-center gap-16">
       <div class="flex flex-row gap-2.5 justify-center">
         <svg
-          class="w-[1.1rem] h-[1.1rem] mt-1.5 text-text/70"
+          class="w-[1.1rem] h-[1.1rem] mt-1.5 text-text/70 dark:text-text/50"
           viewBox="0 0 16 16"
           fill="currentColor">
           <path
@@ -69,12 +69,12 @@ const { stargazers_count, forks, description, owner, open_issues_count } = respo
         </svg>
         <div class="flex flex-col">
           <b class="text-[1.2rem]">{stargazers_count}</b>
-          <span class="text-[0.8rem] opacity-70">Stars</span>
+          <span class="text-[0.8rem] opacity-70 dark:opacity-50">Stars</span>
         </div>
       </div>
       <div class="flex flex-row gap-2.5 justify-center">
         <svg
-          class="w-[1.1rem] h-[1.1rem] mt-1.5 text-text/70"
+          class="w-[1.1rem] h-[1.1rem] mt-1.5 text-text/70 dark:text-text/50"
           viewBox="0 0 16 16"
           fill="currentColor">
           <path
@@ -83,12 +83,12 @@ const { stargazers_count, forks, description, owner, open_issues_count } = respo
         </svg>
         <div class="flex flex-col">
           <b class="text-[1.2rem]">{forks}</b>
-          <span class="text-[0.8rem] opacity-70">Forks</span>
+          <span class="text-[0.8rem] opacity-70 dark:opacity-50">Forks</span>
         </div>
       </div>
       <div class="flex flex-row gap-2.5 justify-center">
         <svg
-          class="w-[1.1rem] h-[1.1rem] mt-1.5 text-text/70"
+          class="w-[1.1rem] h-[1.1rem] mt-1.5 text-text/70 dark:text-text/50"
           viewBox="0 0 16 16"
           fill="currentColor">
           <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path>
@@ -98,7 +98,7 @@ const { stargazers_count, forks, description, owner, open_issues_count } = respo
         </svg>
         <div class="flex flex-col">
           <b class="text-[1.2rem]">{open_issues_count}</b>
-          <span class="text-[0.8rem] opacity-70">Issues</span>
+          <span class="text-[0.8rem] opacity-70 dark:opacity-50">Issues</span>
         </div>
       </div>
     </div>

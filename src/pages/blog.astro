@@ -8,7 +8,7 @@ const sortedPosts = allPosts.sort((a, b) =>
 );
 ---
 <Layout title="Blog">
-	<ul>
+	<ul class="text-gray-600 dark:text-gray-300">
 		{sortedPosts.map((post) => 
             <li>
                 <a href={`${post.data.permalink}`}>

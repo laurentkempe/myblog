@@ -15,15 +15,15 @@ const sortedPresentations = allPresentations
   .slice(0, 10);
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 prose prose-md max-w-none">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 prose prose-md max-w-none dark:prose-dark">
   <div>
-    <h1><a href="/blog/1" class="font-bold no-underline">Posts</a></h1>
-    <div class=" ">
+    <h1><a href="/blog/1" class="font-bold no-underline dark:text-white"> 📖 Posts</a></h1>
+    <div>
       <ul>
         {
           sortedPosts.map((post) => (
             <li>
-                <a href={`${post.data.permalink}`}>
+                <a href={`${post.data.permalink}`} class="dark:text-gray-300">
                     {post.data.title}
                 </a>
             </li>
@@ -33,13 +33,13 @@ const sortedPresentations = allPresentations
     </div>
   </div>
   <div>
-    <h1><a href="/speaking" class="font-bold no-underline">Speaking</a></h1>
-    <div class="">
+    <h1><a href="/speaking" class="font-bold no-underline dark:text-white">🗣️ Speaking</a></h1>
+    <div>
       <ul>
         {
           sortedPresentations.map((presentation) => (
             <li>
-              <a href={`/speaking${presentation.data.permalink}`}>
+              <a href={`/speaking${presentation.data.permalink}`} class="dark:text-gray-300">
                 {presentation.data.title}
               </a>
             </li>
