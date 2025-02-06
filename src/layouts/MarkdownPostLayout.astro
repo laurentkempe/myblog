@@ -5,7 +5,7 @@ const { frontmatter } = Astro.props;
 ---
 <Layout title={frontmatter.title}>
   <p><em>{frontmatter.description}</em></p>
-  <div class="relative">
+  <div class="relative pt-1">
     {frontmatter.image !== undefined && <Image src={`${frontmatter.image.url}`}
           alt={`${frontmatter.image.alt}`}
           width="640"
