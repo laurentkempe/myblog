@@ -8,13 +8,13 @@ const sortedPosts = allPosts.sort((a, b) =>
 );
 ---
 <Layout title="Blog">
-	<ul class="text-gray-600 dark:text-gray-300">
-		{sortedPosts.map((post) => 
-            <li>
+  <ul class="text-gray-900 dark:text-gray-300">
+    {sortedPosts.map((post) => 
+            <li class="text-gray-900 dark:text-gray-300">
                 <a href={`${post.data.permalink}`}>
                     {post.data.title}
                 </a>
             </li>
-		)}
-	</ul>
+    )}
+  </ul>
 </Layout>
