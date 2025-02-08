@@ -3,16 +3,16 @@ import Layout from '../../layouts/Layout.astro';
 import markdownit from 'markdown-it'
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
-
+import { Icon } from 'astro-icon/components';
 
 function getExcerpt(content) {
-  const md = markdownit()
+  const md = markdownit();
   const moreIndex = content.indexOf('{/* <!-- more --> */}');
   if (moreIndex === -1) {
-    return content;
+    return `<div class="mb-4 text-gray-900 dark:text-gray-100">${md.render(content)}</div>`;
   }
   const excerpt = content.slice(0, moreIndex);
-  return md.render(excerpt);
+  return `<div class="mb-4 text-gray-900 dark:text-gray-100">${md.render(excerpt)}</div>`;
 }
 
 export async function getStaticPaths( {paginate} ) {  
@@ -29,12 +29,12 @@ const { page } = Astro.props;
 <Layout title="Blog">
 		{
       page.data.map((post) => 
-        <article class="bg-white p-6 flex flex-col md:flex-row">
+        <article class="bg-white dark:bg-gray-900 p-6 flex flex-col md:flex-row">
           <div class="flex-1">
-            <h2 class="text-2xl font-bold"><a href={`${post.data.permalink}`}>{post.data.title}</a></h2>
-            <p class="text-sm text-gray-500 mt-0">{new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-            <p class="mb-4" set:html={getExcerpt(post.body)}></p>
-            <p class="mt-2"><a href={`${post.data.permalink}`} class="text-blue-500 hover:underline">Continue reading</a></p>
+            <h2 class="text-2xl font-bold dark:text-gray-100"><a href={`${post.data.permalink}`}>{post.data.title}</a></h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0">{new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            <p set:html={getExcerpt(post.body)}></p>
+            <p class="mt-2"><a href={`${post.data.permalink}`} class="text-blue-500 dark:text-blue-400 hover:underline">Continue reading</a></p>
           </div>
           <div class="ml-6 hidden md:block">
             <a href={`${post.data.permalink}`}>
@@ -49,13 +49,18 @@ const { page } = Astro.props;
 		  )
     }
   <div class="flex justify-between items-center p-6">
-    <div class="space-x-2">
-      {page.url.first ? <a href={page.url.first} class="text-blue-500 hover:underline">First</a> : null}
-      {page.url.prev ? <a href={page.url.prev} class="text-blue-500 hover:underline">Previous</a> : null}
-      {page.url.next ? <a href={page.url.next} class="text-blue-500 hover:underline">Next</a> : null}
-      {page.url.last ? <a href={page.url.last} class="text-blue-500 hover:underline">Last</a> : null}
+    <div class="space-x-2 flex items-center">
+      {page.url.first ? <a href={page.url.first} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-left" /></a> : null}
+      {page.url.prev ? <a href={page.url.prev} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-left" /></a> : null}
+      {
+        Array.from({ length: Math.ceil(page.total / 4) }, (_, i) => (
+          <a href={`/blog/${i + 1}`} class={`px-2 py-1 ${page.currentPage === i + 1 ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}>{i + 1}</a>
+        ))
+      }
+      {page.url.next ? <a href={page.url.next} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-right" /></a> : null}
+      {page.url.last ? <a href={page.url.last} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-right" /></a> : null}
     </div>
-    <div class="text-gray-600">
+    <div class="text-gray-600 dark:text-gray-400">
       Page {page.currentPage} of {Math.ceil(page.total / 4)}
     </div>
   </div>
