@@ -1,75 +1,59 @@
 <theme-toggle>
-    <button></button>
-  </theme-toggle>
-  <script>
-    class ThemeToggle extends HTMLElement {
-      private readonly STORAGE_KEY = "theme-preference";
-      private _darkTheme = false;
-      private button: HTMLButtonElement | null;
-  
-      constructor() {
-        super();
-        this.button = this.querySelector("button");
-  
-        if (!this.button) {
-          console.error("Theme toggle button not found");
-          return;
-        }
-  
-        // Load theme preference
-        const savedTheme = localStorage.getItem(this.STORAGE_KEY);
-        if (!savedTheme) {
-          this.darkTheme = window.matchMedia(
-            "(prefers-color-scheme: dark)",
-          ).matches;
-        } else {
-          this.darkTheme = savedTheme === "dark";
-        }
-  
-        // Setup event listeners
-        this.button.addEventListener("click", () => {
-          this.darkTheme = !this.darkTheme;
-          localStorage.setItem(
-            this.STORAGE_KEY,
-            this.darkTheme ? "dark" : "light",
-          );
-        });
-  
-        // Listen for system theme changes
-        window
-          .matchMedia("(prefers-color-scheme: dark)")
-          .addEventListener("change", (e) => {
-            if (!localStorage.getItem(this.STORAGE_KEY)) {
-              this.darkTheme = e.matches;
-            }
-          });
+  <button></button>
+</theme-toggle>
+<script>
+  class ThemeToggle extends HTMLElement {
+    private readonly STORAGE_KEY = "theme-preference";
+    private _darkTheme = false;
+    private button: HTMLButtonElement | null;
+
+    constructor() {
+      super();
+      this.button = this.querySelector("button");
+
+      if (!this.button) {
+        console.error("Theme toggle button not found");
+        return;
       }
-  
-      get darkTheme(): boolean {
-        return this._darkTheme;
+
+      // Load theme preference
+      const savedTheme = localStorage.getItem(this.STORAGE_KEY);
+      if (savedTheme) {
+        this.darkTheme = savedTheme === "dark";
+      } else {
+        this.darkTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
       }
-  
-      set darkTheme(value: boolean) {
-        this._darkTheme = value;
-        if (value) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
+
+      // Setup event listeners
+      this.button.addEventListener("click", this.toggleTheme.bind(this));
+
+      // Listen for system theme changes
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+        if (!localStorage.getItem(this.STORAGE_KEY)) {
+          this.darkTheme = e.matches;
         }
-  
-        const iconSun = "☀️";
-        const iconMoon = "🌙";
-  
-        if (!this.button) {
-          return;
-        }
-  
-        this.button.innerHTML = value ? iconSun : iconMoon;
-        this.button.setAttribute(
-          "aria-label",
-          value ? "Switch to light theme" : "Switch to dark theme",
-        );
+      });
+    }
+
+    get darkTheme(): boolean {
+      return this._darkTheme;
+    }
+
+    set darkTheme(value: boolean) {
+      this._darkTheme = value;
+      document.documentElement.classList.toggle("dark", value);
+
+      if (this.button) {
+        this.button.innerHTML = value ? "☀️" : "🌙";
+        this.button.setAttribute("aria-label", value ? "Switch to light theme" : "Switch to dark theme");
       }
     }
-    customElements.define("theme-toggle", ThemeToggle);
-  </script>
+
+    toggleTheme() {
+      this.darkTheme = !this.darkTheme;
+      localStorage.setItem(this.STORAGE_KEY, this.darkTheme ? "dark" : "light");
+    }
+  }
+
+  customElements.define("theme-toggle", ThemeToggle);
+</script>
