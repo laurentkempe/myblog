@@ -18,21 +18,21 @@ const iconColor = {
   alert: 'text-red-500 dark:text-red-300'
 };
 ---
-<div class={` ${color[mode]} rounded-lg shadow-md`}>
-  <div class="flex">
-    <div class="flex-none pl-2 pt-0">
+<div class={` ${color[mode]} rounded-lg shadow-md p-2`}> <!-- Reduced padding to the container -->
+  <div class="flex flex-col items-start">
+    <div class="flex-none pt-0 mb-0"> <!-- Reduced margin-bottom -->
       {mode === 'warning' ? (
-        <svg class={`fill-current h-6 w-6 ${iconColor[mode]} mr-4 mt-2`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <svg class={`fill-current h-6 w-6 ${iconColor[mode]}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
           <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/>
         </svg>
       ) : (
-        <svg class={`fill-current h-6 w-6 ${iconColor[mode]} mr-4 mt-2`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <svg class={`fill-current h-6 w-6 ${iconColor[mode]}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
           <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
         </svg>
       )}
     </div>
-    <div class="">
-      {title ? <div><h3 class="mt-0 mb-0">{title}</h3></div> : null}
+    <div class="w-full">
+      {title ? <div><h3 class="text-left">{title}</h3></div> : null}
       <slot />
     </div>
   </div>
