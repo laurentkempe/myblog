@@ -56,4 +56,20 @@ const { frontmatter } = Astro.props;
         background-color: #2D2D2D;
       }
     }
+
+    /* Add the following styles to ensure full width on mobile devices */
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    .relative {
+      width: 100%;
+    }
+
+    .absolute {
+      max-width: 100%;
+    }
 </style>
