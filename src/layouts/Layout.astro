@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import ThemeToggle from "../components/ThemeToggle.astro";
+import RssLink from "../components/RssLink.astro";
 
 const { title = "One of the Tech Head Brothers", frontmatter } = Astro.props;
 const pageTitle = frontmatter?.title || title;
@@ -28,6 +29,7 @@ const pageTitle = frontmatter?.title || title;
                     <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
                     <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
                     <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
+                    <RssLink />
                     <ThemeToggle />
                 </div>
             </nav>
