@@ -14,6 +14,7 @@ const pageTitle = frontmatter?.title || title;
         <link rel="icon" type="image/ico" href="/favicon.ico" />
         <link rel="stylesheet" href="https://cdn.vidstack.io/player.css" />
         <meta name="generator" content={Astro.generator} />
+        <link rel="alternate" type="application/rss+xml" title="Laurent Kempé blog" href={new URL("atom.xml", Astro.site)}/>
         <title>Laurent Kempé - {pageTitle}</title>
     </head>
     <body class="bg-white dark:bg-gray-900">
