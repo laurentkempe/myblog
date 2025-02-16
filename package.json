@@ -22,6 +22,7 @@
     "vidstack": "^1.12.12"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.16"
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/markdown-it": "^14.1.2"
   }
 }
