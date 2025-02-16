@@ -1,11 +1,6 @@
 import { getCollection } from 'astro:content';
 import markdownit from 'markdown-it';
-
-const BASE_URL = 'https://laurentkempe.com';
-const FEED_TITLE = 'Laurent Kempé';
-const FEED_SUBTITLE = 'One of the Tech Head Brothers';
-const GENERATOR_URI = 'https://astro.build/';
-const MORE_MARKER = '{/* <!-- more --> */}';
+import { Blog } from '../utils/constants';
 
 function escapeHtml(unsafe: string) {
   return unsafe
@@ -20,7 +15,7 @@ function getExcerpt(content: string = '') {
   if (!content) return '';
 
   const md = markdownit();
-  const moreIndex = content.indexOf(MORE_MARKER);
+  const moreIndex = content.indexOf(Blog.MORE_MARKER);
   let htmlContent;
   if (moreIndex === -1) {
     htmlContent = md.render(content);
@@ -39,30 +34,30 @@ export async function GET({ }) {
     );
 
   let atom = `<feed xmlns="http://www.w3.org/2005/Atom">
-<title>${FEED_TITLE}</title>
-<subtitle>${FEED_SUBTITLE}</subtitle>
-<link href="${BASE_URL}/atom.xml" rel="self"/>
-<link href="${BASE_URL}"/>
+<title>${Blog.SITE_TITLE}</title>
+<subtitle>${Blog.SITE_SUBTITLE}</subtitle>
+<link href="${Blog.BASE_URL}/atom.xml" rel="self"/>
+<link href="${Blog.BASE_URL}"/>
 <updated>${new Date().toISOString()}</updated>
-<id>${BASE_URL}/</id>
+<id>${Blog.BASE_URL}/</id>
 <author>
-<name>${FEED_TITLE}</name>
+<name>${Blog.SITE_TITLE}</name>
 </author>
-<generator uri="${GENERATOR_URI}">Astro</generator>`;
+<generator uri="https://astro.build/">Astro</generator>`;
 
   sortedPosts.slice(0, 20).forEach((post) => {
     atom += `
   <entry>
     <title>${post.data.title}</title>
-    <link href="${BASE_URL}${post.data.permalink}"/>
-    <id>${BASE_URL}${post.data.permalink}</id>
+    <link href="${Blog.BASE_URL}${post.data.permalink}"/>
+    <id>${Blog.BASE_URL}${post.data.permalink}</id>
     <published>${new Date(post.data.date).toISOString()}</published>
     <updated>${new Date(post.data.date).toISOString()}</updated>
     <summary type="html">${getExcerpt(post.body)}</summary>`;
 
-    post.data.tags.forEach((tag) => {
+    post.data.tags?.forEach((tag) => {
       atom += `
-    <category term="${tag}" scheme="${BASE_URL}/tags/${tag}" />`;
+    <category term="${tag}" scheme="${Blog.BASE_URL}/tags/${tag}" />`;
     });
 
     atom += `
