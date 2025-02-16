@@ -2,6 +2,25 @@
   <button></button>
 </theme-toggle>
 <script>
+  // Improved sun icon with rays, updated size and alignment
+  const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" fill="currentColor" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="5"/>
+    <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="12" y1="1" x2="12" y2="3"/>
+      <line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/>
+      <line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </g>
+  </svg>`;
+
+  const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" viewBox="0 0 20 20" fill="currentColor">
+    <path d="M17.293 13.293a8 8 0 11-10.586-10.586 8.003 8.003 0 0010.586 10.586z"/>
+  </svg>`;
+
   class ThemeToggle extends HTMLElement {
     private readonly STORAGE_KEY = "theme-preference";
     private _darkTheme = false;
@@ -44,7 +63,8 @@
       document.documentElement.classList.toggle("dark", value);
 
       if (this.button) {
-        this.button.innerHTML = value ? "☀️" : "🌙";
+        // Replace emoji icons with SVG icons
+        this.button.innerHTML = value ? sunIcon : moonIcon;
         this.button.setAttribute("aria-label", value ? "Switch to light theme" : "Switch to dark theme");
       }
     }
