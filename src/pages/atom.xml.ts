@@ -11,6 +11,15 @@ function escapeHtml(unsafe: string) {
     .replace(/'/g, '&apos;');
 }
 
+// Add a helper function to format tags for URI scheme
+function formatTag(tag: string): string {
+  if (tag === '.NET') return 'dotnet';
+  if (tag === '.NET SDK') return 'dotnet-sdk';
+  if (tag === 'ASP.NET Core') return 'asp-dotnet-core';
+  if (tag === 'C#') return 'csharp';
+  return tag.toLowerCase().replace(/\s+/g, '-');
+}
+
 function getExcerpt(content: string = '') {
   if (!content) return '';
 
@@ -56,8 +65,9 @@ export async function GET({ }) {
     <summary type="html">${getExcerpt(post.body)}</summary>`;
 
     post.data.tags?.forEach((tag) => {
+      // Updated scheme URI with tag formatting
       atom += `
-    <category term="${tag}" scheme="${Blog.BASE_URL}/tags/${tag}" />`;
+    <category term="${tag}" scheme="${Blog.BASE_URL}/tags/${formatTag(tag)}" />`;
     });
 
     atom += `
