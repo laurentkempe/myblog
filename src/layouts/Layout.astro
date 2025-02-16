@@ -2,8 +2,9 @@
 import "../styles/global.css";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import RssLink from "../components/RssLink.astro";
+import { Blog } from "../utils/constants";
 
-const { title = "One of the Tech Head Brothers", frontmatter } = Astro.props;
+const { title = Blog.SITE_SUBTITLE, frontmatter } = Astro.props;
 const pageTitle = frontmatter?.title || title;
 
 ---
@@ -15,8 +16,8 @@ const pageTitle = frontmatter?.title || title;
         <link rel="icon" type="image/ico" href="/favicon.ico" />
         <link rel="stylesheet" href="https://cdn.vidstack.io/player.css" />
         <meta name="generator" content={Astro.generator} />
-        <link rel="alternate" type="application/rss+xml" title="Laurent Kempé blog" href={new URL("atom.xml", Astro.site)}/>
-        <title>Laurent Kempé - {pageTitle}</title>
+        <link rel="alternate" type="application/rss+xml" title={`${Blog.SITE_TITLE} blog`} href={new URL("atom.xml", Astro.site)}/>
+        <title>{Blog.SITE_TITLE} - {pageTitle}</title>
     </head>
     <body class="bg-white dark:bg-gray-900">
         <header class="py-6 border-b border-gray-200 dark:border-gray-700 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
