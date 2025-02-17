@@ -89,7 +89,7 @@ const monthNames = [
   </div>
 
   <script>
-    function updateCounter(count, searchValue) {
+    function updateCounter(count: number, searchValue: string) {
       const counterElement = document.getElementById('searchCounter');
       if (counterElement) {
         if (!searchValue.trim()) {
@@ -102,10 +102,10 @@ const monthNames = [
       }
     }
 
-    function filterArchives(searchValue) {
-      const archives = document.querySelectorAll('.archive-item');
-      const years = document.querySelectorAll('.archive-year');
-      const months = document.querySelectorAll('.archive-month');
+    function filterArchives(searchValue: string) {
+      const archives = document.querySelectorAll<HTMLElement>('.archive-item');
+      const years = document.querySelectorAll<HTMLElement>('.archive-year');
+      const months = document.querySelectorAll<HTMLElement>('.archive-month');
       
       // Reset visibility
       archives.forEach(item => item.style.display = '');
@@ -126,19 +126,19 @@ const monthNames = [
 
       years.forEach(yearDiv => {
         const yearValue = yearDiv.dataset.year;
-        const yearMatch = yearValue.startsWith(yearPattern);
+        const yearMatch = yearValue?.startsWith(yearPattern) ?? false;
         
         if (!yearMatch) {
           yearDiv.style.display = 'none';
           return;
         }
 
-        const monthDivs = yearDiv.querySelectorAll('.archive-month');
+        const monthDivs = yearDiv.querySelectorAll<HTMLElement>('.archive-month');
         let hasVisibleMonth = false;
 
         monthDivs.forEach(monthDiv => {
           const monthName = monthDiv.dataset.month;
-          const monthNumber = String(new Date(`${monthName} 1, 2000`).getMonth() + 1).padStart(2, '0');
+          const monthNumber = monthName ? String(new Date(`${monthName} 1, 2000`).getMonth() + 1).padStart(2, '0') : '';
           const monthMatch = !monthPattern || monthNumber === monthPattern;
           
           if (!monthMatch) {
@@ -146,12 +146,12 @@ const monthNames = [
             return;
           }
 
-          const items = monthDiv.querySelectorAll('.archive-item');
+          const items = monthDiv.querySelectorAll<HTMLElement>('.archive-item');
           let hasVisibleItem = false;
 
           items.forEach(item => {
             const date = item.dataset.date; // Format: YYYYMMDD
-            const itemDay = date.slice(6, 8);
+            const itemDay = date?.slice(6, 8);
 
             const dayMatch = !dayPattern || itemDay === dayPattern;
 
@@ -180,10 +180,10 @@ const monthNames = [
     }
 
     // Add event listener for the search input
-    const searchInput = document.getElementById('dateSearch');
+    const searchInput = document.getElementById('dateSearch') as HTMLInputElement;
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
-        filterArchives(e.target.value);
+        filterArchives((e.target as HTMLInputElement).value);
       });
     }
   </script>
