@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import PublicationList from "./PublicationList.astro";
 
 const allPosts = await getCollection("posts");
 const sortedPosts = allPosts
@@ -16,54 +17,17 @@ const sortedPresentations = allPresentations
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div>
-    <h1 class="text-3xl mb-8"><a href="/blog/1" class="font-bold no-underline dark:text-white"> 📖 Blog</a></h1>
-    <div>
-      <ul class="ml-12 space-y-2 list-disc">
-        {
-          sortedPosts.map((post) => (
-            <li class="text-gray-500 dark:text-gray-400">
-              <a 
-                href={post.data.permalink}
-                class="text-blue-600 dark:text-blue-400 hover:underline block"
-              >
-                {post.data.title}
-              </a>
-              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {new Date(post.data.date).toLocaleDateString('en-US', { 
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
-  <div>
-    <h1 class="text-3xl mb-8"><a href="/speaking" class="font-bold no-underline dark:text-white">🗣️ Speaking</a></h1>
-    <div>
-      <ul class="ml-12 space-y-2 list-disc">
-        {
-          sortedPresentations.map((presentation) => (
-            <li class="text-gray-500 dark:text-gray-400">
-              <a href={`/speaking${presentation.data.permalink}`}
-                 class="text-blue-600 dark:text-blue-400 hover:underline block">
-                {presentation.data.title}
-              </a>
-              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {new Date(presentation.data.date).toLocaleDateString('en-US', { 
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
+  <PublicationList 
+    title="Blog"
+    icon="📖"
+    href="/blog/1"
+    items={sortedPosts}
+  />
+  <PublicationList 
+    title="Speaking"
+    icon="🗣️"
+    href="/speaking"
+    items={sortedPresentations}
+    linkPrefix="/speaking"
+  />
 </div>

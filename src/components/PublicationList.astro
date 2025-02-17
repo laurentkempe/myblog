@@ -1,0 +1,46 @@
+---
+interface Props {
+  title: string;
+  icon: string;
+  href: string;
+  items: Array<{
+    data: {
+      title: string;
+      date: Date;
+      permalink: string;
+    };
+  }>;
+  linkPrefix?: string;
+}
+
+const { title, icon, href, items, linkPrefix = "" } = Astro.props;
+---
+
+<div>
+  <h1 class="text-3xl mb-8">
+    <a href={href} class="font-bold no-underline dark:text-white">{icon} {title}</a>
+  </h1>
+  <div>
+    <ul class="ml-12 space-y-2 list-disc">
+      {
+        items.map((item) => (
+          <li class="text-gray-500 dark:text-gray-400">
+            <a
+              href={`${linkPrefix}${item.data.permalink}`}
+              class="text-blue-600 dark:text-blue-400 hover:underline block"
+            >
+              {item.data.title}
+            </a>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {new Date(item.data.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              })}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
