@@ -30,18 +30,16 @@ const pageTitle = frontmatter?.title || title;
                     <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
                     <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
                     <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
-                    <a href="/all-archives" class={`hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1 ${Astro.url.pathname === "/all-archives" ? "text-blue-600 dark:text-blue-400" : ""}`}>
+                    <a href="/all-archives" title="Archives" class={`hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1 ${Astro.url.pathname === "/all-archives" ? "text-blue-600 dark:text-blue-400" : ""}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                        </svg>
-                        Archives
+                        </svg>                        
                     </a>
-                    <a href="/all-tags" class={`hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1 ${Astro.url.pathname === "/all-tags" ? "text-blue-600 dark:text-blue-400" : ""}`}>
+                    <a href="/all-tags" title="Tags" class={`hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1 ${Astro.url.pathname === "/all-tags" ? "text-blue-600 dark:text-blue-400" : ""}`}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
                         </svg>
-                        Tags
                     </a>
                     <RssLink />
                     <ThemeToggle />
