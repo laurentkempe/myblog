@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import PostListItem from '../components/PostListItem.astro';
 
 const allPosts = await getCollection("posts");
 const sortedPosts = allPosts.sort((a, b) => 
@@ -8,13 +9,14 @@ const sortedPosts = allPosts.sort((a, b) =>
 );
 ---
 <Layout title="Blog">
-  <ul class="text-gray-900 dark:text-gray-300">
+  <ul class="ml-12 space-y-2 list-disc">
     {sortedPosts.map((post) => 
-            <li class="text-gray-900 dark:text-gray-300">
-                <a href={`${post.data.permalink}`}>
-                    {post.data.title}
-                </a>
-            </li>
+      <PostListItem
+        title={post.data.title}
+        date={post.data.date}
+        href={post.data.permalink}
+        tags={post.data.tags}
+      />
     )}
   </ul>
 </Layout>

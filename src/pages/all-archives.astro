@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import PostListItem from '../components/PostListItem.astro';
 
 const allPosts = await getCollection("posts");
 const sortedPosts = allPosts.sort((a, b) => 
@@ -66,18 +67,14 @@ const monthNames = [
                     const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
                     
                     return (
-                      <li class="text-gray-800 dark:text-gray-300 archive-item" data-date={formattedDate}>
-                        <a 
+                      <div class="archive-item" data-date={formattedDate}>
+                        <PostListItem
+                          title={post.data.title}
+                          date={post.data.date}
                           href={post.data.permalink}
-                          class="hover:text-blue-600 dark:hover:text-blue-400"
-                        >
-                          {post.data.title} <span class="text-gray-400 dark:text-gray-500"> - {new Date(post.data.date).toLocaleDateString('en-US', { 
-                            month: 'short',
-                            day: '2-digit',
-                            year: 'numeric'
-                          })}</span>
-                        </a>
-                      </li>
+                          tags={post.data.tags}
+                        />
+                      </div>
                     );
                   })}
                 </ul>

@@ -1,51 +1,27 @@
 ---
 import { getCollection } from "astro:content";
+import PublicationList from "./PublicationList.astro";
+import { getLatestEntries } from "../utils/collections";
 
 const allPosts = await getCollection("posts");
-const sortedPosts = allPosts
-  .sort(
-    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-  )
-  .slice(0, 10);
+const sortedPosts = getLatestEntries(allPosts);
+
 const allPresentations = await getCollection("presentations");
-const sortedPresentations = allPresentations
-  .sort(
-    (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-  )
-  .slice(0, 10);
+const sortedPresentations = getLatestEntries(allPresentations);
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 prose prose-md max-w-none dark:prose-dark">
-  <div>
-    <h1><a href="/blog/1" class="font-bold no-underline dark:text-white"> 📖 Blog</a></h1>
-    <div>
-      <ul>
-        {
-          sortedPosts.map((post) => (
-            <li>
-                <a href={`${post.data.permalink}`} class="dark:text-gray-300">
-                    {post.data.title}
-                </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
-  <div>
-    <h1><a href="/speaking" class="font-bold no-underline dark:text-white">🗣️ Speaking</a></h1>
-    <div>
-      <ul>
-        {
-          sortedPresentations.map((presentation) => (
-            <li>
-              <a href={`/speaking${presentation.data.permalink}`} class="dark:text-gray-300">
-                {presentation.data.title}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <PublicationList 
+    title="Blog"
+    icon="📖"
+    href="/blog/1"
+    items={sortedPosts}
+  />
+  <PublicationList 
+    title="Speaking"
+    icon="🗣️"
+    href="/speaking"
+    items={sortedPresentations}
+    linkPrefix="/speaking"
+  />
 </div>

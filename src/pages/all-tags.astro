@@ -1,0 +1,145 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+import PostListItem from '../components/PostListItem.astro';
+
+const allPosts = await getCollection("posts");
+
+// Get all unique tags and their posts
+const tagMap = allPosts.reduce((acc, post) => {
+  if (!post.data.tags) return acc;
+  
+  post.data.tags.forEach(tag => {
+    if (!acc[tag]) {
+      acc[tag] = [];
+    }
+    acc[tag].push(post);
+  });
+  return acc;
+}, {} as Record<string, typeof allPosts>);
+
+// Sort tags alphabetically
+const sortedTags = Object.keys(tagMap).sort();
+
+// Calculate tag sizes based on post count
+const maxPosts = Math.max(...Object.values(tagMap).map(posts => posts.length));
+const minPosts = Math.min(...Object.values(tagMap).map(posts => posts.length));
+const getFontSize = (postCount: number) => {
+  const minSize = 0.8;
+  const maxSize = 2;
+  const scale = (postCount - minPosts) / (maxPosts - minPosts || 1);
+  return minSize + (maxSize - minSize) * scale;
+};
+---
+
+<Layout title="All Tags">
+  <div class="max-w-4xl mx-auto px-4 mt-4">
+    <!-- Search Input -->
+    <div class="mb-8">
+      <input
+        type="text"
+        id="tagSearch"
+        placeholder="Search tags..."
+        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+      />
+      <div id="searchCounter" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></div>
+    </div>
+
+    <!-- Tag Cloud -->
+    <div class="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg" id="tagCloud">
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tag Cloud</h2>
+      <div class="flex flex-wrap gap-2">
+        {sortedTags.map(tag => {
+          const postCount = tagMap[tag].length;
+          const fontSize = getFontSize(postCount);
+          return (
+            <a
+              href={`#${tag.toLowerCase().replace(/\s+/g, '-')}`}
+              class="text-gray-800 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200 tag-link"
+              data-tag={tag.toLowerCase()}
+              style={`font-size: ${fontSize}rem;`}
+            >
+              {tag}
+              <span class="text-sm text-gray-500 dark:text-gray-400">({postCount})</span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- Tags and Posts List -->
+    <div class="space-y-8" id="tagsList">
+      {sortedTags.map(tag => (
+        <div 
+          id={tag.toLowerCase().replace(/\s+/g, '-')} 
+          class="scroll-mt-16 tag-section"
+          data-tag={tag.toLowerCase()}
+        >
+          <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+            <Icon name="fa6-solid:tag" class="w-5 h-5" />
+            {tag}
+            <span class="text-lg text-gray-500 dark:text-gray-400">({tagMap[tag].length} posts)</span>
+          </h2>
+          <ul class="ml-12 space-y-2 list-disc">
+            {tagMap[tag]
+              .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+              .map(post => (
+                <PostListItem
+                  title={post.data.title}
+                  date={post.data.date}
+                  href={post.data.permalink}
+                  tags={post.data.tags}
+                />
+              ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <script>
+    const tagSearch = document.getElementById('tagSearch');
+    const tagLinks = document.querySelectorAll('.tag-link');
+    const tagSections = document.querySelectorAll('.tag-section');
+    const searchCounter = document.getElementById('searchCounter');
+
+    function updateCounter(visibleCount: number, total: number) {
+      if (searchCounter) {
+        if (visibleCount === total) {
+          searchCounter.textContent = '';
+        } else {
+          searchCounter.textContent = `Showing ${visibleCount} of ${total} tags`;
+        }
+      }
+    }
+
+    function filterTags(searchText: string) {
+      const searchTerm = searchText.toLowerCase();
+      let visibleCount = 0;
+      const total = tagSections.length;
+
+      tagLinks.forEach(link => {
+        const tag = link.getAttribute('data-tag') || '';
+        const isVisible = tag.includes(searchTerm);
+        (link as HTMLElement).style.display = isVisible ? '' : 'none';
+      });
+
+      tagSections.forEach(section => {
+        const tag = section.getAttribute('data-tag') || '';
+        const isVisible = tag.includes(searchTerm);
+        (section as HTMLElement).style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+      });
+
+      updateCounter(visibleCount, total);
+    }
+
+    if (tagSearch) {
+      tagSearch.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        filterTags(target.value);
+      });
+    }
+  </script>
+</Layout>
