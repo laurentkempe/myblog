@@ -7,42 +7,66 @@ const sortedPosts = allPosts.sort((a, b) =>
   new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 
-// Group posts by year
-const postsByYear = sortedPosts.reduce((acc, post) => {
-  const year = new Date(post.data.date).getFullYear();
+// Group posts by year and month
+const postsByYearAndMonth = sortedPosts.reduce((acc, post) => {
+  const date = new Date(post.data.date);
+  const year = date.getFullYear();
+  const month = date.toLocaleString('en-US', { month: 'long' });
+  
   if (!acc[year]) {
-    acc[year] = [];
+    acc[year] = {};
   }
-  acc[year].push(post);
+  if (!acc[year][month]) {
+    acc[year][month] = [];
+  }
+  
+  acc[year][month].push(post);
   return acc;
-}, {} as Record<number, typeof sortedPosts>);
+}, {} as Record<number, Record<string, typeof sortedPosts>>);
 
 // Sort years in descending order
-const years = Object.keys(postsByYear).sort((a, b) => Number(b) - Number(a));
+const years = Object.keys(postsByYearAndMonth)
+  .map(Number)
+  .sort((a, b) => b - a);
+
+// Month names in chronological order
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
 ---
 
 <Layout title="Archives">
   <div class="max-w-4xl mx-auto px-4">
     <h1 class="text-3xl font-bold mb-8 text-gray-900 dark:text-white">All Archives</h1>
     
-    {years.map(year => (
+    {years.map((year) => (
       <div class="mb-12">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">{year}</h2>
-        <ul class="space-y-3">
-          {postsByYear[Number(year)].map(post => (
-            <li class="flex items-baseline">
-              <span class="text-sm text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">
-                {new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              </span>
-              <a 
-                href={post.data.permalink}
-                class="text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
-              >
-                {post.data.title}
-              </a>
-            </li>
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">{year}</h2>
+        
+        {monthNames
+          .filter((month) => postsByYearAndMonth[year][month])
+          .reverse()
+          .map((month) => (
+            <div class="mb-6 ml-4">
+              <h3 class="text-xl font-medium mb-3 text-gray-700 dark:text-gray-300">{month}</h3>
+              <ul class="space-y-2 ml-4">
+                {postsByYearAndMonth[year][month].map((post) => (
+                  <li class="flex items-baseline">
+                    <span class="text-sm text-gray-500 dark:text-gray-400 w-8 flex-shrink-0">
+                      {new Date(post.data.date).getDate()}
+                    </span>
+                    <a 
+                      href={post.data.permalink}
+                      class="text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                    >
+                      {post.data.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
-        </ul>
       </div>
     ))}
   </div>
