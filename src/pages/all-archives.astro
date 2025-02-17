@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import PostListItem from '../components/PostListItem.astro';
 
 const allPosts = await getCollection("posts");
 const sortedPosts = allPosts.sort((a, b) => 
@@ -66,32 +67,14 @@ const monthNames = [
                     const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
                     
                     return (
-                      <li class="text-gray-500 dark:text-gray-400 archive-item" data-date={formattedDate}>
-                        <a 
+                      <div class="archive-item" data-date={formattedDate}>
+                        <PostListItem
+                          title={post.data.title}
+                          date={post.data.date}
                           href={post.data.permalink}
-                          class="text-blue-600 dark:text-blue-400 hover:underline block"
-                        >
-                          {post.data.title}
-                        </a>
-                        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                          <span>
-                            {date.toLocaleDateString('en-US', { 
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </span>
-                          {post.data.tags && post.data.tags.length > 0 && (
-                            <div class="flex gap-1 flex-wrap">
-                              {post.data.tags.map(tag => (
-                                <span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full">
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </li>
+                          tags={post.data.tags}
+                        />
+                      </div>
                     );
                   })}
                 </ul>

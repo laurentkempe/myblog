@@ -1,4 +1,6 @@
 ---
+import PostListItem from "./PostListItem.astro";
+
 interface Props {
   title: string;
   icon: string;
@@ -25,32 +27,12 @@ const { title, icon, href, items, linkPrefix = "" } = Astro.props;
     <ul class="ml-12 space-y-2 list-disc">
       {
         items.map((item) => (
-          <li class="text-gray-500 dark:text-gray-400">
-            <a
-              href={`${linkPrefix}${item.data.permalink}`}
-              class="text-blue-600 dark:text-blue-400 hover:underline block"
-            >
-              {item.data.title}
-            </a>
-            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              <span>
-                {new Date(item.data.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </span>
-              {item.data.tags && item.data.tags.length > 0 && (
-                <div class="flex gap-1 flex-wrap">
-                  {item.data.tags.map(tag => (
-                    <span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </li>
+          <PostListItem
+            title={item.data.title}
+            date={item.data.date}
+            href={`${linkPrefix}${item.data.permalink}`}
+            tags={item.data.tags}
+          />
         ))
       }
     </ul>

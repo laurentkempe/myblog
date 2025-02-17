@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Icon } from 'astro-icon/components';
+import PostListItem from '../components/PostListItem.astro';
 
 const allPosts = await getCollection("posts");
 
@@ -84,21 +85,12 @@ const getFontSize = (postCount: number) => {
             {tagMap[tag]
               .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
               .map(post => (
-                <li class="text-gray-500 dark:text-gray-400">
-                  <a 
-                    href={post.data.permalink}
-                    class="text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    {post.data.title}
-                    <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                      ({new Date(post.data.date).toLocaleDateString('en-US', { 
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                      })})
-                    </span>
-                  </a>
-                </li>
+                <PostListItem
+                  title={post.data.title}
+                  date={post.data.date}
+                  href={post.data.permalink}
+                  tags={post.data.tags}
+                />
               ))}
           </ul>
         </div>
