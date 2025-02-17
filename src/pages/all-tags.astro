@@ -34,8 +34,19 @@ const getFontSize = (postCount: number) => {
 
 <Layout title="All Tags">
   <div class="max-w-4xl mx-auto px-4">
+    <!-- Search Input -->
+    <div class="mb-8">
+      <input
+        type="text"
+        id="tagSearch"
+        placeholder="Search tags..."
+        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+      />
+      <div id="searchCounter" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></div>
+    </div>
+
     <!-- Tag Cloud -->
-    <div class="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <div class="mb-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg" id="tagCloud">
       <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Tag Cloud</h2>
       <div class="flex flex-wrap gap-2">
         {sortedTags.map(tag => {
@@ -44,7 +55,8 @@ const getFontSize = (postCount: number) => {
           return (
             <a
               href={`#${tag.toLowerCase().replace(/\s+/g, '-')}`}
-              class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200"
+              class="hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-200 tag-link"
+              data-tag={tag.toLowerCase()}
               style={`font-size: ${fontSize}rem;`}
             >
               {tag}
@@ -56,9 +68,13 @@ const getFontSize = (postCount: number) => {
     </div>
 
     <!-- Tags and Posts List -->
-    <div class="space-y-8">
+    <div class="space-y-8" id="tagsList">
       {sortedTags.map(tag => (
-        <div id={tag.toLowerCase().replace(/\s+/g, '-')} class="scroll-mt-16">
+        <div 
+          id={tag.toLowerCase().replace(/\s+/g, '-')} 
+          class="scroll-mt-16 tag-section"
+          data-tag={tag.toLowerCase()}
+        >
           <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100">
             <Icon name="fa6-solid:tag" class="w-5 h-5" />
             {tag}
@@ -89,4 +105,49 @@ const getFontSize = (postCount: number) => {
       ))}
     </div>
   </div>
+
+  <script>
+    const tagSearch = document.getElementById('tagSearch');
+    const tagLinks = document.querySelectorAll('.tag-link');
+    const tagSections = document.querySelectorAll('.tag-section');
+    const searchCounter = document.getElementById('searchCounter');
+
+    function updateCounter(visibleCount: number, total: number) {
+      if (searchCounter) {
+        if (visibleCount === total) {
+          searchCounter.textContent = '';
+        } else {
+          searchCounter.textContent = `Showing ${visibleCount} of ${total} tags`;
+        }
+      }
+    }
+
+    function filterTags(searchText: string) {
+      const searchTerm = searchText.toLowerCase();
+      let visibleCount = 0;
+      const total = tagSections.length;
+
+      tagLinks.forEach(link => {
+        const tag = link.getAttribute('data-tag') || '';
+        const isVisible = tag.includes(searchTerm);
+        (link as HTMLElement).style.display = isVisible ? '' : 'none';
+      });
+
+      tagSections.forEach(section => {
+        const tag = section.getAttribute('data-tag') || '';
+        const isVisible = tag.includes(searchTerm);
+        (section as HTMLElement).style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+      });
+
+      updateCounter(visibleCount, total);
+    }
+
+    if (tagSearch) {
+      tagSearch.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        filterTags(target.value);
+      });
+    }
+  </script>
 </Layout>
