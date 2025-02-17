@@ -37,38 +37,155 @@ const monthNames = [
 ---
 
 <Layout title="Archives">
-  <div class="max-w-4xl mx-auto px-4">
-    <h1 class="text-3xl font-bold mb-8 text-gray-900 dark:text-white">All Archives</h1>
-    
-    {years.map((year) => (
-      <div class="mb-12">
-        <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">{year}</h2>
-        
-        {monthNames
-          .filter((month) => postsByYearAndMonth[year][month])
-          .reverse()
-          .map((month) => (
-            <div class="mb-6 ml-4">
-              <h3 class="text-xl font-medium mb-3 text-gray-700 dark:text-gray-300">{month}</h3>
-              <ul class="space-y-2 ml-4 list-disc list-outside">
-                {postsByYearAndMonth[year][month].map((post) => (
-                  <li class="text-gray-800 dark:text-gray-300">
-                    <a 
-                      href={post.data.permalink}
-                      class="hover:text-blue-600 dark:hover:text-blue-400"
-                    >
-                      {post.data.title} <span class="text-gray-400 dark:text-gray-500">{new Date(post.data.date).toLocaleDateString('en-US', { 
-                        month: 'short',
-                        day: '2-digit',
-                        year: 'numeric'
-                      })}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-      </div>
-    ))}
+  <div class="max-w-4xl mx-auto px-4 pt-4">
+
+    <div class="mb-8">
+      <input
+        type="text"
+        id="dateSearch"
+        placeholder="Search date (YYYY/MM/DD)"
+        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+      />
+      <div id="searchCounter" class="mt-2 text-sm text-gray-600 dark:text-gray-400"></div>
+    </div>
+
+    <div id="archivesList">
+      {years.map((year) => (
+        <div class="mb-12 archive-year" data-year={year}>
+          <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">{year}</h2>
+          
+          {monthNames
+            .filter((month) => postsByYearAndMonth[year][month])
+            .reverse()
+            .map((month) => (
+              <div class="mb-6 ml-4 archive-month" data-month={month}>
+                <h3 class="text-xl font-medium mb-3 text-gray-700 dark:text-gray-300">{month}</h3>
+                <ul class="space-y-2 ml-4 list-disc list-outside">
+                  {postsByYearAndMonth[year][month].map((post) => {
+                    const date = new Date(post.data.date);
+                    const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+                    
+                    return (
+                      <li class="text-gray-800 dark:text-gray-300 archive-item" data-date={formattedDate}>
+                        <a 
+                          href={post.data.permalink}
+                          class="hover:text-blue-600 dark:hover:text-blue-400"
+                        >
+                          {post.data.title} <span class="text-gray-400 dark:text-gray-500"> - {new Date(post.data.date).toLocaleDateString('en-US', { 
+                            month: 'short',
+                            day: '2-digit',
+                            year: 'numeric'
+                          })}</span>
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+        </div>
+      ))}
+    </div>
   </div>
+
+  <script>
+    function updateCounter(count, searchValue) {
+      const counterElement = document.getElementById('searchCounter');
+      if (counterElement) {
+        if (!searchValue.trim()) {
+          counterElement.textContent = ''; // Clear the counter text when search is empty
+        } else if (count === 0) {
+          counterElement.textContent = 'No posts found';
+        } else {
+          counterElement.textContent = `${count} ${count === 1 ? 'post' : 'posts'} found`;
+        }
+      }
+    }
+
+    function filterArchives(searchValue) {
+      const archives = document.querySelectorAll('.archive-item');
+      const years = document.querySelectorAll('.archive-year');
+      const months = document.querySelectorAll('.archive-month');
+      
+      // Reset visibility
+      archives.forEach(item => item.style.display = '');
+      years.forEach(year => year.style.display = '');
+      months.forEach(month => month.style.display = '');
+
+      if (!searchValue.trim()) {
+        updateCounter(archives.length, searchValue);
+        return; // Show everything if search is empty
+      }
+
+      const parts = searchValue.split('/');
+      const yearPattern = parts[0] || '';
+      const monthPattern = parts[1] || '';
+      const dayPattern = parts[2] || '';
+
+      let visiblePostsCount = 0;
+
+      years.forEach(yearDiv => {
+        const yearValue = yearDiv.dataset.year;
+        const yearMatch = yearValue.startsWith(yearPattern);
+        
+        if (!yearMatch) {
+          yearDiv.style.display = 'none';
+          return;
+        }
+
+        const monthDivs = yearDiv.querySelectorAll('.archive-month');
+        let hasVisibleMonth = false;
+
+        monthDivs.forEach(monthDiv => {
+          const monthName = monthDiv.dataset.month;
+          const monthNumber = String(new Date(`${monthName} 1, 2000`).getMonth() + 1).padStart(2, '0');
+          const monthMatch = !monthPattern || monthNumber === monthPattern;
+          
+          if (!monthMatch) {
+            monthDiv.style.display = 'none';
+            return;
+          }
+
+          const items = monthDiv.querySelectorAll('.archive-item');
+          let hasVisibleItem = false;
+
+          items.forEach(item => {
+            const date = item.dataset.date; // Format: YYYYMMDD
+            const itemDay = date.slice(6, 8);
+
+            const dayMatch = !dayPattern || itemDay === dayPattern;
+
+            if (dayMatch) {
+              hasVisibleItem = true;
+              item.style.display = ''; // Make sure to show matching items
+              visiblePostsCount++;
+            } else {
+              item.style.display = 'none';
+            }
+          });
+
+          if (!hasVisibleItem) {
+            monthDiv.style.display = 'none';
+          } else {
+            hasVisibleMonth = true;
+          }
+        });
+
+        if (!hasVisibleMonth) {
+          yearDiv.style.display = 'none';
+        }
+      });
+
+      updateCounter(visiblePostsCount, searchValue);
+    }
+
+    // Add event listener for the search input
+    const searchInput = document.getElementById('dateSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        filterArchives(e.target.value);
+      });
+    }
+  </script>
 </Layout>
+
