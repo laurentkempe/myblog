@@ -6,26 +6,36 @@ const sortedPosts = allPosts
   .sort(
     (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
   )
-  .slice(0, 10);
+  .slice(0, 8);
 const allPresentations = await getCollection("presentations");
 const sortedPresentations = allPresentations
   .sort(
     (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
   )
-  .slice(0, 10);
+  .slice(0, 8);
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 prose prose-md max-w-none dark:prose-dark">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
   <div>
-    <h1><a href="/blog/1" class="font-bold no-underline dark:text-white"> 📖 Blog</a></h1>
+    <h1 class="text-3xl mb-8"><a href="/blog/1" class="font-bold no-underline dark:text-white"> 📖 Blog</a></h1>
     <div>
-      <ul>
+      <ul class="ml-12 space-y-2 list-disc">
         {
           sortedPosts.map((post) => (
-            <li>
-                <a href={`${post.data.permalink}`} class="dark:text-gray-300">
-                    {post.data.title}
-                </a>
+            <li class="text-gray-500 dark:text-gray-400">
+              <a 
+                href={post.data.permalink}
+                class="text-blue-600 dark:text-blue-400 hover:underline block"
+              >
+                {post.data.title}
+              </a>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {new Date(post.data.date).toLocaleDateString('en-US', { 
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </div>
             </li>
           ))
         }
@@ -33,15 +43,23 @@ const sortedPresentations = allPresentations
     </div>
   </div>
   <div>
-    <h1><a href="/speaking" class="font-bold no-underline dark:text-white">🗣️ Speaking</a></h1>
+    <h1 class="text-3xl mb-8"><a href="/speaking" class="font-bold no-underline dark:text-white">🗣️ Speaking</a></h1>
     <div>
-      <ul>
+      <ul class="ml-12 space-y-2 list-disc">
         {
           sortedPresentations.map((presentation) => (
-            <li>
-              <a href={`/speaking${presentation.data.permalink}`} class="dark:text-gray-300">
+            <li class="text-gray-500 dark:text-gray-400">
+              <a href={`/speaking${presentation.data.permalink}`}
+                 class="text-blue-600 dark:text-blue-400 hover:underline block">
                 {presentation.data.title}
               </a>
+              <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {new Date(presentation.data.date).toLocaleDateString('en-US', { 
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </div>
             </li>
           ))
         }
