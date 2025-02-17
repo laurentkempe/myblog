@@ -80,11 +80,11 @@ const getFontSize = (postCount: number) => {
             {tag}
             <span class="text-lg text-gray-500 dark:text-gray-400">({tagMap[tag].length} posts)</span>
           </h2>
-          <ul class="ml-6 space-y-2">
+          <ul class="ml-12 space-y-2 list-disc">
             {tagMap[tag]
               .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
               .map(post => (
-                <li>
+                <li class="text-gray-500 dark:text-gray-400">
                   <a 
                     href={post.data.permalink}
                     class="text-blue-600 dark:text-blue-400 hover:underline"
