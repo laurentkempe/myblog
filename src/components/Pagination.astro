@@ -1,0 +1,49 @@
+---
+import { Icon } from 'astro-icon/components';
+import type { Page } from 'astro';
+
+interface Props {
+  page: Page<any>;
+  pageSize?: number;
+  displayCount?: number;
+}
+
+const { page, pageSize = 4, displayCount = 5 } = Astro.props;
+
+const totalPages = Math.ceil(page.total / pageSize);
+const currentPage = page.currentPage;
+
+// Calculate the range of pages to display
+const halfDisplay = Math.floor(displayCount / 2);
+let startPage = Math.max(currentPage - halfDisplay, 1);
+let endPage = Math.min(startPage + displayCount - 1, totalPages);
+
+// Adjust start if we're near the end
+if (endPage - startPage + 1 < displayCount) {
+  startPage = Math.max(endPage - displayCount + 1, 1);
+}
+---
+<div class="flex justify-between items-center p-6">
+  <div class="space-x-2 flex items-center">
+    {page.url.first ? <a href={page.url.first} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-left" /></a> : null}
+    {page.url.prev ? <a href={page.url.prev} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-left" /></a> : null}
+    {
+      Array.from({ length: endPage - startPage + 1 }, (_, i) => {
+        const pageNum = startPage + i;
+        return (
+          <a 
+            href={`/blog/${pageNum}`} 
+            class={`px-2 py-1 ${currentPage === pageNum ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}
+          >
+            {pageNum}
+          </a>
+        );
+      })
+    }
+    {page.url.next ? <a href={page.url.next} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-right" /></a> : null}
+    {page.url.last ? <a href={page.url.last} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-right" /></a> : null}
+  </div>
+  <div class="text-gray-600 dark:text-gray-400">
+    Page {currentPage} of {totalPages}
+  </div>
+</div>
