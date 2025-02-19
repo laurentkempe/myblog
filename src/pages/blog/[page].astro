@@ -3,10 +3,12 @@ import Layout from '../../layouts/Layout.astro';
 import markdownit from 'markdown-it'
 import { Image } from 'astro:assets';
 import { getCollection } from 'astro:content';
-import { Icon } from 'astro-icon/components';
 import TagList from '../../components/TagList.astro';
+import Pagination from '../../components/Pagination.astro';
 import type { Page } from 'astro';
 import type { CollectionEntry } from 'astro:content';
+
+export const PAGE_SIZE = 4;
 
 function getExcerpt(content: string): string {
   const md = markdownit();
@@ -24,7 +26,7 @@ export async function getStaticPaths({ paginate }: { paginate: any }) {
   .sort(
     (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
   );
-  return paginate(sortedPosts, { pageSize: 4 });
+  return paginate(sortedPosts, { pageSize: PAGE_SIZE });
 }
 
 const { page } = Astro.props;
@@ -33,7 +35,7 @@ type Props = {
 };
 ---
 <Layout title="Blog">
-		{
+    {
       page.data.map((post) => 
         <article class="bg-white dark:bg-gray-900 p-4 flex flex-col md:flex-row">
           <div class="flex-1">
@@ -59,22 +61,7 @@ type Props = {
             </a>
           </div>
         </article>
-		  )
+      )
     }
-  <div class="flex justify-between items-center p-6">
-    <div class="space-x-2 flex items-center">
-      {page.url.first ? <a href={page.url.first} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-left" /></a> : null}
-      {page.url.prev ? <a href={page.url.prev} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-left" /></a> : null}
-      {
-        Array.from({ length: Math.ceil(page.total / 4) }, (_, i) => (
-          <a href={`/blog/${i + 1}`} class={`px-2 py-1 ${page.currentPage === i + 1 ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}>{i + 1}</a>
-        ))
-      }
-      {page.url.next ? <a href={page.url.next} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-right" /></a> : null}
-      {page.url.last ? <a href={page.url.last} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-right" /></a> : null}
-    </div>
-    <div class="text-gray-600 dark:text-gray-400">
-      Page {page.currentPage} of {Math.ceil(page.total / 4)}
-    </div>
-  </div>
+    <Pagination page={page} pageSize={PAGE_SIZE} />
 </Layout>
