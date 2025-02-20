@@ -53,33 +53,40 @@ const monthNames = [
     <div id="archivesList">
       {years.map((year) => (
         <div class="mb-12 archive-year" data-year={year}>
-          <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">{year}</h2>
+          <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">
+            <a href={`/archives/${year}`} class="hover:underline">{year}</a>
+          </h2>
           
           {monthNames
             .filter((month) => postsByYearAndMonth[year][month])
             .reverse()
-            .map((month) => (
-              <div class="mb-6 ml-4 archive-month" data-month={month}>
-                <h3 class="text-xl font-medium mb-3 text-gray-700 dark:text-gray-300">{month}</h3>
-                <ul class="space-y-2 ml-4 list-disc list-outside">
-                  {postsByYearAndMonth[year][month].map((post) => {
-                    const date = new Date(post.data.date);
-                    const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
-                    
-                    return (
-                      <div class="archive-item" data-date={formattedDate}>
-                        <PostListItem
-                          title={post.data.title}
-                          date={post.data.date}
-                          href={post.data.permalink}
-                          tags={post.data.tags}
-                        />
-                      </div>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
+            .map((month) => {
+              const monthNumber = String(monthNames.indexOf(month) + 1).padStart(2, '0');
+              return (
+                <div class="mb-6 ml-4 archive-month" data-month={month}>
+                  <h3 class="text-xl font-medium mb-3 text-gray-700 dark:text-gray-300">
+                    <a href={`/archives/${year}/${monthNumber}`} class="hover:underline">{month}</a>
+                  </h3>
+                  <ul class="space-y-2 ml-4 list-disc list-outside">
+                    {postsByYearAndMonth[year][month].map((post) => {
+                      const date = new Date(post.data.date);
+                      const formattedDate = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+                      
+                      return (
+                        <div class="archive-item" data-date={formattedDate}>
+                          <PostListItem
+                            title={post.data.title}
+                            date={post.data.date}
+                            href={post.data.permalink}
+                            tags={post.data.tags}
+                          />
+                        </div>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
         </div>
       ))}
     </div>

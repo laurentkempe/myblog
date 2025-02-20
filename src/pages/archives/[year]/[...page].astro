@@ -1,0 +1,121 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import markdownit from 'markdown-it';
+import PostListItem from '../../../components/PostListItem.astro';
+import TagList from '../../../components/TagList.astro';
+import type { GetStaticPaths } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+
+type Post = CollectionEntry<'posts'>;
+type MonthPosts = Record<string, Post[]>;
+
+function getExcerpt(content: string): string {
+  const md = markdownit();
+  const moreIndex = content.indexOf('{/* <!-- more --> */}');
+  if (moreIndex === -1) {
+    return `<div class="mb-4 text-gray-900 dark:text-gray-100">${md.render(content)}</div>`;
+  }
+  const excerpt = content.slice(0, moreIndex);
+  return `<div class="mb-4 text-gray-900 dark:text-gray-100">${md.render(excerpt)}</div>`;
+}
+
+export async function getStaticPaths({ paginate }: { paginate: Function }) {
+  const allPosts = await getCollection("posts");
+  const sortedPosts = allPosts.sort((a, b) => 
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  // Get unique years from posts
+  const years = [...new Set(sortedPosts.map(post => 
+    new Date(post.data.date).getFullYear()
+  ))];
+
+  // For each year, create paginated routes
+  return years.flatMap(year => {
+    const yearPosts = sortedPosts.filter(post => 
+      new Date(post.data.date).getFullYear() === year
+    );
+    return paginate(yearPosts, {
+      params: { year: String(year) },
+      pageSize: 4,
+      props: { year }
+    });
+  });
+}
+
+const { page, year } = Astro.props;
+const { data: posts, currentPage, lastPage } = page;
+
+// Month names for grouping
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+// Group posts by month
+const postsByMonth = posts.reduce((acc: MonthPosts, post: Post) => {
+  const date = new Date(post.data.date);
+  const month = date.toLocaleString('en-US', { month: 'long' });
+  if (!acc[month]) {
+    acc[month] = [];
+  }
+  acc[month].push(post);
+  return acc;
+}, {});
+---
+
+<Layout title={`Archives for ${year}`}>
+  <div class="max-w-4xl mx-auto px-4 pt-4">
+
+    {posts.map((post: Post) => 
+      <article class="bg-white dark:bg-gray-900 p-4 flex flex-col md:flex-row mb-6">
+        <div class="flex-1">
+          <h2 class="text-2xl font-bold dark:text-gray-100">
+            <a href={`${post.data.permalink}`} class="text-blue-600 dark:text-blue-400 hover:underline block">{post.data.title}</a>
+          </h2>
+          <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1 mb-2">
+            <span>
+              {new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
+            <TagList tags={post.data.tags} />
+          </div>
+          {post.body && <p set:html={getExcerpt(post.body)}></p>}
+          <p class="mt-2"><a href={`${post.data.permalink}`} class="text-blue-500 dark:text-blue-400 hover:underline">Continue reading</a></p>
+        </div>
+        <div class="ml-6 hidden md:block">
+          <a href={`${post.data.permalink}`}>
+            <Image src={`${post.data.thumbnailImage}`}
+                  alt={`${post.data.coverCaption}`}
+                  class="rounded-lg shadow-md"
+                  width="150"
+                  height="150" />
+          </a>
+        </div>
+      </article>
+    )}
+
+    {/* Pagination */}
+    {(lastPage > 1) && (
+      <div class="flex justify-between items-center p-6">
+        <div class="space-x-2 flex items-center">
+          {currentPage > 1 && (
+            <a href={`/archives/${year}${currentPage > 2 ? `/page/${currentPage - 1}` : ''}`} class="text-blue-500 dark:text-blue-400 hover:underline">Previous</a>
+          )}
+          {
+            Array.from({ length: lastPage }, (_, i) => (
+              <a href={`/archives/${year}${i === 0 ? '' : `/page/${i + 1}`}`} class={`px-2 py-1 ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}>{i + 1}</a>
+            ))
+          }
+          {currentPage < lastPage && (
+            <a href={`/archives/${year}/page/${currentPage + 1}`} class="text-blue-500 dark:text-blue-400 hover:underline">Next</a>
+          )}
+        </div>
+        <div class="text-gray-600 dark:text-gray-400">
+          Page {currentPage} of {lastPage}
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>
