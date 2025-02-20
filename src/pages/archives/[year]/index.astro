@@ -3,12 +3,11 @@ import Layout from '../../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import BlogPostPreview from '../../../components/BlogPostPreview.astro';
 import Pagination from '../../../components/Pagination.astro';
-import type { Page } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 
 type Post = CollectionEntry<'posts'>;
 
-export async function getStaticPaths({ paginate }: { paginate: Function }) {
+export async function getStaticPaths() {
   const allPosts = await getCollection("posts");
   const sortedPosts = allPosts.sort((a, b) => 
     new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
@@ -18,19 +17,34 @@ export async function getStaticPaths({ paginate }: { paginate: Function }) {
     new Date(post.data.date).getFullYear()
   ))];
 
-  return years.flatMap(year => {
+  return years.map(year => {
     const yearPosts = sortedPosts.filter(post => 
       new Date(post.data.date).getFullYear() === year
     );
-    return paginate(yearPosts, {
+    return {
       params: { year: String(year) },
-      pageSize: 4,
-      props: { year }
-    });
+      props: { posts: yearPosts.slice(0, 4), year, totalPosts: yearPosts.length }
+    };
   });
 }
 
-const { page, year } = Astro.props;
+const { posts, year, totalPosts } = Astro.props;
+const page = {
+  data: posts,
+  start: 0,
+  end: 4,
+  total: totalPosts,
+  currentPage: 1,
+  size: 4,
+  lastPage: Math.ceil(totalPosts / 4),
+  url: {
+    current: `/archives/${year}`,
+    next: totalPosts > 4 ? `/archives/${year}/page/2` : undefined,
+    prev: undefined,
+    first: `/archives/${year}`,
+    last: `/archives/${year}/page/${Math.ceil(totalPosts / 4)}`
+  }
+};
 ---
 
 <Layout title={`Archives for ${year}`}>
@@ -38,10 +52,10 @@ const { page, year } = Astro.props;
       Archives for {year}
     </h1>
 
-    {page.data.map((post: Post) => <BlogPostPreview post={post} />)}
+    {posts.map((post: Post) => <BlogPostPreview post={post} />)}
 
     <Pagination 
-      page={page} 
-      urlPattern={(pageNum) => `/archives/${year}${pageNum === 1 ? '' : `/page/${pageNum}`}`} 
+      page={page}
+      urlPattern={(pageNum) => `/archives/${year}${pageNum === 1 ? '' : `/page/${pageNum}`}`}
     />
 </Layout>
