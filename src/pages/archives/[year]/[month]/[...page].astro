@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import markdownit from 'markdown-it';
 import PostListItem from '../../../../components/PostListItem.astro';
 import TagList from '../../../../components/TagList.astro';
+import Pagination from '../../../../components/Pagination.astro';
 import type { GetStaticPaths } from 'astro';
 import type { CollectionEntry } from 'astro:content';
 
@@ -93,26 +94,9 @@ const monthName = new Date(`${year}-${month}-01`).toLocaleString('en-US', { mont
       </article>
     )}
 
-    {/* Pagination */}
-    {(lastPage > 1) && (
-      <div class="flex justify-between items-center p-6">
-        <div class="space-x-2 flex items-center">
-          {currentPage > 1 && (
-            <a href={`/archives/${year}/${month}${currentPage > 2 ? `/page/${currentPage - 1}` : ''}`} class="text-blue-500 dark:text-blue-400 hover:underline">Previous</a>
-          )}
-          {
-            Array.from({ length: lastPage }, (_, i) => (
-              <a href={`/archives/${year}/${month}${i === 0 ? '' : `/page/${i + 1}`}`} class={`px-2 py-1 ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}>{i + 1}</a>
-            ))
-          }
-          {currentPage < lastPage && (
-            <a href={`/archives/${year}/${month}/page/${currentPage + 1}`} class="text-blue-500 dark:text-blue-400 hover:underline">Next</a>
-          )}
-        </div>
-        <div class="text-gray-600 dark:text-gray-400">
-          Page {currentPage} of {lastPage}
-        </div>
-      </div>
-    )}
+    <Pagination 
+      page={page} 
+      urlPattern={(pageNum) => `/archives/${year}/${month}${pageNum === 1 ? '' : `/page/${pageNum}`}`} 
+    />
   </div>
 </Layout>
