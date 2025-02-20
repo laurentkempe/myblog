@@ -4,10 +4,10 @@ import PublicationList from "./PublicationList.astro";
 import { getLatestEntries } from "../utils/collections";
 
 const allPosts = await getCollection("posts");
-const sortedPosts = getLatestEntries(allPosts);
+const sortedPosts = getLatestEntries(allPosts, 6);
 
 const allPresentations = await getCollection("presentations");
-const sortedPresentations = getLatestEntries(allPresentations);
+const sortedPresentations = getLatestEntries(allPresentations, 6);
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
