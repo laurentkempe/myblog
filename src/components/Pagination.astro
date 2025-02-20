@@ -14,6 +14,11 @@ const { page, pageSize = 4, displayCount = 5, urlPattern } = Astro.props;
 const totalPages = Math.ceil(page.total / pageSize);
 const currentPage = page.currentPage;
 
+// Don't render anything if there's only one page
+if (totalPages <= 1) {
+  return;
+}
+
 // Calculate the range of pages to display
 const halfDisplay = Math.floor(displayCount / 2);
 let startPage = Math.max(currentPage - halfDisplay, 1);
