@@ -6,12 +6,18 @@ interface Props {
   page: Page<any>;
   pageSize?: number;
   displayCount?: number;
+  urlPattern?: (pageNum: number) => string;
 }
 
-const { page, pageSize = 4, displayCount = 5 } = Astro.props;
+const { page, pageSize = 4, displayCount = 5, urlPattern } = Astro.props;
 
 const totalPages = Math.ceil(page.total / pageSize);
 const currentPage = page.currentPage;
+
+// Don't render anything if there's only one page
+if (totalPages <= 1) {
+  return;
+}
 
 // Calculate the range of pages to display
 const halfDisplay = Math.floor(displayCount / 2);
@@ -21,6 +27,16 @@ let endPage = Math.min(startPage + displayCount - 1, totalPages);
 // Adjust start if we're near the end
 if (endPage - startPage + 1 < displayCount) {
   startPage = Math.max(endPage - displayCount + 1, 1);
+}
+
+// Use provided urlPattern or fallback to page.url properties
+const getPageUrl = (pageNum: number) => {
+  if (urlPattern) {
+    return urlPattern(pageNum);
+  }
+  if (pageNum === 1) return page.url.first;
+  if (pageNum === totalPages) return page.url.last;
+  return `/blog/${pageNum}`;
 }
 ---
 <div class="flex justify-between items-center p-6">
@@ -32,7 +48,7 @@ if (endPage - startPage + 1 < displayCount) {
         const pageNum = startPage + i;
         return (
           <a 
-            href={`/blog/${pageNum}`} 
+            href={getPageUrl(pageNum)}
             class={`px-2 py-1 ${currentPage === pageNum ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}
           >
             {pageNum}

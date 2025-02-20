@@ -1,0 +1,49 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import BlogPostPreview from '../../../components/BlogPostPreview.astro';
+import Pagination from '../../../components/Pagination.astro';
+import type { Page } from 'astro';
+import type { CollectionEntry } from 'astro:content';
+
+type Post = CollectionEntry<'posts'>;
+
+export async function getStaticPaths({ paginate }: { paginate: Function }) {
+  const allPosts = await getCollection("posts");
+  const sortedPosts = allPosts.sort((a, b) => 
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  // Get unique years from posts
+  const years = [...new Set(sortedPosts.map(post => 
+    new Date(post.data.date).getFullYear()
+  ))];
+
+  // For each year, create paginated routes
+  return years.flatMap(year => {
+    const yearPosts = sortedPosts.filter(post => 
+      new Date(post.data.date).getFullYear() === year
+    );
+    return paginate(yearPosts, {
+      params: { year: String(year) },
+      pageSize: 4,
+      props: { year }
+    });
+  });
+}
+
+const { page, year } = Astro.props;
+---
+
+<Layout title={`Archives for ${year}`}>
+    <h1 class="text-2xl pl-4 pt-8 font-bold mb-8 text-gray-800 dark:text-gray-200">
+      Archives for {year}
+    </h1>
+
+    {page.data.map((post: Post) => <BlogPostPreview post={post} />)}
+
+    <Pagination 
+      page={page} 
+      urlPattern={(pageNum) => `/archives/${year}${pageNum === 1 ? '' : `/page/${pageNum}`}`} 
+    />
+</Layout>
