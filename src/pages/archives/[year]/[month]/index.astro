@@ -1,0 +1,76 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import BlogPostPreview from '../../../../components/BlogPostPreview.astro';
+import Pagination from '../../../../components/Pagination.astro';
+import type { CollectionEntry } from 'astro:content';
+
+type Post = CollectionEntry<'posts'>;
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("posts");
+  const sortedPosts = allPosts.sort((a, b) => 
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  // Get unique year/month combinations
+  const yearMonths = [...new Set(sortedPosts.map(post => {
+    const date = new Date(post.data.date);
+    return `${date.getFullYear()}-${date.getMonth() + 1}`;
+  }))];
+
+  return yearMonths.map(yearMonth => {
+    const [year, month] = yearMonth.split('-').map(Number);
+    const monthPosts = sortedPosts.filter(post => {
+      const date = new Date(post.data.date);
+      return date.getFullYear() === year && date.getMonth() === month - 1;
+    });
+
+    return {
+      params: { 
+        year: String(year), 
+        month: String(month).padStart(2, '0')
+      },
+      props: { 
+        posts: monthPosts.slice(0, 4), 
+        year,
+        month,
+        totalPosts: monthPosts.length 
+      }
+    };
+  });
+}
+
+const { posts, year, month, totalPosts } = Astro.props;
+const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' });
+const paddedMonth = String(month).padStart(2, '0');
+const page = {
+  data: posts,
+  start: 0,
+  end: 4,
+  total: totalPosts,
+  currentPage: 1,
+  size: 4,
+  lastPage: Math.ceil(totalPosts / 4),
+  url: {
+    current: `/archives/${year}/${paddedMonth}`,
+    next: totalPosts > 4 ? `/archives/${year}/${paddedMonth}/page/2` : undefined,
+    prev: undefined,
+    first: `/archives/${year}/${paddedMonth}`,
+    last: `/archives/${year}/${paddedMonth}/page/${Math.ceil(totalPosts / 4)}`
+  }
+};
+---
+
+<Layout title={`Archives for ${monthName} ${year}`}>
+    <h1 class="text-2xl pl-4 pt-8 font-bold mb-8 text-gray-800 dark:text-gray-200">
+      Archives for {monthName} {year}
+    </h1>
+
+    {posts.map((post: Post) => <BlogPostPreview post={post} />)}
+
+    <Pagination 
+      page={page}
+      urlPattern={(pageNum) => `/archives/${year}/${paddedMonth}${pageNum === 1 ? '' : `/page/${pageNum}`}`}
+    />
+</Layout>
