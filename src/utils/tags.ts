@@ -30,5 +30,10 @@ export function getTagFromSlug(slug: string): string {
         processedSlug = processedSlug.replace(/dotnet-/, '.NET ');
     }
     
+    // General case: convert remaining dashes to spaces
+    if (!processedSlug.includes('.NET')) {
+        processedSlug = processedSlug.replace(/-/g, ' ');
+    }
+    
     return processedSlug;
 }
