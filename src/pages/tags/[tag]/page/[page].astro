@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import BlogPostPreview from '../../../../components/BlogPostPreview.astro';
 import Pagination from '../../../../components/Pagination.astro';
 import { Icon } from 'astro-icon/components';
+import { getTagSlug, getTagFromSlug } from '../../../../utils/tags';
 import type { CollectionEntry } from 'astro:content';
 
 type Post = CollectionEntry<'posts'>;
@@ -14,7 +15,6 @@ export async function getStaticPaths() {
     new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
   );
 
-  // Get all unique tags
   const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags || []))].sort();
 
   const paths = allTags.flatMap(tag => {
@@ -33,7 +33,7 @@ export async function getStaticPaths() {
 
       return {
         params: { 
-          tag,
+          tag: getTagSlug(tag),
           page: String(pageNum)
         },
         props: {
@@ -47,11 +47,11 @@ export async function getStaticPaths() {
             size: pageSize,
             lastPage: totalPages,
             url: {
-              current: `/tags/${tag}/page/${pageNum}`,
-              prev: pageNum === 2 ? `/tags/${tag}` : `/tags/${tag}/page/${pageNum - 1}`,
-              next: pageNum < totalPages ? `/tags/${tag}/page/${pageNum + 1}` : undefined,
-              first: `/tags/${tag}`,
-              last: pageNum === totalPages ? undefined : `/tags/${tag}/page/${totalPages}`
+              current: `/tags/${getTagSlug(tag)}/page/${pageNum}`,
+              prev: pageNum === 2 ? `/tags/${getTagSlug(tag)}` : `/tags/${getTagSlug(tag)}/page/${pageNum - 1}`,
+              next: pageNum < totalPages ? `/tags/${getTagSlug(tag)}/page/${pageNum + 1}` : undefined,
+              first: `/tags/${getTagSlug(tag)}`,
+              last: pageNum === totalPages ? undefined : `/tags/${getTagSlug(tag)}/page/${totalPages}`
             }
           }
         }
@@ -76,6 +76,6 @@ const { page, tag } = Astro.props;
 
     <Pagination 
       page={page}
-      urlPattern={(pageNum) => pageNum === 1 ? `/tags/${tag}` : `/tags/${tag}/page/${pageNum}`}
+      urlPattern={(pageNum) => pageNum === 1 ? `/tags/${getTagSlug(tag)}` : `/tags/${getTagSlug(tag)}/page/${pageNum}`}
     />
 </Layout>

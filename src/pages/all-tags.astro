@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { Icon } from 'astro-icon/components';
 import PostListItem from '../components/PostListItem.astro';
+import { getTagSlug } from '../utils/tags';
 
 const allPosts = await getCollection("posts");
 
@@ -78,7 +79,7 @@ const getFontSize = (postCount: number) => {
         >
           <h2 class="text-2xl font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100">
             <Icon name="fa6-solid:tag" class="w-5 h-5" />
-            <a href={`/tags/${tag}`} class="hover:text-blue-500 dark:hover:text-blue-400">
+            <a href={`/tags/${getTagSlug(tag)}`} class="hover:text-blue-500 dark:hover:text-blue-400">
               {tag}
             </a>
             <span class="text-lg text-gray-500 dark:text-gray-400">({tagMap[tag].length} posts)</span>
