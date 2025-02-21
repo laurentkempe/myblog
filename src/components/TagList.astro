@@ -1,4 +1,6 @@
 ---
+import { getTagSlug } from '../utils/tags';
+
 interface Props {
   tags?: string[];
 }
@@ -9,9 +11,12 @@ const { tags } = Astro.props;
 {tags && tags.length > 0 && (
   <div class="flex gap-1 flex-wrap">
     {tags.map(tag => (
-      <span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-300 rounded-full text-xs">
+      <a 
+        href={`/tags/${getTagSlug(tag)}`}
+        class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-300 rounded-full text-xs hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+      >
         {tag}
-      </span>
+      </a>
     ))}
   </div>
 )}
