@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 import { Blog } from "../utils/constants";
 
 const { title = Blog.SITE_SUBTITLE, frontmatter } = Astro.props;
@@ -22,16 +23,7 @@ const pageTitle = frontmatter?.title || title;
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
             <slot />
         </div>
-        <footer class="py-8">
-            <div class="container mx-auto gap-4 px-4 text-sm text-gray-600 dark:text-gray-300 text-center">
-                <div>
-                    &copy; {new Date().getFullYear()} Laurent Kempé. All rights reserved.
-                </div>
-                <div>
-					The expressed opinions are my own and do not reflect those of my employer or any third-party entities.
-                </div>
-            </div>
-        </footer>
+        <Footer />
         <script is:inline>
             const theme = (() => {
               if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
