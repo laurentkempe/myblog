@@ -24,7 +24,7 @@ const { title, icon, href, items, linkPrefix = "" } = Astro.props;
     <a href={href} class="font-bold no-underline dark:text-white">{icon} {title}</a>
   </h1>
   <div>
-    <ul class="ml-6 md:ml-12 space-y-2 list-disc">
+    <ul class="ml-6 mb-6 md:ml-12 space-y-2 list-disc">
       {
         items.map((item) => (
           <PostListItem
