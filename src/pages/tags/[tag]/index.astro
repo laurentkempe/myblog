@@ -1,0 +1,67 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import BlogPostPreview from '../../../components/BlogPostPreview.astro';
+import Pagination from '../../../components/Pagination.astro';
+import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from 'astro:content';
+
+type Post = CollectionEntry<'posts'>;
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("posts");
+  const sortedPosts = allPosts.sort((a, b) => 
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags || []))].sort();
+
+  return allTags.map(tag => {
+    const tagPosts = sortedPosts.filter(post => 
+      post.data.tags?.includes(tag)
+    );
+
+    const pageSize = 4;
+    const totalPages = Math.ceil(tagPosts.length / pageSize);
+
+    return {
+      params: { tag },
+      props: {
+        tag,
+        page: {
+          data: tagPosts.slice(0, pageSize),
+          start: 0,
+          end: pageSize,
+          total: tagPosts.length,
+          currentPage: 1,
+          size: pageSize,
+          lastPage: totalPages,
+          url: {
+            current: `/tags/${tag}`,
+            next: totalPages > 1 ? `/tags/${tag}/page/2` : undefined,
+            prev: undefined,
+            first: undefined,
+            last: totalPages > 1 ? `/tags/${tag}/page/${totalPages}` : undefined
+          }
+        }
+      }
+    };
+  });
+}
+
+const { page, tag } = Astro.props;
+---
+
+<Layout title={`Posts tagged with "${tag}"`}>
+    <h1 class="text-2xl pl-4 pt-8 font-bold mb-8 flex items-center gap-2 text-gray-800 dark:text-gray-200">
+      <Icon name="fa6-solid:tag" class="w-6 h-6" />
+      Posts tagged with "{tag}"
+    </h1>
+
+    {page.data.map((post: Post) => <BlogPostPreview post={post} />)}
+
+    <Pagination 
+      page={page}
+      urlPattern={(pageNum) => pageNum === 1 ? `/tags/${tag}` : `/tags/${tag}/page/${pageNum}`}
+    />
+</Layout>
