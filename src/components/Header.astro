@@ -1,0 +1,61 @@
+---
+import ArchivesLink from "./ArchivesLink.astro";
+import TagsLink from "./TagsLink.astro";
+import RssLink from "./RssLink.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+---
+<header class="py-6 border-b border-gray-200 dark:border-gray-700 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+    <nav class="container mx-auto px-4">
+        <div class="flex items-center justify-between">
+            <div class="text-2xl font-bold dark:text-gray-300">
+                <a href="/">Laurent Kempé</a>
+            </div>
+            
+            <!-- Mobile menu button and utilities -->
+            <div class="flex items-center gap-4 md:hidden text-gray-600 dark:text-gray-300">
+                <div class="flex items-center gap-4">
+                    <RssLink />
+                    <ThemeToggle />
+                </div>
+                <button id="mobile-menu-button" class="hover:text-gray-900 dark:hover:text-gray-100">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Desktop menu -->
+            <div class="hidden md:flex md:items-center md:gap-6 text-gray-600 dark:text-gray-300">
+                <a href="/" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname === "/" ? "text-blue-600 dark:text-blue-400" : ""}`}>Home</a>
+                <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
+                <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
+                <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
+                <ArchivesLink />
+                <TagsLink />
+                <RssLink />
+                <ThemeToggle />
+            </div>
+        </div>
+
+        <!-- Mobile menu panel -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+            <div class="flex flex-col gap-4 text-gray-600 dark:text-gray-300">
+                <a href="/" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname === "/" ? "text-blue-600 dark:text-blue-400" : ""}`}>Home</a>
+                <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
+                <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
+                <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
+                <ArchivesLink />
+                <TagsLink />
+            </div>
+        </div>
+    </nav>
+</header>
+
+<script>
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    mobileMenuButton?.addEventListener('click', () => {
+        mobileMenu?.classList.toggle('hidden');
+    });
+</script>

@@ -1,14 +1,11 @@
 ---
 import "../styles/global.css";
-import ThemeToggle from "../components/ThemeToggle.astro";
-import RssLink from "../components/RssLink.astro";
-import TagsLink from "../components/TagsLink.astro";
-import ArchivesLink from "../components/ArchivesLink.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 import { Blog } from "../utils/constants";
 
 const { title = Blog.SITE_SUBTITLE, frontmatter } = Astro.props;
 const pageTitle = frontmatter?.title || title;
-
 ---
 <!doctype html>
 <html lang="en" class="dark">
@@ -22,36 +19,11 @@ const pageTitle = frontmatter?.title || title;
         <title>{Blog.SITE_TITLE} - {pageTitle}</title>
     </head>
     <body class="bg-white dark:bg-gray-900">
-        <header class="py-6 border-b border-gray-200 dark:border-gray-700 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-            <nav class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between">
-                <div class="text-2xl font-bold mb-4 sm:mb-0 dark:text-gray-300">
-                    <a href="/">Laurent Kempé</a>
-                </div>
-                <div class="flex gap-6 items-center text-gray-600 dark:text-gray-300">
-                    <a href="/" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname === "/" ? "text-blue-600 dark:text-blue-400" : ""}`}>Home</a>
-                    <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
-                    <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
-                    <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
-                    <ArchivesLink />
-                    <TagsLink />
-                    <RssLink />
-                    <ThemeToggle />
-                </div>
-            </nav>
-        </header>
+        <Header />
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
             <slot />
         </div>
-        <footer class="py-8">
-            <div class="container mx-auto gap-4 px-4 text-sm text-gray-600 dark:text-gray-300 text-center">
-                <div>
-                    &copy; {new Date().getFullYear()} Laurent Kempé. All rights reserved.
-                </div>
-                <div>
-					The expressed opinions are my own and do not reflect those of my employer or any third-party entities.
-                </div>
-            </div>
-        </footer>
+        <Footer />
         <script is:inline>
             const theme = (() => {
               if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
@@ -69,7 +41,7 @@ const pageTitle = frontmatter?.title || title;
               document.documentElement.classList.add("dark");
             }
             window.localStorage.setItem("theme", theme);
-          </script>
+        </script>
         <script src="https://cdn.vidstack.io/player.core" type="module"></script>
         <script src="https://cdn.vidstack.io/icons" type="module"></script>
     </body>
