@@ -1,0 +1,91 @@
+---
+import Layout from '../../../../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import BlogPostPreview from '../../../../../components/BlogPostPreview.astro';
+import Pagination from '../../../../../components/Pagination.astro';
+import type { CollectionEntry } from 'astro:content';
+import type { Page } from 'astro';
+
+type Props = {
+  year: number;
+  month: number;
+  page: Page<CollectionEntry<'posts'>>;
+};
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("posts");
+  const sortedPosts = allPosts.sort((a, b) => 
+    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  );
+
+  const yearMonths = [...new Set(sortedPosts.map(post => {
+    const date = new Date(post.data.date);
+    return `${date.getFullYear()}-${date.getMonth() + 1}`;
+  }))];
+
+  return yearMonths.flatMap(yearMonth => {
+    const [year, month] = yearMonth.split('-').map(Number);
+    const monthPosts = sortedPosts.filter(post => {
+      const date = new Date(post.data.date);
+      return date.getFullYear() === year && date.getMonth() === month - 1;
+    });
+
+    const pageSize = 4;
+    const totalPages = Math.ceil(monthPosts.length / pageSize);
+    const paddedMonth = String(month).padStart(2, '0');
+
+    return Array.from({ length: totalPages - 1 }, (_, i) => {
+      const pageNum = i + 2;
+      const start = (pageNum - 1) * pageSize;
+      const end = start + pageSize;
+
+      const paginated: Page<CollectionEntry<'posts'>> = {
+        data: monthPosts.slice(start, end),
+        start,
+        end,
+        total: monthPosts.length,
+        currentPage: pageNum,
+        size: pageSize,
+        lastPage: totalPages,
+        url: {
+          current: `/archives/${year}/${paddedMonth}/page/${pageNum}`,
+          prev: pageNum === 2 ? `/archives/${year}/${paddedMonth}` : `/archives/${year}/${paddedMonth}/page/${pageNum - 1}`,
+          next: pageNum < totalPages ? `/archives/${year}/${paddedMonth}/page/${pageNum + 1}` : undefined,
+          first: `/archives/${year}/${paddedMonth}`,
+          last: pageNum === totalPages ? undefined : `/archives/${year}/${paddedMonth}/page/${totalPages}`
+        }
+      };
+
+      return {
+        params: { 
+          year: String(year), 
+          month: paddedMonth,
+          page: String(pageNum)
+        },
+        props: {
+          year,
+          month,
+          page: paginated
+        }
+      };
+    });
+  });
+}
+
+const { page, year, month } = Astro.props;
+const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' });
+const paddedMonth = String(month).padStart(2, '0');
+---
+
+<Layout title={`Archives for ${monthName} ${year} - Page ${page.currentPage}`}>
+    <h1 class="text-2xl pl-4 pt-8 font-bold mb-8 text-gray-800 dark:text-gray-200">
+      Archives for {monthName} {year}
+    </h1>
+
+    {page.data.map((post) => <BlogPostPreview post={post} />)}
+
+    <Pagination 
+      page={page}
+      urlPattern={(pageNum) => `/archives/${year}/${paddedMonth}${pageNum === 1 ? '' : `/page/${pageNum}`}`}
+    />
+</Layout>
