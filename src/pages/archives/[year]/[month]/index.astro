@@ -26,40 +26,42 @@ export async function getStaticPaths() {
       return date.getFullYear() === year && date.getMonth() === month - 1;
     });
 
+    const posts = monthPosts.slice(0, 4);
+    const totalPosts = monthPosts.length;
+    const page = {
+      data: posts,
+      start: 0,
+      end: 4,
+      total: totalPosts,
+      currentPage: 1,
+      size: 4,
+      lastPage: Math.ceil(totalPosts / 4),
+      url: {
+        current: `/archives/${year}/${String(month).padStart(2, '0')}`,
+        next: totalPosts > 4 ? `/archives/${year}/${String(month).padStart(2, '0')}/page/2` : undefined,
+        prev: undefined,
+        first: undefined, // Remove first page link on first page
+        last: totalPosts > 4 ? `/archives/${year}/${String(month).padStart(2, '0')}/page/${Math.ceil(totalPosts / 4)}` : undefined
+      }
+    };
+
     return {
       params: { 
         year: String(year), 
         month: String(month).padStart(2, '0')
       },
       props: { 
-        posts: monthPosts.slice(0, 4), 
+        page,
         year,
-        month,
-        totalPosts: monthPosts.length 
+        month
       }
     };
   });
 }
 
-const { posts, year, month, totalPosts } = Astro.props;
+const { page, year, month } = Astro.props;
 const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' });
 const paddedMonth = String(month).padStart(2, '0');
-const page = {
-  data: posts,
-  start: 0,
-  end: 4,
-  total: totalPosts,
-  currentPage: 1,
-  size: 4,
-  lastPage: Math.ceil(totalPosts / 4),
-  url: {
-    current: `/archives/${year}/${paddedMonth}`,
-    next: totalPosts > 4 ? `/archives/${year}/${paddedMonth}/page/2` : undefined,
-    prev: undefined,
-    first: `/archives/${year}/${paddedMonth}`,
-    last: `/archives/${year}/${paddedMonth}/page/${Math.ceil(totalPosts / 4)}`
-  }
-};
 ---
 
 <Layout title={`Archives for ${monthName} ${year}`}>
@@ -67,7 +69,7 @@ const page = {
       Archives for {monthName} {year}
     </h1>
 
-    {posts.map((post: Post) => <BlogPostPreview post={post} />)}
+    {page.data.map((post: Post) => <BlogPostPreview post={post} />)}
 
     <Pagination 
       page={page}

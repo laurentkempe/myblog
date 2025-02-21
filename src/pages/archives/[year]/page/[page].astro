@@ -48,7 +48,7 @@ export async function getStaticPaths() {
               prev: pageNum === 2 ? `/archives/${year}` : `/archives/${year}/page/${pageNum - 1}`,
               next: pageNum < totalPages ? `/archives/${year}/page/${pageNum + 1}` : undefined,
               first: `/archives/${year}`,
-              last: `/archives/${year}/page/${totalPages}`
+              last: pageNum === totalPages ? undefined : `/archives/${year}/page/${totalPages}` // Remove last page link on last page
             }
           }
         }

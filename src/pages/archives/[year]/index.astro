@@ -41,8 +41,8 @@ const page = {
     current: `/archives/${year}`,
     next: totalPosts > 4 ? `/archives/${year}/page/2` : undefined,
     prev: undefined,
-    first: `/archives/${year}`,
-    last: `/archives/${year}/page/${Math.ceil(totalPosts / 4)}`
+    first: undefined, // Remove first page link on first page
+    last: totalPosts > 4 ? `/archives/${year}/page/${Math.ceil(totalPosts / 4)}` : undefined
   }
 };
 ---
