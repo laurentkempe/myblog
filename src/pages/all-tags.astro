@@ -20,8 +20,8 @@ const tagMap = allPosts.reduce((acc, post) => {
   return acc;
 }, {} as Record<string, typeof allPosts>);
 
-// Sort tags alphabetically
-const sortedTags = Object.keys(tagMap).sort();
+// Sort tags case-insensitively
+const sortedTags = Object.keys(tagMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
 // Calculate tag sizes based on post count
 const maxPosts = Math.max(...Object.values(tagMap).map(posts => posts.length));
