@@ -11,6 +11,7 @@ coverImage: 'https://farm2.staticflickr.com/1947/43876018160_d11c5e61af_b.jpg'
 thumbnailImage: 'https://farm2.staticflickr.com/1947/43876018160_d11c5e61af_q.jpg'
 date: 2019-02-18 20:30:12
 ---
+import { Image } from 'astro:assets';
 
 Let' see in this blog post the new possibility offered by **.NET Core 3.0 preview 2** to load and unload assemblies at run time using **[AssemblyLoadContext](https://github.com/dotnet/coreclr/blob/master/src/System.Private.CoreLib/src/System/Runtime/Loader/AssemblyLoadContext.cs#L14)**.
 
@@ -221,7 +222,7 @@ In fact, the unloading does not happen immediately, it will wait that the GC col
 
 Let's run the application, change the file Program.cs in the folder Sources and see it working 😎
 
-<?# image center clear group=blog https://raw.githubusercontent.com/laurentkempe/DynamicRun/master/doc/screenshot.png alt="Running" /?>
+<Image src="https://raw.githubusercontent.com/laurentkempe/DynamicRun/master/doc/screenshot.png" width="100%" height="100%" alt="Running" class="container mx-auto px-4 py-4 flex flex-col sm:flex-row max-w-[640px]" />
 
 This is opening some new capabilities which we might explore in some new posts!
 

@@ -114,7 +114,7 @@ For the client, I am creating a new Console application and copying the greet.pr
 We can now use the new C# 8 Async stream to iterate on the server answers asynchronously.
 
 <Alert mode="info">
-C# has support for iterator methods and async methods, but no support for a method that is both an iterator and an async method. We should rectify this by allowing for await to be used in a new form of async iterator, one that returns an IAsyncEnumerable<T> or IAsyncEnumerator<T> rather than an IEnumerable<T> or IEnumerator<T>, with IAsyncEnumerable<T> consumable in a new await foreach. An IAsyncDisposable interface is also used to enable asynchronous cleanup.
+C# has support for iterator methods and async methods, but no support for a method that is both an iterator and an async method. We should rectify this by allowing for await to be used in a new form of async iterator, one that returns an `IAsyncEnumerable<T>` or `IAsyncEnumerator<T>` rather than an `IEnumerable<T>` or `IEnumerator<T>`, with `IAsyncEnumerable<T>` consumable in a new await foreach. An `IAsyncDisposable` interface is also used to enable asynchronous cleanup.
 </Alert>
 
 The code is greatly readable with this.

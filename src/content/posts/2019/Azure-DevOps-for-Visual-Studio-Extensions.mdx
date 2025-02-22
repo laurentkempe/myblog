@@ -13,6 +13,8 @@ coverImage: 'https://farm5.staticflickr.com/4350/36640551660_cb7e3db2b0_b.jpg'
 thumbnailImage: 'https://farm5.staticflickr.com/4350/36640551660_cb7e3db2b0_q.jpg'
 date: 2019-03-05 22:14:42
 ---
+import { Image } from 'astro:assets';
+
 As you might have guessed reading some of my older posts, I like to automate things which I believe a computer should do in place of humans.
 
 {/* <!-- more --> */}
@@ -162,12 +164,12 @@ In this step, we would like to automate the following
 7. Login to Chocolatey.org, upload by hand the nupkg, adapt the description and publish
 
 For that, we created a release pipeline job named "Marketplace - Github - Choco" with 3 tasks connected to our previously defined build pipeline artifacts
-<?# image center clear group=azuredevops https://farm8.staticflickr.com/7807/32349146347_f88d9b1fce_o.png alt="Azure DevOps Release pipeline"/?>
+<Image src="https://farm8.staticflickr.com/7807/32349146347_f88d9b1fce_o.png" alt="Azure DevOps Release pipeline" width="100%" height="100%" class="container mx-auto px-4 py-4 flex flex-col sm:flex-row max-w-[640px]" />
 
 In the details
-<?# image center clear group=azuredevops https://farm8.staticflickr.com/7840/47290958411_251b163117_o.png alt="Azure DevOps Release pipeline tasks" /?>
+<Image src="https://farm8.staticflickr.com/7840/47290958411_251b163117_o.png" alt="Azure DevOps Release pipeline tasks" width="100%" height="100%" class="container mx-auto px-4 py-4 flex flex-col sm:flex-row max-w-[640px]" />
 
-The first task publish Git Diff Margin to Visual Studio Extension using [Azure DevOps Extension Tasks](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.vsts-developer-tools-build-tasks)
+The first task publishes Git Diff Margin to Visual Studio Extension using [Azure DevOps Extension Tasks](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.vsts-developer-tools-build-tasks)
 
 ```yaml {data-file=azure-vs-release-pipelines.yml data-gist=dcc375c8bd03fb0367b5b6835464b45c}
 steps:
@@ -209,10 +211,10 @@ steps:
 
 The release pipeline is triggered manually when I am ready to publish a new version
 
-<?# image center clear group=azuredevops https://farm8.staticflickr.com/7820/46376429945_e3fde68d19_o.png alt="Azure DevOps Releasing" /?>
+<Image src="https://farm8.staticflickr.com/7820/46376429945_e3fde68d19_o.png" alt="Azure DevOps Releasing" width="100%" height="100%" class="container mx-auto px-4 py-4 flex flex-col sm:flex-row max-w-[640px]" />
 
 And if everything worked correctly you see the following result
-<?# image center clear group=azuredevops https://farm8.staticflickr.com/7883/40326503893_58116c2328_o.png alt="Azure DevOps Release result" /?>
+<Image src="https://farm8.staticflickr.com/7883/40326503893_58116c2328_o.png" alt="Azure DevOps Release result" width="100%" height="100%" class="container mx-auto px-4 py-4 flex flex-col sm:flex-row max-w-[640px]" />
 
 And now people have access to the latest version of Git Diff Margin on [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=LaurentKempe.GitDiffMargin), on [Github release](https://github.com/laurentkempe/GitDiffMargin/releases/tag/v3.9.3) and on [Chocolatey](https://www.chocolatey.org/packages/GitDiffMargin/).
 
@@ -223,4 +225,4 @@ Finally, we achieved our goal and let the machines do the work, which saves us t
 * [Utkarsh Shigihalli](https://github.com/onlyutkarsh) aka [@onlyutkarsh](https://twitter.com/onlyutkarsh) for [extending of Azure DevOps Extension Tasks for the Visual Studio marketplace](https://github.com/Microsoft/vsts-extension-build-release-tasks/issues/103)
 
 # Git Diff Margin feature demo
-<a data-flickr-embed="true" href="https://www.flickr.com/photos/laurentkempe/14879945429/" title="Git Diff Margin features demo"><img src="https://farm6.staticflickr.com/5562/14879945429_cc40e1db81_o.jpg" width="480" height="360" alt="Git Diff Margin features demo"></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
+<a data-flickr-embed="true" href="https://www.flickr.com/photos/laurentkempe/14879945429/" title="Git Diff Margin features demo"><img src="https://farm6.staticflickr.com/5562/14879945429_cc40e1db81_o.jpg" width="480" height="360" alt="Git Diff Margin features demo" /></a><script async src="//embedr.flickr.com/assets/client-code.js" charset="utf-8"></script>
