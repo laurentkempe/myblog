@@ -21,10 +21,10 @@ I am using the [.NET Core CLI](https://docs.microsoft.com/en-us/dotnet/core/tool
 
  I am using the default gRPC .NET Core template to generate the server part. The template creates a greet.proto file which I will duplicate between the server and the client project. As I want to experience with the [streaming capability of gRPC](https://www.grpc.io/docs/guides/concepts/), I am modifying the greet.proto file adding the keyword stream in front of the SayHello HelloReply response.
 
-<?! alert info ?>
+<Alert mode="info">
 Server streaming RPC<br/>
 A server-streaming RPC is similar to our simple example, except **the server sends back a stream of responses after getting the client’s request message**. After sending back all its responses, the server’s status details (status code and optional status message) and optional trailing metadata are sent back to complete on the server side. **The client completes once it has all the server’s responses**.
-<?!/ alert ?>
+</Alert>
 
  Here is how the greet.proto looks like.
 
@@ -113,9 +113,9 @@ For the client, I am creating a new Console application and copying the greet.pr
 
 We can now use the new C# 8 Async stream to iterate on the server answers asynchronously.
 
-<?! alert info ?>
+<Alert mode="info">
 C# has support for iterator methods and async methods, but no support for a method that is both an iterator and an async method. We should rectify this by allowing for await to be used in a new form of async iterator, one that returns an IAsyncEnumerable<T> or IAsyncEnumerator<T> rather than an IEnumerable<T> or IEnumerator<T>, with IAsyncEnumerable<T> consumable in a new await foreach. An IAsyncDisposable interface is also used to enable asynchronous cleanup.
-<?!/ alert ?>
+</Alert>
 
 The code is greatly readable with this.
 
@@ -142,5 +142,5 @@ static class Program
 We have seen that C# 8 Async streams are nicely integrating with gRPC streaming capabilities. And it makes code more readable!
 
 You can get all the code on GitHub
-<?# githubCard user=laurentkempe repo=grpcAsyncStream align=left /?>
+<GitHubCard user="laurentkempe" repo="grpcAsyncStream" />
 

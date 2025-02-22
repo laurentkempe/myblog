@@ -93,9 +93,9 @@ public partial class App : Application
 
 A first capability that .NET Generic Host is bringing is Dependency injection. We can inject some dependencies to the *MainWindow* as we delegate it's creation to the IOC container in *Application_Startup*. In this example, we are injecting a simple interface called *ITextService* with one method *GetText()*.
 
-<?! alert info ?>
+<Alert mode="info">
 In a real application, we definitely would be able to inject a View Model like *MainWindowViewModel* which would itself have other dependencies provided by the IOC container.
-<?!/ alert ?>
+</Alert>
 
 ```csharp {data-file=MainWindow.xaml.cs}
 public partial class MainWindow : Window
@@ -273,4 +273,4 @@ We have seen all the benefits the .NET Generic Host is bringing. It was easy to 
 
 You can get all the code on GitHub 
 
-<?# githubCard user=laurentkempe repo=WpfGenericHost align=left /?>
+<GitHubCard user="laurentkempe" repo="WpfGenericHost" />
