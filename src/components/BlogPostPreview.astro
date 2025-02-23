@@ -24,13 +24,15 @@ const { post } = Astro.props;
     {post.body && <p set:html={getExcerpt(post.body)}></p>}
     <p class="mt-2"><a href={`${post.data.permalink}`} class="text-blue-500 dark:text-blue-400 hover:underline">Continue reading</a></p>
   </div>
-  <div class="ml-6 hidden md:block">
-    <a href={`${post.data.permalink}`}>
-      <Image src={`${post.data.thumbnailImage}`}
-            alt={`${post.data.coverCaption}`}
-            class="rounded-lg shadow-md"
-            width="150"
-            height="150" />
-    </a>
-  </div>
+  {post.data.thumbnailImage && (
+    <div class="ml-6 hidden md:block">
+      <a href={`${post.data.permalink}`}>
+        <Image src={`${post.data.thumbnailImage}`}
+              alt={`${post.data.coverCaption}`}
+              class="rounded-lg shadow-md"
+              width="150"
+              height="150" />
+      </a>
+    </div>
+  )}
 </article>
