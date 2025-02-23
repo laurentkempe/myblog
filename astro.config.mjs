@@ -19,7 +19,10 @@ export default defineConfig({
         './src/components/Plyr.astro',
         './src/components/GitHubCard.astro',
         './src/components/Alert.astro',
-        './src/components/Reveal.astro'
+        './src/components/Reveal.astro',
+        {
+          '@astro-community/astro-embed-twitter': ['Tweet']
+        }
       ]
     }), 
     mdx()]
