@@ -21,7 +21,8 @@ export default defineConfig({
         './src/components/Alert.astro',
         './src/components/Reveal.astro',
         {
-          '@astro-community/astro-embed-twitter': ['Tweet']
+          '@astro-community/astro-embed-twitter': ['Tweet'],
+          'astro:assets': ['Image']
         }
       ]
     }), 
