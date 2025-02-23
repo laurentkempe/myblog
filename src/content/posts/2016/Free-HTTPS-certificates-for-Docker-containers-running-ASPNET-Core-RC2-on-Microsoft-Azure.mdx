@@ -20,10 +20,10 @@ I am following for quite some time the [Let's Encrypt](https://letsencrypt.org/)
 
 Now that I know that I can get in an automated way and for free an HTTPS certificate, the question is how should I architecture the solution? The answer is quite simple. As I use Docker, I can plug another Docker container with a reverse proxy in front of my current container which runs the [Kestrel](https://github.com/aspnet/KestrelHttpServer) web server hosting our C# and ASP.NET Core RC2 code.
 
-<?# image center clear group=blog https://c6.staticflickr.com/8/7494/27687906621_782bf08e81_o.jpg alt="Reverse proxy & Kestrel containers architecture" /?>
+<Image src="https://c6.staticflickr.com/8/7494/27687906621_782bf08e81_o.jpg" alt="Reverse proxy & Kestrel containers architecture" title="Reverse proxy & Kestrel containers architecture" width="100%" height="100%" class="container mx-auto px-4 py-4 flex flex-col sm:flex-row max-w-[640px]" />
 
 Ok which reverse proxy then? First, I had a look to [NGINX](https://www.nginx.com/resources/wiki/#) which I knew then found [Traefik](https://traefik.io/). I liked very much the [DEVOXX presentation, in French](https://www.youtube.com/watch?v=QvAz9mVx5TI), from its author [Emile Vauge](https://twitter.com/emilevauge) and it, supports Let's Encrypt out of the box.
-<?# Plyr video=QvAz9mVx5TI /?>
+<Plyr video="QvAz9mVx5TI" />
 
 I tried Traefik but till now could not make it work the way I wanted, so back to NGINX. But I do not give up.
 
@@ -57,9 +57,9 @@ hipchatconnect:
 
 I fell into a trap, so be aware of it! I got first NGINX 502 Bad gateway error. I thought that the docker-compose.yml part for hipchat had to declare an exposed port. In fact, it doesn't work like that. We are using links so that both containers are on the same internal network and that they can communicate. But that happens on their internal ports, so in our case for Kestrel and our Docker image, it is the port 5000. To realize that I had to connect to the container using
 
-<?! alert info ?>
+<Alert mode="info">
 \> docker exec -i -t CONTAINER /bin/bash
-<?!/ alert ?>
+</Alert>
 
 I installed wget, got the IP of the Kestrel container and tried to connect to it using wget also to get an error. That's the moment I realized about the port!
 
