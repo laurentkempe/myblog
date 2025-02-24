@@ -9,16 +9,14 @@ coverSize: partial
 thumbnailImage: https://farm6.staticflickr.com/5057/5517072642_bc446224c7_q.jpg
 coverCaption: "Palmier sur la plage de la grande anse, Le Diamant, Martinique"
 ---
-<!-- [![Palmier sur la plage de la grande anse du diamant](http://farm6.staticflickr.com/5057/5517072642_bc446224c7_m.jpg)](http://www.flickr.com/photos/laurentkempe/5517072642/ "Palmier sur la plage de la grande anse du diamant by Laurent Kempé, on Flickr") -->
-
 The other day I needed a way in a project I am working on to turn a .NET API, [RestSharp](http://restsharp.org/) to name it, so that I could use it in an asynchronous way.
 {/* <!-- more --> */}
 
-The goal was to have the API returning a **Task<TResult>** so that I could use it if I want with the [Async CTP](http://msdn.microsoft.com/en-us/vstudio/gg316360). I also wanted to have something running both on .NET 4.0 and on Windows Phone 7.5.
+The goal was to have the API returning a **`Task<TResult>`** so that I could use it if I want with the [Async CTP](http://msdn.microsoft.com/en-us/vstudio/gg316360). I also wanted to have something running both on .NET 4.0 and on Windows Phone 7.5.
 
 To achieve this goal I used 
 
-> ### [TaskCompletionSource<TResult> Class](http://msdn.microsoft.com/en-us/library/dd449174.aspx)
+> ### [TaskCompletionSource?lt;TResult&gt; Class](http://msdn.microsoft.com/en-us/library/dd449174.aspx)
 > 
 > **.NET Framework 4**
 
@@ -99,7 +97,7 @@ public Task<List<Project>> GetAllProjects()
 }
 ```
 
-So TaskCompletionSource<T> is a nice class to know about!
+So `TaskCompletionSource<T>` is a nice class to know about!
 
 ~~You might also watch this short video by [Phil Pennington](http://channel9.msdn.com/Niners/philpenn) to get a better idea about it:~~
 
