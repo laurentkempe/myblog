@@ -1,7 +1,7 @@
 # Rename *.md to .mdx
 
 ```powershell
-cd src/content/posts && Get-ChildItem -Path . -Filter *.md -Recurse | Rename-Item -NewName { $_.Name -replace '\.md$','.mdx' }
+Get-ChildItem -Path ".\src\content\posts\2019" -Filter *.md -Recurse | Rename-Item -NewName { $_.Name -replace '\.md$','.mdx' }
 ```
 
 # Replace old excerpt
