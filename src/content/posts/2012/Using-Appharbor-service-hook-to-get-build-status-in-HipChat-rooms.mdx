@@ -67,12 +67,12 @@ Now that we are able to listen to POST payload on the url …/hubot/appharbor we
 > user.room = 'Your Room Id'
 > user.type = 'groupchat'
 > 
-> message = "AppHarbor build '#{buildStatus}' for application: '#{builtApplicationName}'"
+> message = "AppHarbor build '#\{buildStatus\}' for application: '#\{builtApplicationName\}'"
 > 
-> robot.logger.info "User: '#{user.room}','#{user.type}'"
-> robot.logger.info "Message: '#{message}'"
+> robot.logger.info "User: '#\{user.room\}','#\{user.type\}'"
+> robot.logger.info "Message: '#\{message\}'"
 > 
-> robot.send user, "#{message}"
+> robot.send user, "#\{message\}"
 
 Currently this is working only with the Campfire adapter, the HipChat one is crashing as [described here](https://github.com/hipchat/hubot-hipchat/issues/24#issuecomment-5410146).
 
