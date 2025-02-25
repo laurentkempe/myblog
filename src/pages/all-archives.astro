@@ -189,6 +189,11 @@ const monthNames = [
       searchInput.addEventListener('input', (e) => {
         filterArchives((e.target as HTMLInputElement).value);
       });
+      
+      // Focus the search box when the page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        searchInput.focus();
+      });
     }
   </script>
 </Layout>

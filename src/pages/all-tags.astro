@@ -143,6 +143,11 @@ const getFontSize = (postCount: number) => {
         const target = e.target as HTMLInputElement;
         filterTags(target.value);
       });
+      
+      // Focus the search box when the page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        tagSearch.focus();
+      });
     }
   </script>
 </Layout>
