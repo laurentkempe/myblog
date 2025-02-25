@@ -11,11 +11,11 @@ The other day I had to re-install my whole server which is hosting [Tech Head Br
 So I started from scratch and after some issues I finally managed to have it running. I started uisng the following post from Scott Forsyth, “[IIS Compression in IIS6.0](http://weblogs.asp.net/owscott/archive/2004/01/12/57916.aspx)” and I took over those steps from his post:
 {/* <!-- more --> */}
 
-> ***First, before anything else, backup the metabase. ***This is done by right-clicking on the server in the IIS snap-in and selecting All Tasks -> Backup/Restore Configuration. The rest is straight forward.
+> ***First, before anything else, backup the metabase.*** This is done by right-clicking on the server in the IIS snap-in and selecting All Tasks -> Backup/Restore Configuration. The rest is straight forward.
 > 
 > **Create Compression Folder (optional)**
 > 
-> The first thing I do is create a folder on the D drive where the static file compression will be cached. You can call it anything you want or leave the default of “%windir%\IIS Temporary Compressed Files” if that works for you. The IUSR_{machinename} will need write permission to the folder. If you use custom anonymous users, make sure to assign the proper user. IIS will still work even if the permissions are wrong but the compression won't work properly. Once running, it's worth double checking Event Viewer to see if any errors are occurring that keep IIS Compression from working.
+> The first thing I do is create a folder on the D drive where the static file compression will be cached. You can call it anything you want or leave the default of “%windir%\IIS Temporary Compressed Files” if that works for you. The IUSR_\{machinename\} will need write permission to the folder. If you use custom anonymous users, make sure to assign the proper user. IIS will still work even if the permissions are wrong but the compression won't work properly. Once running, it's worth double checking Event Viewer to see if any errors are occurring that keep IIS Compression from working.
 > 
 > **Enable Compression in IIS**
 > 
@@ -31,7 +31,7 @@ So I started from scratch and after some issues I finally managed to have it run
 And from the last part I did the following:
 
 *   Open the metabase located at C:\Windows\system32\inetsrv\metabase.xml in Notepad
-*   Search for <IIsCompressionScheme   
+*   Search for &lt;IIsCompressionScheme   
 
 And changed it like this, take care of the carriage return for the HcFileExtensions and HcScriptFileExtensions, it is important:
 

@@ -4,43 +4,46 @@ permalink: /2010/11/19/Using-Resharper-Search-with-Pattern-to-protect-you-from-y
 date: 11/19/2010 12:02:53 AM
 updated: 11/19/2010 12:02:53 AM
 disqusIdentifier: 20101119120253
-tags: ["ReSharper", "Jetbrains"]
+tags: ["ReSharper", "JetBrains"]
 ---
 Today I faced a nasty bug, a null pointer exception in a property databound to our WPF application. This had some nasty side effects, and for sure this part of the code didn’t had any unit test, too bad! For sure now it has.
 
 The line of code was really simple
 {/* <!-- more --> */}
 
+
+```csharp
 Values.Where(model => model.IsSelected).FirstOrDefault().Refresh();
+```
 
 I guess you see the issue! If not here is the MSDN documentation:
 
-> <dl><dt>public static TSource **FirstOrDefault**< TSource >(this [[NotNull](about:blank#)] [IEnumerable](about:blank#)<TSource> <var>source</var>) </dt><dd></dd><dt>*in class [Enumerable](about:blank#)*</dt></dl>
+> public static TSource **FirstOrDefault**&lt;TSource&gt;(this [NotNull] IEnumerable&lt;TSource&gt; source) *in class Enumerable*
 > 
-> ## Summary:
+> ### Summary:
 > 
 > Returns the first element of a sequence, or a default value if the sequence contains no elements.
 > 
-> ### Parameters:
+> #### Parameters:
 > 
-> <var>source</var>:
-> The [IEnumerable<out T>](about:blank#) to return the first element of.
+> source:
+> The IEnumerable&lt;TSource&gt; to return the first element of.
 > 
-> ## Type Parameters:
+> ### Type Parameters:
 > 
-> <var>TSource</var>:
-> The type of the elements of <var>source</var>.
+> TSource:
+> The type of the elements of source;.
 > 
-> ## Returns:
+> ### Returns:
 > 
-> default(<var>TSource</var>) if <var>source</var> is empty; otherwise, the first element in <var>source</var>.
+> default(TSource) if source is empty; otherwise, the first element in source.
 > 
 > ### Exceptions:
 > 
-> [ArgumentNullException](about:blank#):
-> <var>source</var> is null.
+> ArgumentNullException:
+> source is null.
 
-Yeah, **FirstOrDefault** might returns null, so if you chain a call to another method it just crash!
+Yeah, **FirstOrDefault** might return null, so if you chain a call to another method it just crashes!
 
 For sure we know that! We use this method for that purpose, but an error can happen that fast!
 
