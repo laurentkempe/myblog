@@ -1,7 +1,7 @@
 # Rename *.md to .mdx
 
 ```powershell
-Get-ChildItem -Path ".\src\content\posts\2010" -Filter *.md -Recurse | Rename-Item -NewName { $_.Name -replace '\.md$','.mdx' }
+Get-ChildItem -Path ".\src\content\posts\2007" -Filter *.md -Recurse | Rename-Item -NewName { $_.Name -replace '\.md$','.mdx' }
 ```
 
 # Replace old excerpt
@@ -9,7 +9,7 @@ Get-ChildItem -Path ".\src\content\posts\2010" -Filter *.md -Recurse | Rename-It
 Find and replace all "<!-- more -->" by "{/* <!-- more --> */}" in *.mdx starting from a folder
 
 ```powershell
-Get-ChildItem -Path ".\src\content\posts\2010" -Filter "*.mdx" -Recurse | ForEach-Object { (Get-Content $_.FullName) -replace '<!-- more -->', '{/* <!-- more --> */}' | Set-Content $_.FullName }
+Get-ChildItem -Path ".\src\content\posts\2007" -Filter "*.mdx" -Recurse | ForEach-Object { (Get-Content $_.FullName) -replace '<!-- more -->', '{/* <!-- more --> */}' | Set-Content $_.FullName }
 ```
 
 # Replace <?! alert ?>
