@@ -15,11 +15,11 @@ I quickly tried out the script combining stuff and it works really great. I save
 
 and [Scott Guthrie](http://weblogs.asp.net/scottgu/archive/2007/06/08/new-asp-net-ajax-control-toolkit-release.aspx) blogs.
 
-> One of the biggest improvements with this toolkit release is support for a new "ToolkitScriptCombiner" control.  This control allows you to replace the default <asp:scriptmanager> control behavior, and supports the ability to dynamically merge multiple client-side Javascript scripts into a single file that is downloaded to the client at runtime.  Better yet, only the Javascript needed by the specific controls on the page are included within the combined download, to make it as small as possible.
+> One of the biggest improvements with this toolkit release is support for a new "ToolkitScriptCombiner" control.  This control allows you to replace the default &lt;asp:scriptmanager&gt; control behavior, and supports the ability to dynamically merge multiple client-side Javascript scripts into a single file that is downloaded to the client at runtime.  Better yet, only the Javascript needed by the specific controls on the page are included within the combined download, to make it as small as possible.
 
 And this just by doing this:
 
 ```html
-<%-- <asp:ScriptManager ID="scriptManager" runat="server"/> --%>
-<ajaxToolkit:ToolkitScriptManager runat="Server" ID="scriptManager" />
+&lt;%-- &lt;asp:ScriptManager ID="scriptManager" runat="server"/%&gt; --%&gt;
+&lt;ajaxToolkit:ToolkitScriptManager runat="Server" ID="scriptManager" /&gt;
 ```

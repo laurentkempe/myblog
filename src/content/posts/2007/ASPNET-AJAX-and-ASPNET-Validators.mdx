@@ -11,7 +11,7 @@ If you are using ASP.NET Validators in UpdatePanel consider the post of [Matt Gi
 > ASP.NET AJAX provides new APIs for registering script with the ScriptManager. Using these APIs allows controls to work well with partial rendering. Without them, controls placed inside an UpdatePanel won't work as expected. In previous CTP releases of ASP.NET AJAX, we had a set of validator controls that derived from the v2.0 controls and used the new APIs. This made them work well with ASP.NET AJAX. WindowsUpdate will soon include a version of System.Web that can take advantage of the new APIs. So the new controls which would have been redundant have been removed. However, the update isn't available yet and ASP.NET AJAX has been released. So, in the short-term, the source code for a set of custom validator controls that work with partial rendering is available [here](http://blogs.msdn.com/mattgi/attachment/1516974.ashx).
 {/* <!-- more --> */}
 > 
-> The .zip file includes a solution and .csproj file as well as the compiled DLL. Just put the DLL in the /bin directory of your application and include the following <tagMapping section in the pages section of the web.config.
+> The .zip file includes a solution and .csproj file as well as the compiled DLL. Just put the DLL in the /bin directory of your application and include the following &lt;tagMapping section in the pages section of the web.config.
  
 ```xml
 <tagMapping>
