@@ -11,11 +11,11 @@ I needed to create a virtual directory in IIS 6 during the deployment of one of 
 So I created a script that will register both COM component, by the way regsvr32 is really bad cause it doesn't return different value if it fails. Right now I have no verification in the script that let me know if the registration went well. I plan to add it in a second step by reading the content of the registry using the [reg command](http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/reg.mspx). The script is using the <em>SOAPVDIR.CMD</em> packaged with the [SOAP Toolkit 3](http://www.microsoft.com/downloads/details.aspx?FamilyId=C943C0DD-CEEC-4088-9753-86F052EC8450&displaylang=en) to create the Virtual Directory with the soap ISAPI of the [SOAP Toolkit 3](http://www.microsoft.com/downloads/details.aspx?FamilyId=C943C0DD-CEEC-4088-9753-86F052EC8450&displaylang=en):
 {/* <!-- more --> */}
 
->"c:\Program Files\MSSOAP\Binaries\<strong>SOAPVDIR.CMD</strong>" <strong>CREATE</strong> $VDIR_NAME <em><strong>path</strong></em>
+> "c:\Program Files\MSSOAP\Binaries\SOAPVDIR.CMD" <strong>CREATE</strong> $VDIR_NAME <em><strong>path</strong></em>
 
 Then I needed to change the user name used for the anonymous access:
 
->cscript c:\Inetpub\AdminScripts\adsutil.vbs <strong>SET</strong> /W3SVC/1/ROOT/$VDIR_NAME/<strong>AnonymousUserName</strong> <em><strong>myusername</strong></em>
+> script c:\Inetpub\AdminScripts\adsutil.vbs <strong>SET</strong> /W3SVC/1/ROOT/$VDIR_NAME/<strong>AnonymousUserName</strong> <em><strong>myusername</strong></em>
 
 and his password:
 
