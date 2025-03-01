@@ -1,0 +1,107 @@
+---
+title: 'Building Local AI Agents: Semantic Kernel and Ollama in C#'
+permalink: /2025/03/01/building-local-ai-agents-semantic-kernel-and-ollama-in-csharp/
+date: 03/01/2025 15:08:16
+disqusIdentifier: 20250301030816
+coverSize: partial
+tags: [AI, C#, LLM, Ollama, Semantic Kernel, SLM]
+coverCaption: 'Liebvillers, France'
+coverImage: 'https://live.staticflickr.com/65535/54288780665_df622c18b1_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/54288780665_132c271a14_q.jpg'
+---
+The recent release of Microsoft's Semantic Kernel Agents Framework RC1 provides an excellent opportunity to explore its capabilities with C#. In this post, we'll walk through creating a simple agent using this framework and running it locally with Ollama.
+
+Let's dive in!
+{/* <!-- more --> */}
+
+# Introduction
+
+AI agents are autonomous systems designed to perform tasks by analyzing their environment and making informed decisions. These agents harness the power of Large Language Models (LLMs) or Small Language Models (SLMs) to understand natural language and seamlessly interact with various tools, including APIs, databases, and other agents.
+
+The true power of AI agents lies in their ability to learn and adapt through feedback mechanisms. They generally fall into two categories: non-agentic chatbots for handling straightforward, immediate tasks, and agentic chatbots capable of managing complex, multi-step operations with memory and reasoning capabilities.
+
+In this post, we'll focus on building a non-agentic agent using Microsoft's Semantic Kernel framework and running it locally with Ollama.
+
+# Setting Up Your Environment
+
+Before we begin, you'll need to:
+
+* Install [Ollama](https://www.ollama.com/) to manage the SLM and handle the integration
+* Download the Phi-4 SLM model to your machine using: `ollama pull phi4:latest`
+
+# Creating the Simplest Non-agentic Agent
+
+With Ollama and the Phi-4 model in place, let's create a basic console application.
+
+```powershell
+dotnet new console -n SKOllamaAgent
+cd SKOllamaAgent
+```
+Next, add the Semantic Kernel nuget packages to your project using
+
+```powershell
+dotnet add package Microsoft.SemanticKernel
+dotnet add package Microsoft.SemanticKernel.Core
+dotnet add package Microsoft.SemanticKernel.Agents.Core --prerelease
+dotnet add package Microsoft.SemanticKernel.Connectors.Ollama --prerelease 
+```
+
+Let's create the simplest non-agentic agent using the Semantic Kernel by updating the created `Program.cs` file with
+
+```csharp
+var builder = Kernel.CreateBuilder();
+// 👇🏼 Using Phi-4 with Ollama
+builder.AddOllamaChatCompletion("phi4:latest", new Uri("http://localhost:11434"));
+
+var kernel = builder.Build();
+
+ChatCompletionAgent agent = new() // 👈🏼 Definition of the agent
+{
+    Instructions = "Answer questions about C# and .NET",
+    Name = "C# Agent",
+    Kernel = kernel
+};
+
+ChatHistory chat =
+[
+    new ChatMessageContent(AuthorRole.User, 
+                           "What is the difference between a class and a record?")
+];
+
+await foreach (var response in agent.InvokeAsync(chat))
+{
+    chat.Add(response);
+    Console.WriteLine(response.Content);
+}
+```
+
+Impressive, right? We have created a simple agent that can answer questions about C# and .NET in just a few lines of code.
+
+# Running the Agent
+
+To see your agent in action, execute this command in your terminal:
+
+```powershell
+dotnet run
+```
+
+You should now see the agent's response to your question about the differences between classes and records in C#. Here's the response I received:
+
+![Semantic Kernel Agents using Ollama and C#](/images/2025/Semantic_Kernel_Agents_using_Ollama_and_CSharp.png)
+
+# Conclusion
+
+We've demonstrated how to create a straightforward non-agentic agent using the Semantic Kernel Agents Framework and run it locally with Ollama. While this example shows the basics, you can enhance this agent's capabilities by adding more sophisticated instructions and connecting it with various tools and services.
+
+Stay tuned for upcoming posts where we'll explore more advanced features and implementations.
+
+# References
+
+* [Release the Agents! SK Agents Framework RC1](https://devblogs.microsoft.com/semantic-kernel/release-the-agents-sk-agents-framework-rc1/)
+* [Ollama](https://www.ollama.com/)
+* [Phi-4 SLM](https://www.ollama.com/library/phi4)
+* [What is Semantic Kernel?](https://learn.microsoft.com/en-us/semantic-kernel/overview/?tabs=Csharp)
+
+Get the source code on GitHub [laurentkempe/aiPlayground/SKOllamaAgent](https://github.com/laurentkempe/aiPlayground/tree/main/SKOllamaAgent)
+
+<GitHubCard user="laurentkempe" repo="aiPlayground" />
