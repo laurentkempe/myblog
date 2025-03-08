@@ -1,4 +1,5 @@
 // @ts-check
+import vue from '@astrojs/vue';
 import { defineConfig } from 'astro/config';
 import tailwindcss from "@tailwindcss/vite";
 import icon from 'astro-icon';
@@ -6,30 +7,19 @@ import icon from 'astro-icon';
 import AutoImport from 'astro-auto-import';
 import mdx from '@astrojs/mdx';
 
-import vue from '@astrojs/vue';
-import { vite as vidstack } from 'vidstack/plugins';
-
 // https://astro.build/config
 export default defineConfig({
   vite: {
     plugins: [
-      tailwindcss(),
-      vue({
-        template: {
-          compilerOptions: {
-            // Make sure Vue recognizes all Vidstack media elements as custom elements
-            isCustomElement: (tag) => tag.startsWith('media-'),
-          },
-        }
-      }),
-      vidstack()
-    ]
+      vue(),
+      tailwindcss()
+    ],
   },
   site: 'https://new.laurentkempe.com',
   integrations: [
-    icon(), 
+    icon(),
     AutoImport({
-      imports :[
+      imports: [
         './src/components/Plyr.astro',
         './src/components/GitHubCard.astro',
         './src/components/Alert.astro',
@@ -39,8 +29,14 @@ export default defineConfig({
           'astro:assets': ['Image']
         }
       ]
-    }), 
-    mdx(), 
-    vue()
-  ]
+    }),
+    mdx(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('media-'),
+        },
+      },
+    }),
+  ],
 });
