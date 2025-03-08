@@ -21,7 +21,7 @@ const { thumbnails } = defineProps<{
   <Gestures />
   <Captions />
   <media-controls
-    class="media-controls:opacity-100 absolute inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity"
+    class="absolute inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/10 to-transparent opacity-0 transition-opacity data-[visible]:opacity-100"
   >
     <div class="flex-1" />
     <media-controls-group class="flex w-full items-center px-2">
