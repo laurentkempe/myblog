@@ -6,14 +6,28 @@ import icon from 'astro-icon';
 import AutoImport from 'astro-auto-import';
 import mdx from '@astrojs/mdx';
 
+import vue from '@astrojs/vue';
+import { vite as vidstack } from 'vidstack/plugins';
+
 // https://astro.build/config
 export default defineConfig({
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      vue({
+        template: {
+          compilerOptions: {
+            // Make sure Vue recognizes all Vidstack media elements as custom elements
+            isCustomElement: (tag) => tag.startsWith('media-'),
+          },
+        }
+      }),
+      vidstack()
+    ]
   },
   site: 'https://new.laurentkempe.com',
   integrations: [
-    icon(),
+    icon(), 
     AutoImport({
       imports :[
         './src/components/Plyr.astro',
@@ -26,5 +40,7 @@ export default defineConfig({
         }
       ]
     }), 
-    mdx()]
+    mdx(), 
+    vue()
+  ]
 });

@@ -11,6 +11,7 @@
   "dependencies": {
     "@astro-community/astro-embed-twitter": "^0.5.8",
     "@astrojs/mdx": "^4.2.0",
+    "@astrojs/vue": "^5.0.7",
     "@iconify-json/fa6-brands": "^1.2.5",
     "@iconify-json/fa6-solid": "^1.2.3",
     "@tailwindcss/vite": "^4.0.4",
@@ -18,12 +19,14 @@
     "astro-auto-import": "^0.4.4",
     "astro-icon": "^1.1.5",
     "markdown-it": "^14.1.0",
+    "media-icons": "^1.1.5",
     "tailwindcss": "^4.0.4",
     "tailwindcss-animate": "^1.0.7",
-    "vidstack": "^1.12.12"
+    "vidstack": "^1.12.13",
+    "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.16",
+        "@tailwindcss/typography": "^0.5.16",
     "@types/markdown-it": "^14.1.2"
   }
 }
