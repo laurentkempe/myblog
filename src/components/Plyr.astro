@@ -4,4 +4,4 @@ import VideoPlayer from "./VideoPlayer.vue";
 const { video, start = "0", title = "Laurent Kempé" } = Astro.props;
 ---
 
-<VideoPlayer client:only />
+<VideoPlayer video={video} startTime={start} title={title} client:only />
