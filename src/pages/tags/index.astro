@@ -6,13 +6,18 @@ import { Icon } from 'astro-icon/components';
 import BlogPostPreview from '../../components/BlogPostPreview.astro';
 import { getTagSlug } from '../../utils/tags';
 
-type Post = CollectionEntry<'posts'>;
+type Post = CollectionEntry<'posts' | 'presentations'>;
 interface TagPosts {
   [key: string]: Post[];
 }
 
 const allPosts = await getCollection('posts');
-const sortedPosts = allPosts.sort((a, b) => 
+const allPresentations = await getCollection('presentations');
+
+// Merge posts and presentations collections
+const allEntries = [...allPosts, ...allPresentations];
+
+const sortedPosts = allEntries.sort((a, b) => 
   new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
 );
 

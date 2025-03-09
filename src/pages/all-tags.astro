@@ -6,19 +6,23 @@ import PostListItem from '../components/PostListItem.astro';
 import { getTagSlug } from '../utils/tags';
 
 const allPosts = await getCollection("posts");
+const allPresentations = await getCollection("presentations");
+
+// Merge posts and presentations collections
+const allEntries = [...allPosts, ...allPresentations];
 
 // Get all unique tags and their posts
-const tagMap = allPosts.reduce((acc, post) => {
-  if (!post.data.tags) return acc;
+const tagMap = allEntries.reduce((acc, entry) => {
+  if (!entry.data.tags) return acc;
   
-  post.data.tags.forEach(tag => {
+  entry.data.tags.forEach(tag => {
     if (!acc[tag]) {
       acc[tag] = [];
     }
-    acc[tag].push(post);
+    acc[tag].push(entry);
   });
   return acc;
-}, {} as Record<string, typeof allPosts>);
+}, {} as Record<string, typeof allEntries>);
 
 // Sort tags case-insensitively
 const sortedTags = Object.keys(tagMap).sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
