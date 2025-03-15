@@ -5,7 +5,9 @@ import PublicationList from '../components/PublicationList.astro';
 import { getLatestEntries } from '../utils/collections';
 
 const allPresentations = await getCollection("presentations");
-const sortedPresentations = getLatestEntries(allPresentations);
+const sortedPresentations = allPresentations.sort((a, b) => 
+  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
 ---
 
 <Layout title="Speaking">
