@@ -1,0 +1,299 @@
+---
+title: 'Harnessing AI in C# with Microsoft.Extensions.AI, Ollama, and MCP Server'
+permalink: /2025/03/15/harnessing-ai-in-csharp-with-microsoftextensionsai-ollama-and-mcp-server/
+date: 03/15/2025 15:36:00
+disqusIdentifier: 20250315033600
+coverSize: partial
+tags: [AI, C#, MCP, SLM, Ollama]
+coverCaption: 'Les Vosges, France'
+coverImage: 'https://live.staticflickr.com/5210/5297920398_199c438d4c_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/5210/5297920398_431f7d7b27_q.jpg'
+---
+In the previous post "[Leveraging Microsoft.Extensions.AI for Tool Calling in C#](https://laurentkempe.com/2025/01/27/leveraging-microsoftextensionsai-for-tool-calling-in-csharp/)", we explored how to create custom tools that enhance the capabilities of Large Language Models (LLMs). We demonstrated how integrating these technologies enables developers to build applications with advanced AI capabilities, facilitating more complex interactions.
+
+In this post, we'll take a step further and explore how to leverage **Model Context Protocol (MCP)** servers to utilize external Tools and AI models in C# applications. We'll continue using Ollama to run local AI models.
+{/* <!-- more --> */}
+
+# Introduction
+
+The future of AI extends beyond powerful models to their seamless interaction with the data that drives our world. **Model Context Protocol (MCP)** is a groundbreaking open standard designed to bridge the gap between AI systems and diverse data sources. Developed by Anthropic, MCP simplifies the integration of AI with content repositories, business tools, and development environments. By replacing fragmented, custom integrations with a universal protocol, MCP empowers developers to create secure, scalable, and context-aware AI applications.
+
+# Requirements
+
+* **Llama 3.2 SLM**, a model supporting function calling
+* **Ollama** to run the SLM and handle the integration
+* A .NET CLI application using **Microsoft.Extensions.AI** and **McpDotNet.Extensions.AI**
+
+# Create a .NET Console Application
+
+We'll create a simple .NET CLI application that interacts with the AI model using `Microsoft.Extensions.AI`. This library provides a unified set of AI building blocks for .NET applications, making it easy to incorporate AI capabilities into your projects. We'll extend these capabilities using `McpDotNet.Extensions.AI` to provide tools via a **Model Context Protocol (MCP) server**.
+
+```powershell
+dotnet new console -n OllamaMCPServerMicrosoftExtensions
+cd OllamaMCPServerMicrosoftExtensions
+dotnet add package Microsoft.Extensions.AI
+dotnet add package McpDotNet.Extensions.AI
+```
+
+# Implementation using Microsoft.Extensions.AI & McpDotNet.Extensions.AI
+
+Our console application leverages `Microsoft.Extensions.AI` to interact with a Llama 3.2 AI model running locally via Ollama. We then enhance the chat client's capabilities using `McpDotNet.Extensions.AI` to incorporate tools hosted outside our application by an MCP server.
+
+Continuing from our previous examples, we'll use a **Time MCP Server** packaged as a simple Docker container. This container automatically starts and stops when our application runs.
+
+```csharp
+Console.WriteLine("Hello, Microsoft.Extensions.AI with Ollama & MCP Server !");
+var message = "What is the current (CET) time in Illzach, France?";
+Console.WriteLine(message);
+
+// 👇🏼 Configure the Model Context Protocol server to use
+var config = new McpServerConfig
+{
+    Id = "time",
+    Name = "Time MCP Server",
+    TransportType = TransportTypes.StdIo,
+    TransportOptions = new Dictionary<string, string>
+    {
+        // 👇🏼 The command executed to start the MCP server
+        ["command"] = "docker",
+        ["arguments"] = "run -i --rm mcp/time"
+    }
+};
+
+// 👇🏼 Get an MCP session scope used to get the MCP tools
+await using var sessionScope = await McpSessionScope.CreateAsync(config);
+
+using var factory =
+    LoggerFactory.Create(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Trace));
+
+// 👇🏼 Use Ollama as the chat client
+var ollamaChatClient =
+    new OllamaChatClient(new Uri("http://localhost:11434/"), "llama3.2:3b");
+var client = new ChatClientBuilder(ollamaChatClient)
+    // 👇🏼 Add logging to the chat client, wrapping the function invocation client 
+    .UseLogging(factory)
+    // 👇🏼 Add function invocation to the chat client, wrapping the Ollama client
+    .UseFunctionInvocation()
+    .Build();
+
+IList<ChatMessage> messages =
+[
+    new(ChatRole.System, """
+                         You are a helpful assistant delivering time in one sentence
+                         in a short format, like 'It is 10:08 in Paris, France.'
+                         """),
+    new(ChatRole.User, message)
+];
+
+// 👇🏼 Pass the MCP tools to the chat client
+var response =
+    await client.GetResponseAsync(
+        messages,
+        new ChatOptions { Tools = sessionScope.Tools });
+
+Console.WriteLine(response);
+```
+
+# Running the Application
+
+To run the application, simply execute `dotnet run`. The application starts the **Time MCP Server** Docker container, interacts with the AI model, and returns the current time in Illzach, France.
+
+```powershell
+> dotnet run
+Hello, Microsoft.Extensions.AI with Ollama & MCP Server !
+What is the current (CET) time in Illzach, France?
+trce: Microsoft.Extensions.AI.LoggingChatClient[805843669]
+      GetResponseAsync invoked: [
+        {
+          "role": "system",
+          "contents": [
+            {
+              "$type": "text",
+              "text": "You are a helpful assistant delivering time in one sentence\r\nin a short format, like 'It is 10:08 in Paris, France.'"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "contents": [
+            {
+              "$type": "text",
+              "text": "What is the current (CET) time in Illzach, France?"
+            }
+          ]
+        }
+      ]. Options: {}. Metadata: {
+        "providerName": "ollama",
+        "providerUri": "http://localhost:11434/",
+        "modelId": "llama3.2:3b"
+      }.
+trce: Microsoft.Extensions.AI.LoggingChatClient[384896670]
+      GetResponseAsync completed: {
+        "messages": [
+          {
+            "role": "assistant",
+            "contents": [
+              {
+                "$type": "functionCall",
+                "callId": "86D17B64",
+                "name": "get_current_time",
+                "arguments": {
+                  "timezone": "Europe/Paris"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "contents": [
+              {
+                "$type": "functionResult",
+                "callId": "86D17B64",
+                "result": "{\n  \"timezone\": \"Europe/Paris\",\n  \"datetime\": \"2025-03-15T12:51:31+01:00\",\n  \"is_dst\": false\n}"
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "contents": [
+              {
+                "$type": "text",
+                "text": "The current time in Illzach, France (CET) is 12:51 PM."
+              }
+            ]
+          }
+        ],
+        "responseId": "2025-03-15T11:51:32.2116206Z",
+        "modelId": "llama3.2:3b",
+        "createdAt": "2025-03-15T11:51:32.2116206+00:00",
+        "finishReason": "stop",
+        "usage": {
+          "inputTokenCount": 614,
+          "outputTokenCount": 41,
+          "totalTokenCount": 655,
+          "additionalCounts": {
+            "load_duration": 2706148300,
+            "total_duration": 3390812700,
+            "prompt_eval_duration": 238000000,
+            "eval_duration": 439000000
+          }
+        }
+      }.
+The current time in Illzach, France (CET) is 12:51 PM.
+```
+
+The trace logs reveal how the application interacts with the AI model: first, it receives a `functionCall` response from the assistant, then the `Microsoft.Extensions.AI` client calls the MCP server and receives a `functionResult` from the tool. Finally, the assistant formulates an answer for the user based on the function call result.
+
+We can also examine the logs from the **Time MCP Server** Docker container to observe the interaction with our application:
+
+```powershell
+2025-03-15 11:01:11
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "experimental": {},
+      "tools": {
+        "listChanged": false
+      }
+    },
+    "serverInfo": {
+      "name": "mcp-time",
+      "version": "1.0.0"
+    }
+  }
+}
+
+
+2025-03-15 11:01:11 
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "result": {
+    "tools": [
+      {
+        "name": "get_current_time",
+        "description": "Get current time in a specific timezone",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "timezone": {
+              "type": "string",
+              "description": "IANA timezone name (e.g., 'America/New_York', 'Europe/London'). Use 'UTC' as local timezone if no timezone provided by the user."
+            }
+          },
+          "required": [
+            "timezone"
+          ]
+        }
+      },
+      {
+        "name": "convert_time",
+        "description": "Convert time between timezones",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "source_timezone": {
+              "type": "string",
+              "description": "Source IANA timezone name (e.g., 'America/New_York', 'Europe/London'). Use 'UTC' as local timezone if no source timezone provided by the user."
+            },
+            "time": {
+              "type": "string",
+              "description": "Time to convert in 24-hour format (HH:MM)"
+            },
+            "target_timezone": {
+              "type": "string",
+              "description": "Target IANA timezone name (e.g., 'Asia/Tokyo', 'America/San_Francisco'). Use 'UTC' as local timezone if no target timezone provided by the user."
+            }
+          },
+          "required": [
+            "source_timezone",
+            "time",
+            "target_timezone"
+          ]
+        }
+      }
+    ]
+  }
+}
+
+2025-03-15 11:01:14
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"timezone\": \"Europe/Paris\",\n  \"datetime\": \"2025-03-15T11:01:14+01:00\",\n  \"is_dst\": false\n}"
+      }
+    ],
+    "isError": false
+  }
+}
+```
+
+These logs show the connection being established, tools being listed, and a function call being made to retrieve the current time. Note that this log comes from a previous run of the application, so the time differs from our main example.
+
+# Conclusion
+
+The Model Context Protocol (MCP) represents a transformative advancement for AI integrations. By providing a standardized, unified approach for connecting AI agents to tools and data sources, MCP simplifies development, enhances flexibility, and enables real-time, context-rich interactions. Its dynamic discovery capabilities and bidirectional communication distinguish it from traditional APIs, creating a foundation for more intelligent, responsive AI systems.
+
+The future of AI has never looked brighter, with MCP driving seamless integrations and powering intelligent solutions across numerous use cases. It's truly an exciting time for AI enthusiasts and professionals as we embark on a new era of connectivity and possibility! 🚀
+
+
+# References
+
+* [Introducing the Model Context Protocol](https://www.anthropic.com/news/model-context-protocol)
+* [Model Context Protocol](https://modelcontextprotocol.io/introduction)
+* [PederHP/mcpdotnet](https://github.com/PederHP/mcpdotnet)
+* [Introducing Microsoft.Extensions.AI Preview – Unified AI Building Blocks for .NET](https://devblogs.microsoft.com/dotnet/introducing-microsoft-extensions-ai-preview/)
+* [Time MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/time)
+* [Integrating Model Context Protocol Tools with Semantic Kernel: A Step-by-Step Guide](https://devblogs.microsoft.com/semantic-kernel/integrating-model-context-protocol-tools-with-semantic-kernel-a-step-by-step-guide/)
+
+
+Get the source code on GitHub [laurentkempe/aiPlayground/OllamaMCPServerMicrosoftExtensions](https://github.com/laurentkempe/aiPlayground/tree/main/OllamaMCPServerMicrosoftExtensions).
+
+<GitHubCard user="laurentkempe" repo="aiPlayground" />
