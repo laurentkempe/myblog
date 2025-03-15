@@ -13,7 +13,6 @@ const pageTitle = frontmatter?.title || title;
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/ico" href="/favicon.ico" />
-        <link rel="stylesheet" href="https://cdn.vidstack.io/player.css" />
         <meta name="generator" content={Astro.generator} />
         <link rel="alternate" type="application/rss+xml" title={`${Blog.SITE_TITLE} blog`} href={new URL("atom.xml", Astro.site)}/>
         <title>{Blog.SITE_TITLE} - {pageTitle}</title>
@@ -42,7 +41,5 @@ const pageTitle = frontmatter?.title || title;
             }
             window.localStorage.setItem("theme", theme);
         </script>
-        <script src="https://cdn.vidstack.io/player.core" type="module"></script>
-        <script src="https://cdn.vidstack.io/icons" type="module"></script>
     </body>
 </html>
