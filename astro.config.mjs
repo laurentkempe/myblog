@@ -22,6 +22,7 @@ export default defineConfig({
         './src/components/Reveal.astro',
         {
           '@astro-community/astro-embed-twitter': ['Tweet'],
+          '@astro-community/astro-embed-youtube': ['YouTube'],
           'astro:assets': ['Image']
         }
       ]

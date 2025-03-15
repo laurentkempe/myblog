@@ -11,6 +11,9 @@ importers:
       '@astro-community/astro-embed-twitter':
         specifier: ^0.5.8
         version: 0.5.8(astro@5.5.2(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(rollup@4.34.4)(typescript@5.7.2)(yaml@2.6.1))
+      '@astro-community/astro-embed-youtube':
+        specifier: ^0.5.6
+        version: 0.5.6(astro@5.5.2(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(rollup@4.34.4)(typescript@5.7.2)(yaml@2.6.1))
       '@astrojs/mdx':
         specifier: ^4.2.0
         version: 4.2.0(astro@5.5.2(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(rollup@4.34.4)(typescript@5.7.2)(yaml@2.6.1))
@@ -67,6 +70,11 @@ packages:
 
   '@astro-community/astro-embed-utils@0.1.3':
     resolution: {integrity: sha512-eiMO+vfCdE9GtW6qE7X5Xl6YCKZDCoXJEWqRofQcoC3GHjqN2/WhJlnaxNVRq3demSO03UNtho57Em5p7o7AOA==}
+
+  '@astro-community/astro-embed-youtube@0.5.6':
+    resolution: {integrity: sha512-/mRfCl/eTBUz0kmjD1psOy0qoDDBorVp0QumUacjFcIkBullYtbeFQ2ZGZ+3N/tA6cR/OIyzr2QA4dQXlY6USg==}
+    peerDependencies:
+      astro: ^2.0.0 || ^3.0.0-beta || ^4.0.0-beta || ^5.0.0-beta
 
   '@astrojs/compiler@2.11.0':
     resolution: {integrity: sha512-zZOO7i+JhojO8qmlyR/URui6LyfHJY6m+L9nwyX5GiKD78YoRaZ5tzz6X0fkl+5bD3uwlDHayf6Oe8Fu36RKNg==}
@@ -1285,6 +1293,9 @@ packages:
   lit-html@2.8.0:
     resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
 
+  lite-youtube-embed@0.3.3:
+    resolution: {integrity: sha512-gFfVVnj6NRjxVfJKo3qoLtpi0v5mn3AcR4eKD45wrxQuxzveFJUb+7Cr6uV6n+DjO8X3p0UzPPquhGt0H/y+NA==}
+
   local-pkg@0.5.1:
     resolution: {integrity: sha512-9rrA30MRRP3gBD3HTGnC6cDFpaE1kVDWxWgqWJUN0RvDNAo+Nz/9GxB+nHOH0ifbVFy0hSA1V6vFDvnx54lTEQ==}
     engines: {node: '>=14'}
@@ -2125,6 +2136,11 @@ snapshots:
   '@astro-community/astro-embed-utils@0.1.3':
     dependencies:
       linkedom: 0.14.26
+
+  '@astro-community/astro-embed-youtube@0.5.6(astro@5.5.2(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(rollup@4.34.4)(typescript@5.7.2)(yaml@2.6.1))':
+    dependencies:
+      astro: 5.5.2(@types/node@22.10.2)(jiti@2.4.2)(lightningcss@1.29.1)(rollup@4.34.4)(typescript@5.7.2)(yaml@2.6.1)
+      lite-youtube-embed: 0.3.3
 
   '@astrojs/compiler@2.11.0': {}
 
@@ -3469,6 +3485,8 @@ snapshots:
   lit-html@2.8.0:
     dependencies:
       '@types/trusted-types': 2.0.7
+
+  lite-youtube-embed@0.3.3: {}
 
   local-pkg@0.5.1:
     dependencies:
