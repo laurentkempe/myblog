@@ -1,4 +1,4 @@
-import { getCollection } from 'astro:content';
+import { getAllPosts } from '../utils/collections';
 import markdownit from 'markdown-it';
 import { Blog } from '../utils/constants';
 
@@ -36,11 +36,7 @@ function getExcerpt(content: string = '') {
 }
 
 export async function GET({ }) {
-  const posts = await getCollection('posts');
-  const sortedPosts = posts
-    .sort(
-      (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-    );
+  const sortedPosts = await getAllPosts();
 
   let atom = `<feed xmlns="http://www.w3.org/2005/Atom">
 <title>${Blog.SITE_TITLE}</title>

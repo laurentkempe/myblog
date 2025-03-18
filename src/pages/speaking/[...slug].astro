@@ -1,10 +1,12 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getAllPresentations } from '../../utils/collections';
 import MarkdownPostLayout from '../../layouts/Layout.astro';
 import TagList from '../../components/TagList.astro';
 
 export async function getStaticPaths() {
-  const presentations = await getCollection('presentations');
+  const presentations = await getAllPresentations();
+
   return presentations.map(presentation => ({
     params: { slug: presentation.data.permalink }, props: { presentation },
   }));

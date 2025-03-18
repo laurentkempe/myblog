@@ -1,18 +1,14 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
 import BlogPostPreview from '../../../../components/BlogPostPreview.astro';
 import Pagination from '../../../../components/Pagination.astro';
-import type { Page } from 'astro';
+import { getAllPosts } from '../../../../utils/collections';
 import type { CollectionEntry } from 'astro:content';
 
 type Post = CollectionEntry<'posts'>;
 
 export async function getStaticPaths({ paginate }: { paginate: Function }) {
-  const allPosts = await getCollection("posts");
-  const sortedPosts = allPosts.sort((a, b) => 
-    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-  );
+  const sortedPosts = await getAllPosts();
 
   // Get unique year/month combinations from posts
   const yearMonths = [...new Set(sortedPosts.map(post => {

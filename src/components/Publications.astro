@@ -1,27 +1,23 @@
 ---
-import { getCollection } from "astro:content";
 import PublicationList from "./PublicationList.astro";
-import { getLatestEntries } from "../utils/collections";
+import { getLatestPosts, getLatestPresentations } from "../utils/collections";
 
-const allPosts = await getCollection("posts");
-const sortedPosts = getLatestEntries(allPosts, 6);
-
-const allPresentations = await getCollection("presentations");
-const sortedPresentations = getLatestEntries(allPresentations, 6);
----
+const latestPosts = await getLatestPosts(6);
+const latestPresentations = await getLatestPresentations(6);
+--- 
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
   <PublicationList 
     title="Latest posts"
     icon="📖"
     href="/blog/1"
-    items={sortedPosts}
+    items={latestPosts}
   />
   <PublicationList 
     title="Speaking"
     icon="🗣️"
     href="/speaking"
-    items={sortedPresentations}
+    items={latestPresentations}
     linkPrefix="/speaking"
   />
 </div>

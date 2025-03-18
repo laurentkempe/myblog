@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getAllPosts } from '../utils/collections';
 import { Icon } from 'astro-icon/components';
 import PostListItem from '../components/PostListItem.astro';
 import { getTagSlug } from '../utils/tags';
 
-const allPosts = await getCollection("posts");
+const allPosts = await getAllPosts();
 
 // Get all unique tags and their posts
 const tagMap = allPosts.reduce((acc, post) => {

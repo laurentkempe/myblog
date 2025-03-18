@@ -1,13 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
 import PublicationList from '../components/PublicationList.astro';
-import { getLatestEntries } from '../utils/collections';
+import { getAllPresentations } from '../utils/collections';
 
-const allPresentations = await getCollection("presentations");
-const sortedPresentations = allPresentations.sort((a, b) => 
-  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
+const allPresentations = await getAllPresentations();
 ---
 
 <Layout title="Speaking">
@@ -16,7 +12,7 @@ const sortedPresentations = allPresentations.sort((a, b) =>
       title=""
       icon=""
       href="/speaking"
-      items={sortedPresentations}
+      items={allPresentations}
       linkPrefix="/speaking"
     />
   </div>
