@@ -1,6 +1,6 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getAllPosts } from '../../../utils/collections';
 import BlogPostPreview from '../../../components/BlogPostPreview.astro';
 import Pagination from '../../../components/Pagination.astro';
 import { Icon } from 'astro-icon/components';
@@ -10,10 +10,7 @@ import type { CollectionEntry } from 'astro:content';
 type Post = CollectionEntry<'posts'>;
 
 export async function getStaticPaths() {
-  const allPosts = await getCollection("posts");
-  const sortedPosts = allPosts.sort((a, b) => 
-    new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-  );
+  const sortedPosts = await getAllPosts();
 
   // Get all unique tags
   const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags || []))].sort();

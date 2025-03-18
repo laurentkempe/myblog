@@ -1,12 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getAllPosts, getLatestPresentations } from "../utils/collections";
+
 import PostListItem from '../components/PostListItem.astro';
 
-const allPosts = await getCollection("posts");
-const sortedPosts = allPosts.sort((a, b) => 
-  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
+const sortedPosts = await getAllPosts();
 
 // Group posts by year and month
 const postsByYearAndMonth = sortedPosts.reduce((acc, post) => {

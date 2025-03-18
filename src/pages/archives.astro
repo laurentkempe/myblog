@@ -1,12 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getAllPosts } from '../utils/collections';
 import PostListItem from '../components/PostListItem.astro';
 
-const allPosts = await getCollection("posts");
-const sortedPosts = allPosts.sort((a, b) => 
-  new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
+const sortedPosts = await getAllPosts();
+
 ---
 <Layout title="Blog">
   <ul class="ml-12 space-y-2 list-disc">
