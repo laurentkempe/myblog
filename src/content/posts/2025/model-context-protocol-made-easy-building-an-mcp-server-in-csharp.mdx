@@ -27,7 +27,7 @@ The future of AI extends beyond powerful models to their seamless interaction wi
 
 # Create MCPServer .NET Console Application
 
-We'll create a simple .NET CLI application that will server as our MCP Server.
+We'll create a simple .NET CLI application that will serve as our MCP Server.
 
 ```powershell
 dotnet new console -n MCPServer
@@ -35,12 +35,12 @@ cd MCPServer
 dotnet add package ModelContextProtocol --version 0.1.0-preview.1.25171.12
 ```
 
-# Implementation an MCP server in C#
+# Implementation of an MCP server in C#
 
 Our console application leverages `modelcontextprotocol / csharp-sdk` providing an easy way to create a MCP server using the **STDIO transport protocol**. The library also provides some attributes to define MCP Tools.
 
 <Alert mode="info">
-Server-side SSE transport protocol is not supported at the time of writting but it is in development. The client-side SSE transport protocol is supported and can be used to call MCP servers.
+Server-side SSE transport protocol is not supported at the time of writing but it is in development. The client-side SSE transport protocol is supported and can be used to call MCP servers.
 </Alert>
 
 We continue with our simplest idea, so we are defining a **Time MCP Server** which exposes a time Tool.
