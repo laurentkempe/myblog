@@ -1,0 +1,304 @@
+---
+title: 'Model Context Protocol Made Easy: Building an MCP Server in C#'
+permalink: /2025/03/17/model-context-protocol-made-easy-building-an-mcp-server-in-csharp/
+date: 03/17/2025 21:38:00
+coverSize: partial
+tags: [AI, C#, MCP, SLM, LLM, Ollama]
+coverCaption: 'Guadeloupe, France'
+coverImage: 'https://live.staticflickr.com/1313/1230129070_2510679761_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/1313/1230129070_7d4ad61bca_q.jpg'
+draft: true
+---
+My previous post was describing how we could use C# with `Microsoft.Extensions.AI`, Ollama, and a nice nuget called `mcpdotnet` to be able to call an existing MCP Server. In the meantime, the `mcpdotnet` library has been promoted to an "**official C# SDK for Model Context Protocol servers and clients, maintained by Microsoft**".
+
+The Model Context Protocol (MCP) is an open standard that enables seamless integration between AI systems and various data sources, allowing developers to create context-aware applications. In this post, we'll explore how to build a simple MCP server using C# and the **modelcontextprotocol / csharp-sdk** library, which simplifies the process of creating and managing MCP servers.
+{/* <!-- more --> */}
+
+# Introduction
+
+The future of AI extends beyond powerful models to their seamless interaction with the data that drives our world. **Model Context Protocol (MCP)** is a groundbreaking open standard designed to bridge the gap between AI systems and diverse data sources. Developed by Anthropic, MCP simplifies the integration of AI with content repositories, business tools, and development environments. By replacing fragmented, custom integrations with a universal protocol, MCP empowers developers to create secure, scalable, and context-aware AI applications.
+
+# Requirements
+
+* **Llama 3.2 SLM**, a model supporting function calling
+* **Ollama** to run the SLM and handle the integration
+* A .NET CLI application using **modelcontextprotocol / csharp-sdk** for the server
+* Another .NET CLI application also using **modelcontextprotocol / csharp-sdk** for the client
+
+# Create MCPServer .NET Console Application
+
+We'll create a simple .NET CLI application that will server as our MCP Server.
+
+```powershell
+dotnet new console -n MCPServer
+cd MCPServer
+dotnet add package ModelContextProtocol --version 0.1.0-preview.1.25171.12
+```
+
+# Implementation an MCP server in C#
+
+Our console application leverages `modelcontextprotocol / csharp-sdk` providing an easy way to create a MCP server using the **STDIO transport protocol**. The library also provides some attributes to define MCP Tools.
+
+<Alert mode="info">
+Server-side SSE transport protocol is not supported at the time of writting but it is in development. The client-side SSE transport protocol is supported and can be used to call MCP servers.
+</Alert>
+
+We continue with our simplest idea, so we are defining a **Time MCP Server** which exposes a time Tool.
+
+```csharp
+var builder = Host.CreateEmptyApplicationBuilder(settings: null);
+builder.Services
+    // 👇🏼 We build an MCP Server   
+    .AddMcpServer()
+    // 👇🏼 uses Stdio as transport protocol    
+    .WithStdioServerTransport()
+    // 👇🏼 Register all tools with McpToolType attribute    
+    .WithTools();
+await builder.Build().RunAsync();
+
+// 👇🏼 Mark our type as a container for MCP tools
+[McpToolType]
+public static class TimeTool
+{
+    // 👇🏼 Mark a method as an MCP tools
+    [McpTool, Description("Get the current time for a city")]
+    public static string GetCurrentTime(string city) => 
+        $"It is {DateTime.Now.Hour}:{DateTime.Now.Minute} in {city}.";
+}
+```
+
+We define easily a tool by adding the `McpToolType` attribute to our class and the `McpTool` attribute to our method. The method will be called when the AI model determine that it is the right tool to use following the request from the user.
+
+# Testing the MCP Server
+
+The MCP Inspector is an interactive developer tool designed for testing and debugging MCP servers. It provides a user-friendly interface for sending requests to the server, inspecting responses, and visualizing the interaction between the AI model and the MCP server. The inspector is particularly useful for developers working with the Model Context Protocol, as it simplifies the process of testing and validating MCP server functionality.
+
+We can start the inspector from our application folder using the nodejs command `npx` with the following command:
+
+```powershell
+npx @modelcontextprotocol/inspector dotnet run
+```
+
+It will run the inspector and start our MCP server. The inspector will automatically detect the MCP server and allow us to test it.
+
+```powershell
+npx @modelcontextprotocol/inspector dotnet run
+Starting MCP inspector...
+Proxy server listening on port 3000
+
+🔍 MCP Inspector is up and running at http://localhost:5173 🚀
+```
+
+Navigate to http://localhost:5173 click on `Connect` then on `Tools` tab and finally on `List Tools`. You should see the `GetCurrentTime` tool we just created and be able to call it passing a city name.
+
+![MCP Inspector](/images/2025/mcp-server-mcp-inpsector.png)
+
+Our MCP server is now working 🎉
+
+# Calling the MCP Server from a C# application
+
+Now we want to call our MCP server from a C# application. We will also use the `modelcontextprotocol / csharp-sdk` library to be able to call the MCP server and get the current time. The code is almost the same as the one we used in the previous post, except the creation of the `McpServerConfig` object which is pointing to our **Time MCP Server** just created.
+
+```csharp
+Console.WriteLine("Hello, official MCP csharp-sdk and MCP Server!");
+
+var message = "What is the current (CET) time in Illzach, France?";
+Console.WriteLine(message);
+
+// 👇🏼 Configure the MCP client options
+McpClientOptions options = new()
+{
+    ClientInfo = new() { Name = "Time Client", Version = "1.0.0" }
+};
+
+// 👇🏼 Configure the Model Context Protocol server to use
+var config = new McpServerConfig
+{
+    Id = "time",
+    Name = "Time MCP Server",
+    TransportType = TransportTypes.StdIo,
+    TransportOptions = new Dictionary<string, string>
+    {
+        // 👇🏼 The command executed to start the MCP server
+        ["command"] = @"..\..\..\..\MCPServer\bin\Debug\net9.0\MCPServer.exe"
+    }
+};
+
+using var factory =
+    LoggerFactory.Create(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Trace));
+
+// 👇🏼 Get an MCP session scope used to get the MCP tools
+await using var mcpClient = await McpClientFactory.CreateAsync(config, options);
+
+// 👇🏼 Use Ollama as the chat client
+var ollamaChatClient =
+    new OllamaChatClient(new Uri("http://localhost:11434/"), "llama3.2:3b");
+var client = new ChatClientBuilder(ollamaChatClient)
+    // 👇🏼 Add logging to the chat client, wrapping the function invocation client 
+    .UseLogging(factory)
+    // 👇🏼 Add function invocation to the chat client, wrapping the Ollama client
+    .UseFunctionInvocation()
+    .Build();
+    
+IList<ChatMessage> messages =
+[
+    new(ChatRole.System, """
+                         You are a helpful assistant delivering time in one sentence
+                         in a short format, like 'It is 10:08 in Paris, France.'
+                         """),
+    new(ChatRole.User, message)
+];
+
+// 👇🏼 Pass the MCP tools to the chat client
+var mcpTools = await mcpClient.GetAIFunctionsAsync();
+var response =
+    await client.GetResponseAsync(
+        messages,
+        new ChatOptions { Tools = [..mcpTools] });
+
+Console.WriteLine(response);
+```
+
+<Alert mode="info">
+The way to configure the command in `McpServerConfig` is not really great. We will see in a future post how to improve that.
+</Alert>
+
+To run the application, simply execute `dotnet run`. The client application starts, then starts our own **Time MCP Server**, interacts with the AI model, and returns the current time in Illzach, France.
+
+```powershell
+> dotnet run
+Hello, official MCP csharp-sdk and MCP Server!
+What is the current (CET) time in Illzach, France?
+trce: Microsoft.Extensions.AI.LoggingChatClient[805843669]
+      GetResponseAsync invoked: [
+        {
+          "role": "system",
+          "contents": [
+            {
+              "$type": "text",
+              "text": "You are a helpful assistant delivering time in one sentence\r\nin a short format, like 'It is 10:08 in Paris, France.'"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "contents": [
+            {
+              "$type": "text",
+              "text": "What is the current (CET) time in Illzach, France?"
+            }
+          ]
+        }
+      ]. Options: {}. Metadata: {
+        "providerName": "ollama",
+        "providerUri": "http://localhost:11434/",
+        "modelId": "llama3.2:3b"
+      }.
+trce: Microsoft.Extensions.AI.LoggingChatClient[384896670]
+      GetResponseAsync completed: {
+        "messages": [
+          {
+            "role": "assistant",
+            "contents": [
+              {
+                "$type": "functionCall",
+                "callId": "5FD80F38",
+                "name": "GetCurrentTime",
+                "arguments": {
+                  "city": "Illzach, France"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "contents": [
+              {
+                "$type": "functionResult",
+                "callId": "5FD80F38",
+                "result": {
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "It is 9:8 in Illzach, France."
+                    }
+                  ],
+                  "isError": false
+                }
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "contents": [
+              {
+                "$type": "text",
+                "text": "The current time in Illzach, France (CET) is 9:08."
+              }
+            ]
+          }
+        ],
+        "responseId": "2025-03-22T08:08:44.5023608Z",
+        "modelId": "llama3.2:3b",
+        "createdAt": "2025-03-22T08:08:44.5023608+00:00",
+        "finishReason": "stop",
+        "usage": {
+          "inputTokenCount": 376,
+          "outputTokenCount": 41,
+          "totalTokenCount": 417,
+          "additionalCounts": {
+            "load_duration": 3766997200,
+            "total_duration": 4563875800,
+            "prompt_eval_duration": 324652800,
+            "eval_duration": 468492200
+          }
+        }
+      }.
+The current time in Illzach, France (CET) is 9:08.
+```
+
+The trace logs reveal how the application interacts with the AI model: first, our application send the user message "What is the current (CET) time in Illzach, France?" with the list of tools. Then the LLM replies with a `functionCall` response, indicating that it wants to call the `GetCurrentTime` function with the argument "Illzach, France". The `Microsoft.Extensions.AI` client then calls the tool on the MCP server, which executes the `GetCurrentTime` function and returns a `functionResult` with the value "It is 9:8 in Illzach, France.". Finally, the assistant formulates a user-friendly response based on the function call result; "The current time in Illzach, France (CET) is 9:08.".
+
+If you want to also see trace logs of the MCP client, you can update to the following code to your client application
+
+```csharp
+// 👇🏼 Get an MCP session scope used to get the MCP tools
+// 👇🏼 Get an MCP session scope used to get the MCP tools
+await using var mcpClient = 
+    await McpClientFactory.CreateAsync(config, options, loggerFactory: factory);
+```
+
+You would see the following trace logs
+
+```powershell
+Hello, official MCP csharp-sdk and MCP Server!
+What is the current (CET) time in Illzach, France?
+info: ModelContextProtocol.Client.McpClientFactory[77006853]
+      Creating client for Client (time: Time MCP Server)
+info: ModelContextProtocol.Protocol.Transport.StdioClientTransport[428439416]
+      Transport for Client (stdio) for (time: Time MCP Server) connecting
+info: ModelContextProtocol.Protocol.Transport.StdioClientTransport[567343866]
+      Creating process for transport for Client (stdio) for (time: Time MCP Server) with command cmd.exe, arguments /c ..\..\..\..\MCPServer\bin\Debug\net9.0\MCPServer.exe, e
+...
+```      
+
+# Conclusion
+
+The Model Context Protocol (MCP) represents a transformative advancement for AI integrations. By providing a standardized, unified approach for connecting AI agents to tools and data sources, MCP simplifies development, enhances flexibility, and enables real-time, context-rich interactions. Its dynamic discovery capabilities and bidirectional communication distinguish it from traditional APIs, creating a foundation for more intelligent, responsive AI systems.
+
+The future of AI has never looked brighter, with MCP driving seamless integrations and powering intelligent solutions across numerous use cases. It's truly an exciting time for AI enthusiasts and professionals as we embark on a new era of connectivity and possibility! 🚀
+
+Get the source code on GitHub [aiPlayground/MCPServer](https://github.com/laurentkempe/aiPlayground/tree/main/MCPServer) and if you like it please give it a star ⭐️.
+
+<GitHubCard user="laurentkempe" repo="aiPlayground" />
+
+# References
+
+* [Introducing the Model Context Protocol](https://www.anthropic.com/news/model-context-protocol)
+* [Model Context Protocol](https://modelcontextprotocol.io/introduction)
+* [Model Context Protocol Inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector)
+* [MCP official csharp-sdk](https://github.com/modelcontextprotocol/csharp-sdk)
+* [npx](https://docs.npmjs.com/cli/v9/commands/npx?v=true)
+* [Introducing Microsoft.Extensions.AI Preview - Unified AI Building Blocks for .NET](https://devblogs.microsoft.com/dotnet/introducing-microsoft-extensions-ai-preview/)
+* [Time MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/time)
+* [Integrating Model Context Protocol Tools with Semantic Kernel: A Step-by-Step Guide](https://devblogs.microsoft.com/semantic-kernel/integrating-model-context-protocol-tools-with-semantic-kernel-a-step-by-step-guide/)
