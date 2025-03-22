@@ -9,7 +9,7 @@ coverImage: 'https://live.staticflickr.com/1313/1230129070_2510679761_h.jpg'
 thumbnailImage: 'https://live.staticflickr.com/1313/1230129070_7d4ad61bca_q.jpg'
 draft: true
 ---
-My previous post was describing how we could use C# with `Microsoft.Extensions.AI`, Ollama, and a nice nuget called `mcpdotnet` to be able to call an existing MCP Server. In the meantime, the `mcpdotnet` library has been promoted to an "**official C# SDK for Model Context Protocol servers and clients, maintained by Microsoft**".
+In my previous post, I demonstrated how to use C# with `Microsoft.Extensions.AI`, Ollama, and a nuget package called `mcpdotnet` to interact with an existing MCP Server. Since then, `mcpdotnet` has been elevated to become the "**official C# SDK for Model Context Protocol servers and clients, maintained by Microsoft**".
 
 The Model Context Protocol (MCP) is an open standard that enables seamless integration between AI systems and various data sources, allowing developers to create context-aware applications. In this post, we'll explore how to build a simple MCP server using C# and the **modelcontextprotocol / csharp-sdk** library, which simplifies the process of creating and managing MCP servers.
 {/* <!-- more --> */}
@@ -35,15 +35,15 @@ cd MCPServer
 dotnet add package ModelContextProtocol --version 0.1.0-preview.1.25171.12
 ```
 
-# Implementation of an MCP server in C#
+# Implementation of an MCP Server in C#
 
-Our console application leverages `modelcontextprotocol / csharp-sdk` providing an easy way to create a MCP server using the **STDIO transport protocol**. The library also provides some attributes to define MCP Tools.
+Our console application uses `modelcontextprotocol / csharp-sdk` to create an MCP server that implements the **STDIO transport protocol**. The library provides convenient attributes for defining MCP Tools.
 
 <Alert mode="info">
-Server-side SSE transport protocol is not supported at the time of writing but it is in development. The client-side SSE transport protocol is supported and can be used to call MCP servers.
+While the server-side SSE transport protocol is currently under development and not yet supported, the client-side SSE transport protocol is fully functional for making MCP server calls.
 </Alert>
 
-We continue with our simplest idea, so we are defining a **Time MCP Server** which exposes a time Tool.
+Let's start with a simple implementation: a **Time MCP Server** that provides a time-related Tool.
 
 ```csharp
 var builder = Host.CreateEmptyApplicationBuilder(settings: null);
@@ -67,7 +67,7 @@ public static class TimeTool
 }
 ```
 
-We define easily a tool by adding the `McpToolType` attribute to our class and the `McpTool` attribute to our method. The method will be called when the AI model determine that it is the right tool to use following the request from the user.
+We define a tool by decorating our class with the `McpToolType` attribute and the method with the `McpTool` attribute. The AI model will invoke this method when it determines it's the appropriate tool for handling the user's request.
 
 # Testing the MCP Server
 
@@ -257,12 +257,16 @@ trce: Microsoft.Extensions.AI.LoggingChatClient[384896670]
 The current time in Illzach, France (CET) is 9:08.
 ```
 
-The trace logs reveal how the application interacts with the AI model: first, our application send the user message "What is the current (CET) time in Illzach, France?" with the list of tools. Then the LLM replies with a `functionCall` response, indicating that it wants to call the `GetCurrentTime` function with the argument "Illzach, France". The `Microsoft.Extensions.AI` client then calls the tool on the MCP server, which executes the `GetCurrentTime` function and returns a `functionResult` with the value "It is 9:8 in Illzach, France.". Finally, the assistant formulates a user-friendly response based on the function call result; "The current time in Illzach, France (CET) is 9:08.".
+The trace logs demonstrate the interaction flow between components:
+1. Our application sends the user's time query along with available tools
+2. The LLM responds with a `functionCall`, requesting to execute the `GetCurrentTime` function
+3. The `Microsoft.Extensions.AI` client invokes the tool on the MCP server
+4. The server executes the function and returns the current time
+5. Finally, the assistant formats a user-friendly response based on the result
 
-If you want to also see trace logs of the MCP client, you can update to the following code to your client application
+If you want to enable trace logging for the MCP client, modify your client application code as follows:
 
 ```csharp
-// 👇🏼 Get an MCP session scope used to get the MCP tools
 // 👇🏼 Get an MCP session scope used to get the MCP tools
 await using var mcpClient = 
     await McpClientFactory.CreateAsync(config, options, loggerFactory: factory);
@@ -284,7 +288,7 @@ info: ModelContextProtocol.Protocol.Transport.StdioClientTransport[567343866]
 
 # Conclusion
 
-The Model Context Protocol (MCP) represents a transformative advancement for AI integrations. By providing a standardized, unified approach for connecting AI agents to tools and data sources, MCP simplifies development, enhances flexibility, and enables real-time, context-rich interactions. Its dynamic discovery capabilities and bidirectional communication distinguish it from traditional APIs, creating a foundation for more intelligent, responsive AI systems.
+The Model Context Protocol (MCP) marks a significant milestone in AI integration technology. It introduces a standardized approach for connecting AI agents with tools and data sources, streamlining development while enhancing system flexibility. Through its dynamic discovery capabilities and bidirectional communication, MCP sets itself apart from conventional APIs, establishing a robust foundation for building more intelligent and responsive AI systems.
 
 The future of AI has never looked brighter, with MCP driving seamless integrations and powering intelligent solutions across numerous use cases. It's truly an exciting time for AI enthusiasts and professionals as we embark on a new era of connectivity and possibility! 🚀
 
