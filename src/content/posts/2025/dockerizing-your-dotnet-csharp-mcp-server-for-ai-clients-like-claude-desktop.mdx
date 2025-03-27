@@ -10,13 +10,13 @@ coverImage: 'https://live.staticflickr.com/1297/1222517468_c54e760a4f_h.jpg'
 thumbnailImage: 'https://live.staticflickr.com/1297/1222517468_51614eb7f0_q.jpg'
 draft: true
 ---
-My previous post shown how easy it is to develop a .NET C# MCP server and how to write a client able to communicate with it. Now, the questions is how can we distribute our MCP server to be used by AI clients. In this post, we leverage the knowledge acquired in some of my previous posts to see how to dockerize your .NET C# MCP server.
+My previous post showed how easy it is to develop a .NET C# MCP server and write a client able to communicate with it. Now, the question is how we can distribute our MCP server to be used by AI clients. In this post, we'll leverage the knowledge acquired from my previous posts to explore how to dockerize your .NET C# MCP server.
 {/* <!-- more --> */}
 # Introduction
 
-Model Context Protocol is on fire 🔥 and it is great to get support for it on .NET through an official C# SDK! 
+Model Context Protocol is on fire 🔥, and it's great to get support for it on .NET through an official C# SDK! 
 
-As I wrote on my previous post, the MCP server is a console application that uses the STDIO transport protocol. And I didn't liked the way I had to specify the path in the MCP Client. So, I searched for another way and thanks to the great post from *Philippe Charrière*, [Creating an MCP Server in Go and Serving it with Docker](https://k33g.hashnode.dev/creating-an-mcp-server-in-go-and-serving-it-with-docker) I thought using a Docker container is a great idea 💡.
+As I wrote in my previous post, the MCP server is a console application that uses the STDIO transport protocol. I wasn't satisfied with how I had to specify the path in the MCP Client. So, I searched for another approach, and thanks to the great post from *Philippe Charrière*, [Creating an MCP Server in Go and Serving it with Docker](https://k33g.hashnode.dev/creating-an-mcp-server-in-go-and-serving-it-with-docker), I realized using a Docker container would be a great idea 💡.
 
 # Requirements
 
@@ -31,19 +31,19 @@ The code itself doesn't change at all, from the previous post.
 ```csharp
 var builder = Host.CreateEmptyApplicationBuilder(settings: null);
 builder.Services
-    // 👇🏼 We build an MCP Server   
+    // 👇 We build an MCP Server   
     .AddMcpServer()
-    // 👇🏼 uses Stdio as transport protocol    
+    // 👇 Uses Stdio as transport protocol    
     .WithStdioServerTransport()
-    // 👇🏼 Register all tools with McpToolType attribute    
+    // 👇 Register all tools with McpToolType attribute    
     .WithTools();
 await builder.Build().RunAsync();
 
-// 👇🏼 Mark our type as a container for MCP tools
+// 👇 Mark our type as a container for MCP tools
 [McpToolType]
 public static class TimeTool
 {
-    // 👇🏼 Mark a method as an MCP tools
+    // 👇 Mark a method as an MCP tools
     [McpTool, Description("Get the current time for a city")]
     public static string GetCurrentTime(string city) => 
         $"It is {DateTime.Now.Hour:00}:{DateTime.Now.Minute:00} in {city}.";
@@ -201,7 +201,7 @@ The current time (CET) in Illzach, France is 20:54.
 
 # Configure Claude Desktop
 
-To configure Claude Desktop to use our MCP server, we need to update the configuration file **%APPDATA%\Claude\claude_desktop_config.json** to the following value:
+To configure Claude Desktop to use our MCP server, we need to update the configuration file **%APPDATA%\Claude\claude_desktop_config.json** with the following content:
 
 ```json
 {
@@ -232,11 +232,11 @@ Then we will see that our MCP server is called and get an answer which is used b
 
 # Using our MCP server with Visual Studio Code
 
-Since some days, we can also use our MCP server with Visual Studio Code Insider. For that we need to add 
+Visual Studio Code Insiders now supports MCP servers. To configure it, follow these steps:
 
 ![Configure MCP Server in Visual Studio Code](/images/2025/mcp-server-docker-vscode-config.png)
 
-Click on *Edit in settings.json* and add the following lines to the configuration file:
+Click on *Edit in settings.json* and add the following configuration:
 
 ```json
 {
@@ -265,7 +265,7 @@ Clicking on the icon you should see the tool available in the MCP server.
 
 ![Visual Studio Code MCP Servers and Tools](/images/2025/mcp-server-docker-vscode-mcp-servers.png)
 
-Then, we can ask copilot our question and see the answer after accepting to call the tool.
+Then, we can ask Copilot our question and see the answer after approving the tool execution.
 
 ![Result of using the MCP Sever in Copilot](/images/2025/mcp-server-docker-copilot-edit-output.png)
 
@@ -274,7 +274,6 @@ Then, we can ask copilot our question and see the answer after accepting to call
 The future of AI is incredibly exciting, and the Model Context Protocol (MCP) is paving the way for seamless integration between tools, platforms, and AI clients. By containerizing your .NET C# MCP server, you’re not only simplifying deployment but also unlocking the potential for scalable, cross-platform AI solutions. Whether you're using Claude Desktop, Visual Studio Code, or other MCP-compatible clients, this approach demonstrates how easy it is to bridge the gap between AI and real-world applications.
 
 As MCP continues to evolve, it’s clear that we’re just scratching the surface of what’s possible. The combination of open standards, powerful SDKs, and containerization is setting the stage for a future where AI tools are more accessible, interoperable, and impactful than ever before. So, dive in, experiment, and be part of this transformative journey. The future of AI with MCP is here, and it’s brighter than ever! 🚀
-
 
 Get the source code on GitHub [aiPlayground/MCPServerDocker](https://github.com/laurentkempe/aiPlayground/MCPServerDocker) and if you like it please give it a star ⭐️.
 
@@ -285,4 +284,4 @@ Get the source code on GitHub [aiPlayground/MCPServerDocker](https://github.com/
 * [Claude Desktop](https://claude.ai/download)
 * [Containerize a .NET app reference](https://learn.microsoft.com/en-us/dotnet/core/containers/publish-configuration)
 * [.NET container images](https://learn.microsoft.com/en-us/dotnet/core/docker/container-images)
-* [My docker posts](https://laurentkempe.com/all-tags/#docker)
+* [My Docker posts](https://laurentkempe.com/all-tags/#docker)
