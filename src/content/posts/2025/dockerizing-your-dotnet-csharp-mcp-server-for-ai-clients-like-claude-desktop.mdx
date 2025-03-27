@@ -1,0 +1,288 @@
+---
+title: 'Dockerizing your .NET C# MCP Server for AI Clients like Claude Desktop'
+permalink: /2025/03/26/dockerizing-your-dotnet-csharp-mcp-server-for-ai-clients-like-claude-desktop/
+date: 3/26/2025 8:23:05 AM
+disqusIdentifier: 20250326082305
+coverSize: partial
+tags: [AI, C#, Docker, LLM, SLM, MCP]
+coverCaption: 'Deshaies, Guadeloupe, France'
+coverImage: 'https://live.staticflickr.com/1297/1222517468_c54e760a4f_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/1297/1222517468_51614eb7f0_q.jpg'
+draft: true
+---
+My previous post shown how easy it is to develop a .NET C# MCP server and how to write a client able to communicate with it. Now, the questions is how can we distribute our MCP server to be used by AI clients. In this post, we leverage the knowledge acquired in some of my previous posts to see how to dockerize your .NET C# MCP server.
+{/* <!-- more --> */}
+# Introduction
+
+Model Context Protocol is on fire 🔥 and it is great to get support for it on .NET through an official C# SDK! 
+
+As I wrote on my previous post, the MCP server is a console application that uses the STDIO transport protocol. And I didn't liked the way I had to specify the path in the MCP Client. So, I searched for another way and thanks to the great post from *Philippe Charrière*, [Creating an MCP Server in Go and Serving it with Docker](https://k33g.hashnode.dev/creating-an-mcp-server-in-go-and-serving-it-with-docker) I thought using a Docker container is a great idea 💡.
+
+# Requirements
+
+* [Docker](https://www.docker.com/) installed on your machine.
+* [Claude Desktop](https://claude.ai/download) or any other MCP client like [Visual Studio Code Insider](https://code.visualstudio.com/insiders/) installed on your machine.
+* [.NET 9 SDK](https://dot.net/) for sure.
+
+# Update our MCP server
+
+The code itself doesn't change at all, from the previous post.
+
+```csharp
+var builder = Host.CreateEmptyApplicationBuilder(settings: null);
+builder.Services
+    // 👇🏼 We build an MCP Server   
+    .AddMcpServer()
+    // 👇🏼 uses Stdio as transport protocol    
+    .WithStdioServerTransport()
+    // 👇🏼 Register all tools with McpToolType attribute    
+    .WithTools();
+await builder.Build().RunAsync();
+
+// 👇🏼 Mark our type as a container for MCP tools
+[McpToolType]
+public static class TimeTool
+{
+    // 👇🏼 Mark a method as an MCP tools
+    [McpTool, Description("Get the current time for a city")]
+    public static string GetCurrentTime(string city) => 
+        $"It is {DateTime.Now.Hour:00}:{DateTime.Now.Minute:00} in {city}.";
+}
+```
+
+We will use the .NET SDK capability to publish our application as a Docker container. This is a great way to distribute our MCP server, as it will be easy to run on any machine with Docker installed. For that we need to add few lines to the `csproj` configuration to enable the .NET SDK built-in Docker support. This is done by adding the following lines:
+
+```xml
+<PropertyGroup>
+  <!-- 👇🏼 Enable SDK container support -->
+  <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+  <!-- 👇🏼 Define the container image name created -->
+  <ContainerRepository>laurentkempe/mcpserverdocker</ContainerRepository>
+  <!-- 👇🏼 Define the container base image used to build our Docker image -->
+  <ContainerBaseImage>mcr.microsoft.com/dotnet/runtime:9.0-alpine</ContainerBaseImage>
+  <!-- 👇🏼 Targeting Linux as the OS and an x64 architecture -->
+  <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+</PropertyGroup>
+```
+
+As our MCP server is a console application, and it is using STDIO transport protocol, we don't need to expose any port. We are using the .NET Alpine base image to keep the container lightweight.
+
+# Publish our MCP server
+To publish our MCP server locally, we need to run the following command in the root of our project:
+
+```bash
+dotnet publish /t:PublishContainer
+```
+
+Then the Docker image will be created in the local Docker registry. You can check that by running the following command:
+
+````bash
+ ❯  docker images
+REPOSITORY                    TAG     IMAGE ID       CREATED          SIZE
+laurentkempe/mcpserverdocker  latest  2f25817e97b4   15 seconds ago   133MB
+````
+
+# Update our MCP client to use the dockerized MCP server
+
+To use our dockerized MCP server, we need to update the `MCPClient` configuration with the following lines:
+
+```csharp
+// 👇🏼 Configure the Model Context Protocol server to use
+var config = new McpServerConfig
+{
+    Id = "time",
+    Name = "Time MCP Server",
+    TransportType = TransportTypes.StdIo,
+    TransportOptions = new Dictionary<string, string>
+    {
+        // 👇🏼 The command executed to start the MCP server
+        ["command"] = "docker",
+        ["arguments"] = "run -i --rm laurentkempe/mcpserverdocker"
+    }
+};
+```
+
+This is much nicer than specifying the path to the MCP server executable, but can be cumbersome to build the container image each time you change the server code. 
+
+# Running our own client
+
+To run the client, simply execute dotnet run. The client application starts, then starts the our newly created docker container with our Time MCP Server, interacts with the AI model, and returns the current time in Illzach, France.
+
+```powershell
+Hello, official MCP csharp-sdk and Docker MCP Server!
+What is the current (CET) time in Illzach, France?
+trce: Microsoft.Extensions.AI.LoggingChatClient[805843669]
+      GetResponseAsync invoked: [
+        {
+          "role": "system",
+          "contents": [
+            {
+              "$type": "text",
+              "text": "You are a helpful assistant delivering time in one sentence\r\nin a short format, like 'It is 10:08 in Paris, France.'"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "contents": [
+            {
+              "$type": "text",
+              "text": "What is the current (CET) time in Illzach, France?"
+            }
+          ]
+        }
+      ]. Options: {}. Metadata: {
+        "providerName": "ollama",
+        "providerUri": "http://localhost:11434/",
+        "modelId": "llama3.2:3b"
+      }.
+trce: Microsoft.Extensions.AI.LoggingChatClient[384896670]
+      GetResponseAsync completed: {
+        "messages": [
+          {
+            "role": "assistant",
+            "contents": [
+              {
+                "$type": "functionCall",
+                "callId": "7DFFB38A",
+                "name": "GetCurrentTime",
+                "arguments": {
+                  "city": "Illzach"
+                }
+              }
+            ]
+          },
+          {
+            "role": "tool",
+            "contents": [
+              {
+                "$type": "functionResult",
+                "callId": "7DFFB38A",
+                "result": {
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "It is 20:54 in Illzach."
+                    }
+                  ],
+                  "isError": false
+                }
+              }
+            ]
+          },
+          {
+            "role": "assistant",
+            "contents": [
+              {
+                "$type": "text",
+                "text": "The current time (CET) in Illzach, France is 20:54."
+              }
+            ]
+          }
+        ],
+        "responseId": "2025-03-27T20:54:27.1080391Z",
+        "modelId": "llama3.2:3b",
+        "createdAt": "2025-03-27T20:54:27.1080391+00:00",
+        "finishReason": "stop",
+        "usage": {
+          "inputTokenCount": 374,
+          "outputTokenCount": 39,
+          "totalTokenCount": 413,
+          "additionalCounts": {
+            "load_duration": 7512529000,
+            "total_duration": 8348169800,
+            "prompt_eval_duration": 365028500,
+            "eval_duration": 445809800
+          }
+        }
+      }.
+The current time (CET) in Illzach, France is 20:54.
+```
+
+# Configure Claude Desktop
+
+To configure Claude Desktop to use our MCP server, we need to update the configuration file **%APPDATA%\Claude\claude_desktop_config.json** to the following value:
+
+```json
+{
+  "mcpServers": {
+    "Laurent Time MCP Server": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "laurentkempe/mcpserverdocker"
+      ]
+    }
+  }
+}
+```
+
+# Using our MCP server with Claude Desktop
+
+Once the configuration is done, we can start Claude Desktop and see our server and time tools available in the list of tools.
+When asking about the time in a city will use our MCP server to get the answer, but first we need to allow the tool to be used.
+
+![Allow MCP Server tool usage in Claude Desktop](/images/2025/mcp-server-docker-claude-desktop-allow.png)
+
+Then we will see that our MCP server is called and get an answer which is used by the LLM to answer the question.
+
+![Using Claude Desktop with our dockerized .NET C# MCP Server](/images/2025/mcp-server-docker-claude-desktop.png)
+
+# Using our MCP server with Visual Studio Code
+
+Since some days, we can also use our MCP server with Visual Studio Code Insider. For that we need to add 
+
+![Configure MCP Server in Visual Studio Code](/images/2025/mcp-server-docker-vscode-config.png)
+
+Click on *Edit in settings.json* and add the following lines to the configuration file:
+
+```json
+{
+    "mcp": {
+        "inputs": [],
+        "servers": {
+            "laurent-mcp-server-time": {
+                "command": "docker",
+                "args": [
+                    "run",
+                    "-i",
+                    "--rm",
+                    "laurentkempe/mcpserverdocker"
+                ],
+                "env": {}
+            }
+        }
+    },
+```
+
+Open Edit with Copilot, select Agent, and see one tool listed
+
+![Edit with Copilot Agent using MCP Server](/images/2025/mcp-server-docker-copilot-edit.png)
+
+Clicking on the icon you should see the tool available in the MCP server.
+
+![Visual Studio Code MCP Servers and Tools](/images/2025/mcp-server-docker-vscode-mcp-servers.png)
+
+Then, we can ask copilot our question and see the answer after accepting to call the tool.
+
+![Result of using the MCP Sever in Copilot](/images/2025/mcp-server-docker-copilot-edit-output.png)
+
+# Conclusion
+
+The future of AI is incredibly exciting, and the Model Context Protocol (MCP) is paving the way for seamless integration between tools, platforms, and AI clients. By containerizing your .NET C# MCP server, you’re not only simplifying deployment but also unlocking the potential for scalable, cross-platform AI solutions. Whether you're using Claude Desktop, Visual Studio Code, or other MCP-compatible clients, this approach demonstrates how easy it is to bridge the gap between AI and real-world applications.
+
+As MCP continues to evolve, it’s clear that we’re just scratching the surface of what’s possible. The combination of open standards, powerful SDKs, and containerization is setting the stage for a future where AI tools are more accessible, interoperable, and impactful than ever before. So, dive in, experiment, and be part of this transformative journey. The future of AI with MCP is here, and it’s brighter than ever! 🚀
+
+
+Get the source code on GitHub [aiPlayground/MCPServerDocker](https://github.com/laurentkempe/aiPlayground/MCPServerDocker) and if you like it please give it a star ⭐️.
+
+<GitHubCard user="laurentkempe" repo="aiPlayground" />
+
+# References
+* [modelcontextprotocol / csharp-sdk](https://github.com/modelcontextprotocol/csharp-sdk)
+* [Claude Desktop](https://claude.ai/download)
+* [Containerize a .NET app reference](https://learn.microsoft.com/en-us/dotnet/core/containers/publish-configuration)
+* [.NET container images](https://learn.microsoft.com/en-us/dotnet/core/docker/container-images)
+* [My docker posts](https://laurentkempe.com/all-tags/#docker)
