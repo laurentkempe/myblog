@@ -129,7 +129,37 @@ To be able to run the MCP server on a Raspberry Pi, we need to publish it for Li
 
 # Using our MCP server
 
-To use the MCP server, we can use for example Claude, Visual Studio Code or any other client supporting MCP. You can read more about how to configure both Claude and Visual Studio Code on my previous post [Dockerizing your .NET C# MCP Server for AI Clients like Claude Desktop](https://laurentkempe.com/2025/03/27/dockerizing-your-dotnet-csharp-mcp-server-for-ai-clients-like-claude-desktop/).
+To use the MCP server, we can use for example Claude, Visual Studio Code or any other client supporting MCP with SSE. 
+
+You can configure Visual Studio Code, adding the following configuration to your `settings.json` file:
+
+```json
+"servers": {
+    "laurent-mcp-server": {
+        "type": "sse",
+        "url": "http://localhost:5000/sse",
+        "env": {}
+    }    
+}
+```
+
+Claude Desktop is currently not supporting SSE but you can you a proxy with the following addition to the `claude_desktop_config.json` file:
+
+```json
+{
+  "mcpServers": {
+    "math": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "http://localhost:5000/sse"
+      ]
+    }
+  }
+}
+```
+
+You can read more about how to configure and use both Claude and Visual Studio Code on my previous post [Dockerizing your .NET C# MCP Server for AI Clients like Claude Desktop](https://laurentkempe.com/2025/03/27/dockerizing-your-dotnet-csharp-mcp-server-for-ai-clients-like-claude-desktop/).
 
 # Conclusion
 
