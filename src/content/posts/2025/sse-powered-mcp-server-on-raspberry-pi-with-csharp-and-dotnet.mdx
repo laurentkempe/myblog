@@ -10,17 +10,17 @@ coverImage: 'https://live.staticflickr.com/1040/1222522956_97bd8ccd62_h.jpg'
 thumbnailImage: 'https://live.staticflickr.com/1040/1222522956_a6f3a40b3d_q.jpg'
 draft: true
 ---
-Now that we explored how to leverage Model Context Protocol (MCP) servers to utilize external Tools and AI models in C# applications. Then how to write your own Standard Input/Output (STDIO) MCP server in C# using the modelcontextprotocol / csharp-sdk. Finally, how we can dockerize your .NET C# MCP server to be able to distribute it to be used by AI clients.
-It is time to take a step further and explore how to leverage Server-Sent Events (SSE) MCP servers so that we can deploy it remotely, for example on Raspberry Pi.
+Now that we've explored how to leverage Model Context Protocol (MCP) servers to utilize external Tools and AI models in C# applications, how to write your own Standard Input/Output (STDIO) MCP server in C# using the modelcontextprotocol / csharp-sdk, and how we can dockerize your .NET C# MCP server to be able to distribute it for use by AI clients.
+It's time to take a step further and explore how to leverage Server-Sent Events (SSE) MCP servers so that we can deploy them remotely, for example on a Raspberry Pi.
 {/* <!-- more --> */}
 
 # Introduction
 
-Model Context Protocol (MCP) is a protocol that allows AI models to communicate with external tools and services. It support different transport protocols, including STDIO and SSE. In this post, we will explore how to create a simple SSE-powered MCP server using C# and .NET. We will also discuss how to publish the server so that we could run it on a Rasperry Pi.
+Model Context Protocol (MCP) is a protocol that allows AI models to communicate with external tools and services. It supports different transport protocols, including STDIO and SSE. In this post, we will explore how to create a simple SSE-powered MCP server using C# and .NET. We will also discuss how to publish the server so that we could run it on a Raspberry Pi.
 
 # Create a Simple SSE-Powered MCP Server
 
-To create a simple SSE-powered MCP server, we will use the `modelcontextprotocol  / csharp-sdk` library. This library provides a simple way to create an MCP server and support SSE now.
+To create a simple SSE-powered MCP server, we will use the `modelcontextprotocol / csharp-sdk` library. This library provides a simple way to create an MCP server and now supports SSE.
 
 ```powershell
 dotnet new web -n MCPSSEServer
@@ -52,7 +52,7 @@ app.Run();
 ```
 
 This code creates a simple ASP.NET Core web application that uses the `ModelContextProtocol.AspNetCore` library to create an MCP server. The `WithTools<TimeTool>()` method registers a simple tool that returns the current time, as we saw in all previous posts.
-Not so much different from the STDIO MCP server we created in the previous post.
+It's not very different from the STDIO MCP server we created in the previous post.
 
 The `TimeTool` class is defined as follows:
 
@@ -93,7 +93,7 @@ info: Microsoft.Hosting.Lifetime[0]
       Content root path: D:\projects\tmp\MCPSSEServer
 ```
 
-We can test the server by sending a request to the `/sse` endpoint using any web browser. And you should see a similar output:
+We can test the server by sending a request to the `/sse` endpoint using any web browser. You should see a similar output:
 
 ```powershell
 event: endpoint
@@ -104,7 +104,7 @@ The MCP server is now running and ready to accept requests. You can use any MCP 
 
 # Publish the MCP Server
 
-The `modelcontextprotocol / csharp-sdk` library was made **Native ahead-of-time (AOT) compatible**. This means that we can publish the MCP server as a self-contained, ahead-of-time compiled to native code. These apps can run on machines that don't have the .NET runtime installed. Native AOT applications target a specific runtime environment, such as Linux x64 or Windows x64.
+The `modelcontextprotocol / csharp-sdk` library was made **Native ahead-of-time (AOT) compatible**. This means that we can publish the MCP server as a self-contained application, ahead-of-time compiled to native code. These apps can run on machines that don't have the .NET runtime installed. Native AOT applications target a specific runtime environment, such as Linux x64 or Windows x64.
 
 We extend the `csproj` file to add the following properties:
 
@@ -125,13 +125,13 @@ dotnet publish
 
 And you will get a single Windows exe file MCPSSEServer.exe of **15.7 MB** 😲!
 
-To be able to run the MCP server on a Raspberry Pi, we need to publish it for Linux ARM64. To achieve that goal, you need to publish from the Raspberry Pi, because cross-os native compilation is not supported. It should work without any problem, nevertheless, I haven't tested it yet.
+To be able to run the MCP server on a Raspberry Pi, we need to publish it for Linux ARM64. To achieve that goal, you need to publish from the Raspberry Pi, because cross-OS native compilation is not supported. It should work without any problem; nevertheless, I haven't tested it yet.
 
 # Using our MCP server
 
-To use the MCP server, we can use for example Claude, Visual Studio Code or any other client supporting MCP with SSE. 
+To use the MCP server, we can use Claude, Visual Studio Code, or any other client supporting MCP with SSE. 
 
-You can configure Visual Studio Code, adding the following configuration to your `settings.json` file:
+You can configure Visual Studio Code by adding the following configuration to your `settings.json` file:
 
 ```json
 "servers": {
@@ -143,7 +143,7 @@ You can configure Visual Studio Code, adding the following configuration to your
 }
 ```
 
-Claude Desktop is currently not supporting SSE but you can you a proxy with the following addition to the `claude_desktop_config.json` file:
+Claude Desktop currently doesn't support SSE, but you can use a proxy with the following addition to the `claude_desktop_config.json` file:
 
 ```json
 {
@@ -159,11 +159,11 @@ Claude Desktop is currently not supporting SSE but you can you a proxy with the 
 }
 ```
 
-You can read more about how to configure and use both Claude and Visual Studio Code on my previous post [Dockerizing your .NET C# MCP Server for AI Clients like Claude Desktop](https://laurentkempe.com/2025/03/27/dockerizing-your-dotnet-csharp-mcp-server-for-ai-clients-like-claude-desktop/).
+You can read more about how to configure and use both Claude and Visual Studio Code in my previous post [Dockerizing your .NET C# MCP Server for AI Clients like Claude Desktop](https://laurentkempe.com/2025/03/27/dockerizing-your-dotnet-csharp-mcp-server-for-ai-clients-like-claude-desktop/).
 
 # Conclusion
 
-In this post, we explored how to create a simple SSE-powered MCP server using C# and .NET. SSE protocol compared to STDIO allows us to deploy the MCP Server on a remote machine. We also discussed how to publish the server as a self-contained, ahead-of-time compiled to native code. This allows us to run the MCP server on machines that don't have the .NET runtime installed creating quite small executables.
+In this post, we explored how to create a simple SSE-powered MCP server using C# and .NET. The SSE protocol, compared to STDIO, allows us to deploy the MCP Server on a remote machine. We also discussed how to publish the server as a self-contained, ahead-of-time compiled native code application. This allows us to run the MCP server on machines that don't have the .NET runtime installed, creating quite small executables.
 
 Get the source code on GitHub [aiPlayground/MCPSSEServer](https://github.com/laurentkempe/aiPlayground/tree/main/MCPSSEServer) and if you like it please give it a star ⭐️.
 
