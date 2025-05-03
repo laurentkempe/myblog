@@ -1,0 +1,5 @@
+﻿User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://laurentkempe.com/sitemap-index.xml
