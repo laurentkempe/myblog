@@ -2,9 +2,55 @@
 import TagList from '../components/TagList.astro';
 import Layout from './Layout.astro';
 import { Image } from 'astro:assets';
-const { frontmatter } = Astro.props;
+import { Blog, AUTHOR } from '../utils/constants';
+  import {getExcerpt} from "../utils/blog";
+const { frontmatter, post } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
+
+// Create BlogPosting JSON-LD data
+const blogPostJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": frontmatter.title,
+  "datePublished": new Date(frontmatter.date).toISOString(),
+  "image": frontmatter.coverImage || "",
+  "description": getExcerpt(post.body || ""),
+  "author": {
+    "@type": "Person",
+    "name": AUTHOR.NAME,
+    "url": AUTHOR.URL,
+    "jobTitle": AUTHOR.JOB_TITLE,
+    "image": AUTHOR.IMAGE,
+    "sameAs": [
+      AUTHOR.SOCIAL_PROFILES.GITHUB,
+      AUTHOR.SOCIAL_PROFILES.LINKEDIN,
+      AUTHOR.SOCIAL_PROFILES.BLUESKY,
+      AUTHOR.SOCIAL_PROFILES.FLICKR,
+      AUTHOR.SOCIAL_PROFILES.X
+    ]
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": AUTHOR.NAME,
+    "url": AUTHOR.URL,
+    "jobTitle": AUTHOR.JOB_TITLE,
+    "image": AUTHOR.IMAGE,
+    "sameAs": [
+      AUTHOR.SOCIAL_PROFILES.GITHUB,
+      AUTHOR.SOCIAL_PROFILES.LINKEDIN,
+      AUTHOR.SOCIAL_PROFILES.BLUESKY,
+      AUTHOR.SOCIAL_PROFILES.X
+    ]
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": canonicalUrl
+  },
+  "keywords": frontmatter.tags?.join(', ') || "",
+  "url": canonicalUrl
+};
 ---
-<Layout title={frontmatter.title}>
+<Layout title={frontmatter.title} jsonLd={blogPostJsonLd}>
   <p><em>{frontmatter.description}</em></p>
   {frontmatter.coverImage ? (
     <div class="relative pt-1">
@@ -45,12 +91,12 @@ const { frontmatter } = Astro.props;
     a {
       color: #00539F;
     }
-  
+
     .tags {
       display: flex;
       flex-wrap: wrap;
     }
-  
+
     .tag {
       margin: 0.25em;
       border: dotted 1px #a1a1a1;
