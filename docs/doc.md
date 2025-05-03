@@ -5,7 +5,10 @@ This blog is designed with accessibility in mind, following WCAG guidelines to e
 ### ARIA Attributes
 
 - ARIA attributes are used throughout the site to improve screen reader support
-- The ThemeToggle button uses aria-pressed to indicate its state
+- The ThemeToggle button uses aria-pressed to indicate its state, allowing screen readers to convey whether dark mode is enabled or disabled
+- The button is fully keyboard-navigable, with focus styles visible in both light and dark modes
+- Proper focus management ensures that the button is accessible when navigating via keyboard or assistive technologies
+- Screen readers announce the button's purpose and state using an appropriate aria-label
 - SVG icons include aria-hidden="true" with appropriate aria-labels on their parent elements
 - Menu toggles use aria-expanded to indicate their state
 
