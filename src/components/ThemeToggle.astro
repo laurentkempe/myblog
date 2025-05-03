@@ -1,9 +1,14 @@
 <theme-toggle>
-  <button title="Dark/Light mode"></button>
+  <button 
+    title="Dark/Light mode" 
+    aria-pressed="false" 
+    aria-label="Toggle dark mode"
+    class="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1">
+  </button>
 </theme-toggle>
 <script>
   // Improved sun icon with rays, updated size and alignment
-  const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" fill="currentColor" viewBox="0 0 24 24">
+  const sunIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <circle cx="12" cy="12" r="5"/>
     <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
       <line x1="12" y1="1" x2="12" y2="3"/>
@@ -17,7 +22,7 @@
     </g>
   </svg>`;
 
-  const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" viewBox="0 0 20 20" fill="currentColor">
+  const moonIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
     <path d="M17.293 13.293a8 8 0 11-10.586-10.586 8.003 8.003 0 0010.586 10.586z"/>
   </svg>`;
 
@@ -66,6 +71,21 @@
         // Replace emoji icons with SVG icons
         this.button.innerHTML = value ? sunIcon : moonIcon;
         this.button.setAttribute("aria-label", value ? "Switch to light theme" : "Switch to dark theme");
+        this.button.setAttribute("aria-pressed", value.toString());
+
+        // Announce theme change to screen readers
+        const announcement = document.createElement("div");
+        announcement.setAttribute("aria-live", "polite");
+        announcement.setAttribute("class", "sr-only");
+        announcement.textContent = value ? "Dark theme enabled" : "Light theme enabled";
+        this.appendChild(announcement);
+
+        // Remove announcement after it's been read
+        setTimeout(() => {
+          if (announcement.parentNode === this) {
+            this.removeChild(announcement);
+          }
+        }, 1000);
       }
     }
 
