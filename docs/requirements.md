@@ -11,7 +11,7 @@
 
 # SEO Enhancements
 ## Meta Tags
--[x] Add Open Graph (og:) and Twitter-specific meta tags to improve social media sharing. Example:
+- [x] Add Open Graph (og:) and Twitter-specific meta tags to improve social media sharing. Example:
 
 ```html
 <meta property="og:type" content="blog">
