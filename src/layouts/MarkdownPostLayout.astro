@@ -2,9 +2,36 @@
 import TagList from '../components/TagList.astro';
 import Layout from './Layout.astro';
 import { Image } from 'astro:assets';
+import { Blog } from '../utils/constants';
 const { frontmatter } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
+
+// Create BlogPosting JSON-LD data
+const blogPostJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": frontmatter.title,
+  "datePublished": new Date(frontmatter.date).toISOString(),
+  "image": frontmatter.coverImage || "",
+  "author": {
+    "@type": "Person",
+    "name": "Laurent Kempé",
+    "url": Blog.BASE_URL
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Laurent Kempé",
+    "url": Blog.BASE_URL
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": canonicalUrl
+  },
+  "keywords": frontmatter.tags?.join(', ') || "",
+  "url": canonicalUrl
+};
 ---
-<Layout title={frontmatter.title}>
+<Layout title={frontmatter.title} jsonLd={blogPostJsonLd}>
   <p><em>{frontmatter.description}</em></p>
   {frontmatter.coverImage ? (
     <div class="relative pt-1">
@@ -45,12 +72,12 @@ const { frontmatter } = Astro.props;
     a {
       color: #00539F;
     }
-  
+
     .tags {
       display: flex;
       flex-wrap: wrap;
     }
-  
+
     .tag {
       margin: 0.25em;
       border: dotted 1px #a1a1a1;

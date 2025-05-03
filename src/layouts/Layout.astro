@@ -4,7 +4,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { Blog } from "../utils/constants";
 
-const { title = Blog.SITE_SUBTITLE, frontmatter } = Astro.props;
+const { title = Blog.SITE_SUBTITLE, frontmatter, jsonLd } = Astro.props;
 const pageTitle = frontmatter?.title || title;
 ---
 <!doctype html>
@@ -16,6 +16,24 @@ const pageTitle = frontmatter?.title || title;
         <meta name="generator" content={Astro.generator} />
         <link rel="alternate" type="application/rss+xml" title={`${Blog.SITE_TITLE} blog`} href={new URL("atom.xml", Astro.site)}/>
         <title>{Blog.SITE_TITLE} - {pageTitle}</title>
+        <!-- JSON-LD structured data -->
+        <script type="application/ld+json" set:html={
+          jsonLd ?
+            JSON.stringify(jsonLd) :
+            JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Blog",
+              "name": Blog.SITE_TITLE,
+              "description": Blog.SITE_SUBTITLE,
+              "url": Blog.BASE_URL,
+              "author": {
+                "@type": "Person",
+                "name": "Laurent Kempé",
+                "url": Blog.BASE_URL
+              }
+            })
+        }
+        />
 
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="blog" />
