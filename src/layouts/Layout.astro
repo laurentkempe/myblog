@@ -16,6 +16,19 @@ const pageTitle = frontmatter?.title || title;
         <meta name="generator" content={Astro.generator} />
         <link rel="alternate" type="application/rss+xml" title={`${Blog.SITE_TITLE} blog`} href={new URL("atom.xml", Astro.site)}/>
         <title>{Blog.SITE_TITLE} - {pageTitle}</title>
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="blog" />
+        <meta property="og:title" content={`${Blog.SITE_TITLE} - ${pageTitle}`} />
+        <meta property="og:image" content="https://farm2.staticflickr.com/1971/31306281378_02b055ccfe_q.jpg" />
+        <meta property="og:url" content={Blog.BASE_URL} />
+
+        <!-- Twitter -->
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@laurentkempe" />
+
+        <!-- Canonical URL -->
+        <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).toString()} />
     </head>
     <body class="bg-white dark:bg-gray-900">
         <Header />
@@ -33,7 +46,7 @@ const pageTitle = frontmatter?.title || title;
               }
               return "light";
             })();
-          
+
             if (theme === "light") {
               document.documentElement.classList.remove("dark");
             } else {
