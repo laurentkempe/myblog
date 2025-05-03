@@ -10,15 +10,21 @@ import ThemeToggle from "./ThemeToggle.astro";
             <div class="text-2xl font-bold dark:text-gray-300">
                 <a href="/">Laurent Kempé</a>
             </div>
-            
+
             <!-- Mobile menu button and utilities -->
             <div class="flex items-center gap-4 md:hidden text-gray-600 dark:text-gray-300">
                 <div class="flex items-center gap-4">
                     <RssLink />
                     <ThemeToggle />
                 </div>
-                <button id="mobile-menu-button" class="hover:text-gray-900 dark:hover:text-gray-100">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button 
+                    id="mobile-menu-button" 
+                    aria-expanded="false"
+                    aria-controls="mobile-menu"
+                    aria-label="Toggle menu"
+                    class="hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1"
+                >
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
                 </button>
@@ -26,10 +32,10 @@ import ThemeToggle from "./ThemeToggle.astro";
 
             <!-- Desktop menu -->
             <div class="hidden md:flex md:items-center md:gap-6 text-gray-600 dark:text-gray-300">
-                <a href="/" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname === "/" ? "text-blue-600 dark:text-blue-400" : ""}`}>Home</a>
-                <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
-                <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
-                <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
+                <a href="/" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname === "/" ? "text-blue-600 dark:text-blue-400" : ""}`}>Home</a>
+                <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
+                <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
+                <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
                 <ArchivesLink />
                 <TagsLink />
                 <RssLink />
@@ -38,12 +44,12 @@ import ThemeToggle from "./ThemeToggle.astro";
         </div>
 
         <!-- Mobile menu panel -->
-        <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4">
+        <div id="mobile-menu" class="hidden md:hidden mt-4 pb-4" role="menu" aria-labelledby="mobile-menu-button">
             <div class="flex flex-col gap-4 text-gray-600 dark:text-gray-300">
-                <a href="/" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname === "/" ? "text-blue-600 dark:text-blue-400" : ""}`}>Home</a>
-                <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`}>Blog</a>
-                <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`}>Speaking</a>
-                <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`}>About</a>
+                <a href="/" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname === "/" ? "text-blue-600 dark:text-blue-400" : ""}`} role="menuitem">Home</a>
+                <a href="/blog/1" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname.startsWith("/blog") ? "text-blue-600 dark:text-blue-400" : ""}`} role="menuitem">Blog</a>
+                <a href="/speaking" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname.startsWith("/speaking") ? "text-blue-600 dark:text-blue-400" : ""}`} role="menuitem">Speaking</a>
+                <a href="/about-laurent-kempe" class={`hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1 ${Astro.url.pathname.startsWith("/about-laurent-kempe") ? "text-blue-600 dark:text-blue-400" : ""}`} role="menuitem">About</a>
                 <ArchivesLink />
                 <TagsLink />
             </div>
@@ -54,8 +60,98 @@ import ThemeToggle from "./ThemeToggle.astro";
 <script>
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
+    let focusableElements = [];
+    let firstFocusableElement;
+    let lastFocusableElement;
 
+    // Function to open the mobile menu
+    function openMobileMenu() {
+        mobileMenu?.classList.remove('hidden');
+        mobileMenuButton?.setAttribute('aria-expanded', 'true');
+
+        // Get all focusable elements in the menu
+        focusableElements = mobileMenu?.querySelectorAll(
+            'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+        );
+
+        if (focusableElements.length) {
+            firstFocusableElement = focusableElements[0];
+            lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+            // Focus the first element after a short delay to ensure the menu is visible
+            setTimeout(() => {
+                firstFocusableElement.focus();
+            }, 50);
+        }
+
+        // Announce menu state change to screen readers
+        announceToScreenReader('Menu opened');
+    }
+
+    // Function to close the mobile menu
+    function closeMobileMenu() {
+        mobileMenu?.classList.add('hidden');
+        mobileMenuButton?.setAttribute('aria-expanded', 'false');
+
+        // Return focus to the menu button
+        mobileMenuButton?.focus();
+
+        // Announce menu state change to screen readers
+        announceToScreenReader('Menu closed');
+    }
+
+    // Function to announce changes to screen readers
+    function announceToScreenReader(message) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.setAttribute('class', 'sr-only');
+        announcement.textContent = message;
+        document.body.appendChild(announcement);
+
+        // Remove announcement after it's been read
+        setTimeout(() => {
+            if (announcement.parentNode === document.body) {
+                document.body.removeChild(announcement);
+            }
+        }, 1000);
+    }
+
+    // Toggle menu when button is clicked
     mobileMenuButton?.addEventListener('click', () => {
-        mobileMenu?.classList.toggle('hidden');
+        const isExpanded = mobileMenu?.classList.contains('hidden') === false;
+
+        if (isExpanded) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    });
+
+    // Handle keyboard navigation within the menu
+    document.addEventListener('keydown', (event) => {
+        // Only handle keyboard navigation when menu is open
+        if (mobileMenu?.classList.contains('hidden')) {
+            return;
+        }
+
+        // Close menu with Escape key
+        if (event.key === 'Escape') {
+            closeMobileMenu();
+            return;
+        }
+
+        // Trap focus within the menu
+        if (event.key === 'Tab') {
+            // If Shift+Tab on first element, move to last element
+            if (event.shiftKey && document.activeElement === firstFocusableElement) {
+                event.preventDefault();
+                lastFocusableElement.focus();
+            } 
+            // If Tab on last element, move to first element
+            else if (!event.shiftKey && document.activeElement === lastFocusableElement) {
+                event.preventDefault();
+                firstFocusableElement.focus();
+            }
+        }
     });
 </script>
