@@ -2,8 +2,9 @@
 import TagList from '../components/TagList.astro';
 import Layout from './Layout.astro';
 import { Image } from 'astro:assets';
-import { Blog } from '../utils/constants';
-const { frontmatter } = Astro.props;
+import { Blog, AUTHOR } from '../utils/constants';
+  import {getExcerpt} from "../utils/blog";
+const { frontmatter, post } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
 
 // Create BlogPosting JSON-LD data
@@ -13,15 +14,33 @@ const blogPostJsonLd = {
   "headline": frontmatter.title,
   "datePublished": new Date(frontmatter.date).toISOString(),
   "image": frontmatter.coverImage || "",
+  "description": getExcerpt(post.body || ""),
   "author": {
     "@type": "Person",
-    "name": "Laurent Kempé",
-    "url": Blog.BASE_URL
+    "name": AUTHOR.NAME,
+    "url": AUTHOR.URL,
+    "jobTitle": AUTHOR.JOB_TITLE,
+    "image": AUTHOR.IMAGE,
+    "sameAs": [
+      AUTHOR.SOCIAL_PROFILES.GITHUB,
+      AUTHOR.SOCIAL_PROFILES.LINKEDIN,
+      AUTHOR.SOCIAL_PROFILES.BLUESKY,
+      AUTHOR.SOCIAL_PROFILES.FLICKR,
+      AUTHOR.SOCIAL_PROFILES.X
+    ]
   },
   "publisher": {
     "@type": "Person",
-    "name": "Laurent Kempé",
-    "url": Blog.BASE_URL
+    "name": AUTHOR.NAME,
+    "url": AUTHOR.URL,
+    "jobTitle": AUTHOR.JOB_TITLE,
+    "image": AUTHOR.IMAGE,
+    "sameAs": [
+      AUTHOR.SOCIAL_PROFILES.GITHUB,
+      AUTHOR.SOCIAL_PROFILES.LINKEDIN,
+      AUTHOR.SOCIAL_PROFILES.BLUESKY,
+      AUTHOR.SOCIAL_PROFILES.X
+    ]
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
