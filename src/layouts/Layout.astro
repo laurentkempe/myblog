@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
-import { Blog } from "../utils/constants";
+import { Blog, AUTHOR } from "../utils/constants";
 
 const { title = Blog.SITE_SUBTITLE, frontmatter, jsonLd } = Astro.props;
 const pageTitle = frontmatter?.title || title;
@@ -29,8 +29,17 @@ const pageTitle = frontmatter?.title || title;
               "url": Blog.BASE_URL,
               "author": {
                 "@type": "Person",
-                "name": "Laurent Kempé",
-                "url": Blog.BASE_URL
+                "name": AUTHOR.NAME,
+                "url": AUTHOR.URL,
+                "jobTitle": AUTHOR.JOB_TITLE,
+                "image": AUTHOR.IMAGE,
+                "sameAs": [
+                  AUTHOR.SOCIAL_PROFILES.GITHUB,
+                  AUTHOR.SOCIAL_PROFILES.LINKEDIN,
+                  AUTHOR.SOCIAL_PROFILES.BLUESKY,
+                  AUTHOR.SOCIAL_PROFILES.FLICKR,
+                  AUTHOR.SOCIAL_PROFILES.X
+                ]
               }
             })
         }
