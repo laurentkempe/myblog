@@ -68,3 +68,27 @@ The script will:
   - Title
   - Date
   - Tags
+
+## Publishing Draft Blog Posts
+
+Publish a draft blog post using an interactive interface:
+
+```bash
+pnpm run publish-draft
+```
+
+The script will:
+- Scan all blog posts for drafts (marked with `draft: true`)
+- Display an interactive list with keyboard navigation
+- Allow selection using ↑/↓ arrow keys and Enter to confirm
+- Update the blog post frontmatter:
+  - Set the current date and time
+  - Update the permalink with the new publication date
+  - Update the disqusIdentifier with the new publication date
+  - Remove the `draft: true` flag
+- Move the post to the correct year folder if needed (e.g., draft from 2024 → published in 2025)
+
+### Navigation Controls:
+- **↑/↓ Arrow Keys**: Navigate through the list of drafts
+- **Enter**: Select and publish the highlighted draft
+- **q**: Quit without publishing anything

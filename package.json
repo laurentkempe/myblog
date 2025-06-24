@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "create-draft": "node create-draft.js",
-    "list-drafts": "node list-drafts.js"
+    "list-drafts": "node list-drafts.js",
+    "publish-draft": "node publish-draft.js"
   },
   "dependencies": {
     "@astro-community/astro-embed-twitter": "^0.5.8",
