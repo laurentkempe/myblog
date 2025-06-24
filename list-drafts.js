@@ -158,41 +158,36 @@ function displayDraftsTable(drafts) {
     
     // Calculate column widths
     const columns = {
-        filename: Math.max(8, ...drafts.map(d => d.filename.length)),
+        filePath: Math.max(9, ...drafts.map(d => d.filePath.length)),
         title: Math.max(5, ...drafts.map(d => d.title.length)),
         date: Math.max(4, ...drafts.map(d => d.date.length)),
-        tags: Math.max(4, ...drafts.map(d => d.tags.length)),
-        permalink: Math.max(9, ...drafts.map(d => d.permalink.length))
+        tags: Math.max(4, ...drafts.map(d => d.tags.length))
     };
     
     // Header
     const headerRow = 
-        '│ ' + 'Filename'.padEnd(columns.filename) + 
+        '│ ' + 'File Path'.padEnd(columns.filePath) + 
         ' │ ' + 'Title'.padEnd(columns.title) + 
         ' │ ' + 'Date'.padEnd(columns.date) + 
-        ' │ ' + 'Tags'.padEnd(columns.tags) + 
-        ' │ ' + 'Permalink'.padEnd(columns.permalink) + ' │';
+        ' │ ' + 'Tags'.padEnd(columns.tags) + ' │';
     
     const separatorRow = 
-        '├─' + '─'.repeat(columns.filename) + 
+        '├─' + '─'.repeat(columns.filePath) + 
         '─┼─' + '─'.repeat(columns.title) + 
         '─┼─' + '─'.repeat(columns.date) + 
-        '─┼─' + '─'.repeat(columns.tags) + 
-        '─┼─' + '─'.repeat(columns.permalink) + '─┤';
+        '─┼─' + '─'.repeat(columns.tags) + '─┤';
     
     const topBorder = 
-        '┌─' + '─'.repeat(columns.filename) + 
+        '┌─' + '─'.repeat(columns.filePath) + 
         '─┬─' + '─'.repeat(columns.title) + 
         '─┬─' + '─'.repeat(columns.date) + 
-        '─┬─' + '─'.repeat(columns.tags) + 
-        '─┬─' + '─'.repeat(columns.permalink) + '─┐';
+        '─┬─' + '─'.repeat(columns.tags) + '─┐';
     
     const bottomBorder = 
-        '└─' + '─'.repeat(columns.filename) + 
+        '└─' + '─'.repeat(columns.filePath) + 
         '─┴─' + '─'.repeat(columns.title) + 
         '─┴─' + '─'.repeat(columns.date) + 
-        '─┴─' + '─'.repeat(columns.tags) + 
-        '─┴─' + '─'.repeat(columns.permalink) + '─┘';
+        '─┴─' + '─'.repeat(columns.tags) + '─┘';
     
     console.log(topBorder);
     console.log(headerRow);
@@ -201,11 +196,10 @@ function displayDraftsTable(drafts) {
     // Data rows
     for (const draft of drafts) {
         const row = 
-            '│ ' + draft.filename.padEnd(columns.filename) + 
+            '│ ' + draft.filePath.padEnd(columns.filePath) + 
             ' │ ' + draft.title.padEnd(columns.title) + 
             ' │ ' + draft.date.padEnd(columns.date) + 
-            ' │ ' + draft.tags.padEnd(columns.tags) + 
-            ' │ ' + draft.permalink.padEnd(columns.permalink) + ' │';
+            ' │ ' + draft.tags.padEnd(columns.tags) + ' │';
         console.log(row);
     }
     
@@ -243,19 +237,17 @@ async function main() {
                 const frontmatter = parseFrontmatter(content);
                 
                 if (frontmatter && frontmatter.draft === true) {
-                    const filename = path.basename(filePath);
+                    const relativePath = path.relative(__dirname, filePath);
                     const title = frontmatter.title || 'Untitled';
                     const date = formatDate(frontmatter.date || '');
                     const tags = formatTags(frontmatter.tags);
-                    const permalink = frontmatter.permalink || '';
                     
                     drafts.push({
-                        filename,
+                        filePath: relativePath,
                         title,
                         date,
                         tags,
-                        permalink,
-                        filePath
+                        fullPath: filePath
                     });
                 }
             } catch (error) {
