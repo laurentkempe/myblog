@@ -18,7 +18,7 @@ This is Laurent Kempé's personal technical blog - "One of the Tech Head Brother
 - **Content**: MDX for blog posts with frontmatter metadata
 - **Language**: TypeScript for configuration and utilities
 - **Build Tool**: Vite (integrated with Astro)
-- **Package Manager**: pnpm (lockfile present) or npm
+- **Package Manager**: pnpm (lockfile present)
 
 ### Key Dependencies
 
@@ -120,10 +120,10 @@ These components are available in MDX files without explicit imports:
 ## Development Commands
 
 ```bash
-npm install          # Install dependencies
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
+pnpm install         # Install dependencies
+pnpm run dev         # Start development server
+pnpm run build       # Build for production
+pnpm run preview     # Preview production build
 ```
 
 ## Content Creation Guidelines
