@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "create-draft": "node create-draft.js"
   },
   "dependencies": {
     "@astro-community/astro-embed-twitter": "^0.5.8",

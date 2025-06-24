@@ -31,3 +31,23 @@ pnpm install
 ```bash
 pnpm run dev
 ```
+
+## Creating Draft Blog Posts
+
+Create a new draft blog post using the provided template:
+
+```bash
+# Interactive mode - will prompt for title
+pnpm run create-draft
+
+# Or provide title as argument
+pnpm run create-draft "My Amazing Blog Post Title"
+```
+
+The script will:
+- Create a new `.mdx` file in the appropriate year folder (`src/content/posts/YYYY/`)
+- Generate a URL-friendly slug from the title
+- Set up the frontmatter with current date, permalink, and disqusIdentifier
+- Mark the post as draft (set `draft: true`)
+
+The generated post will be saved as `src/content/posts/2025/my-amazing-blog-post-title.mdx` (using current year).
