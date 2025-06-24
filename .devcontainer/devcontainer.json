@@ -1,0 +1,50 @@
+{
+    "name": "Laurent's Blog - Astro Development",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bullseye",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "hostRequirements": {
+        "cpus": 2,
+        "memory": "4gb",
+        "storage": "32gb"
+    },
+    "onCreateCommand": "npm install -g pnpm",
+    "postCreateCommand": "pnpm install",
+    "forwardPorts": [4321],
+    "portsAttributes": {
+        "4321": {
+            "label": "Astro Dev Server",
+            "onAutoForward": "notify"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll": "explicit"
+                }
+            },
+            "extensions": [
+                "astro-build.astro-vscode",
+                "bradlc.vscode-tailwindcss",
+                "ms-vscode.vscode-typescript-next",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "esbenp.prettier-vscode",
+                "ms-vscode.vscode-json"
+            ]
+        },
+        "jetbrains": {
+            "settings": {},
+            "plugins": []
+        }
+    },
+    "remoteEnv": {
+        "NODE_ENV": "development"
+    },
+    "remoteUser": "node"
+}
