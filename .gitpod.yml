@@ -1,0 +1,26 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 4321
+    onOpen: notify
+    name: Astro Dev Server
+
+tasks:
+  - name: Setup
+    init: |
+      npm install -g pnpm@latest
+      pnpm install
+    command: |
+      echo "🚀 Dev environment is ready!"
+      echo "Run 'pnpm run dev' to start the Astro development server"
+
+vscode:
+  extensions:
+    - astro-build.astro-vscode
+    - bradlc.vscode-tailwindcss
+    - ms-vscode.vscode-typescript-next
+    - GitHub.copilot
+    - GitHub.copilot-chat
+    - esbenp.prettier-vscode
+    - unifiedjs.vscode-mdx

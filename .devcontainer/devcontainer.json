@@ -10,8 +10,9 @@
         "memory": "4gb",
         "storage": "32gb"
     },
-    "onCreateCommand": "npm install -g pnpm",
+    "onCreateCommand": "npm install -g pnpm@latest",
     "postCreateCommand": "pnpm install",
+    "postStartCommand": "echo 'Dev Container is ready! Run: pnpm run dev'",
     "forwardPorts": [4321],
     "portsAttributes": {
         "4321": {
@@ -26,7 +27,9 @@
                 "editor.formatOnSave": true,
                 "editor.codeActionsOnSave": {
                     "source.fixAll": "explicit"
-                }
+                },
+                "typescript.preferences.quoteStyle": "double",
+                "astro.typescript.allowArbitraryAttributes": true
             },
             "extensions": [
                 "astro-build.astro-vscode",
@@ -35,11 +38,15 @@
                 "GitHub.copilot",
                 "GitHub.copilot-chat",
                 "esbenp.prettier-vscode",
-                "ms-vscode.vscode-json"
+                "ms-vscode.vscode-json",
+                "unifiedjs.vscode-mdx"
             ]
         },
         "jetbrains": {
-            "settings": {},
+            "settings": {
+                "javascript.nodejs.interpreter.path": "/usr/local/bin/node",
+                "nodejs.packageManagerPath": "/usr/local/bin/pnpm"
+            },
             "plugins": []
         }
     },
