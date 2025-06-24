@@ -210,6 +210,12 @@ function displayDraftsTable(drafts) {
     }
     
     console.log(bottomBorder);
+    
+    // Display clickable file paths
+    console.log('\n📁 Clickable file paths (Ctrl+click to open in VS Code):');
+    for (const draft of drafts) {
+        console.log(`   ${draft.filePath}`);
+    }
     console.log();
 }
 
