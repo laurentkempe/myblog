@@ -41,6 +41,8 @@ jobs:
       - name: Run GenAI spell check
         run: |
           npx --yes genaiscript run sc --vars base="${{ steps.check_base.outputs.base_commit }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check for changes
         id: changes
