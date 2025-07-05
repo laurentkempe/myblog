@@ -3,7 +3,8 @@ import TagList from '../components/TagList.astro';
 import Layout from './Layout.astro';
 import { Image } from 'astro:assets';
 import { Blog, AUTHOR } from '../utils/constants';
-  import {getExcerpt} from "../utils/blog";
+import {getExcerpt} from "../utils/blog";
+import GiscusComments from '../components/GiscusComments.astro';
 const { frontmatter, post } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
 
@@ -85,6 +86,9 @@ const blogPostJsonLd = {
   <div class="py-4">
     <slot />
   </div>
+  
+  <!-- Comments section -->
+  <GiscusComments />
 </Layout>
 
 <style>

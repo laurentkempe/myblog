@@ -20,6 +20,7 @@ export default defineConfig({
         './src/components/GitHubCard.astro',
         './src/components/Alert.astro',
         './src/components/Reveal.astro',
+        './src/components/GiscusComments.astro',
         {
           '@astro-community/astro-embed-twitter': ['Tweet'],
           '@astro-community/astro-embed-youtube': ['YouTube'],
