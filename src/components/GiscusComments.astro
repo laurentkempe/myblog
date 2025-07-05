@@ -1,0 +1,104 @@
+---
+export interface Props {
+  /**
+   * The GitHub repository where discussions will be created
+   * Format: "owner/repo"
+   */
+  repo?: string;
+  
+  /**
+   * The discussion category to use for comments
+   */
+  category?: string;
+  
+  /**
+   * Mapping strategy for discussions
+   */
+  mapping?: 'pathname' | 'url' | 'title' | 'og:title' | 'specific' | 'number';
+  
+  /**
+   * Whether to enable reactions on the main post
+   */
+  reactionsEnabled?: boolean;
+  
+  /**
+   * Whether to emit discussion metadata
+   */
+  emitMetadata?: boolean;
+  
+  /**
+   * Input position relative to the comments
+   */
+  inputPosition?: 'top' | 'bottom';
+  
+  /**
+   * Theme for the comments widget
+   * 'auto' will automatically switch between light/dark based on the site theme
+   */
+  theme?: 'light' | 'dark' | 'auto' | 'preferred_color_scheme' | 'transparent_dark' | 'noborder_light' | 'noborder_dark';
+  
+  /**
+   * Language for the comments interface
+   */
+  lang?: string;
+  
+  /**
+   * Whether to load comments lazily
+   */
+  loading?: 'lazy' | 'eager';
+}
+
+const {
+  repo = "laurentkempe/myblog",
+  category = "General",
+  mapping = "pathname",
+  reactionsEnabled = true,
+  emitMetadata = false,
+  inputPosition = "bottom",
+  theme = "preferred_color_scheme",
+  lang = "en",
+  loading = "lazy"
+} = Astro.props;
+---
+
+<div class="giscus-container mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+  <div id="giscus-comments"></div>
+</div>
+
+<script is:inline>
+  (function() {
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'laurentkempe/myblog');
+    script.setAttribute('data-repo-id', '');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', '');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', 'preferred_color_scheme');
+    script.setAttribute('data-lang', 'en');
+    script.setAttribute('data-loading', 'lazy');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+    
+    const container = document.getElementById('giscus-comments');
+    if (container) {
+      container.appendChild(script);
+    }
+  })();
+</script>
+
+<style>
+  .giscus-container {
+    /* Ensure giscus iframe integrates well with the page design */
+    width: 100%;
+  }
+  
+  /* Ensure giscus respects the color scheme */
+  .giscus-container iframe {
+    color-scheme: auto;
+  }
+</style>
