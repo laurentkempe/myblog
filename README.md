@@ -92,3 +92,51 @@ The script will:
 - **↑/↓ Arrow Keys**: Navigate through the list of drafts
 - **Enter**: Select and publish the highlighted draft
 - **q**: Quit without publishing anything
+
+## Comments System (Giscus)
+
+This blog uses [giscus](https://giscus.app) for comments, which are powered by GitHub Discussions. Comments are automatically enabled on all individual blog posts.
+
+### Configuration
+
+To configure giscus properly, you need to:
+
+1. **Enable GitHub Discussions** on your repository:
+   - Go to your repository settings
+   - Scroll down to the "Features" section  
+   - Check "Discussions"
+
+2. **Get giscus configuration**:
+   - Visit [giscus.app](https://giscus.app)
+   - Enter your repository name: `laurentkempe/myblog`
+   - Select a discussion category (recommended: "General" or create a dedicated "Comments" category)
+   - Choose mapping: "pathname" (default)
+   - Copy the generated `data-repo-id` and `data-category-id` values
+
+3. **Update the configuration**:
+   - Edit `src/components/GiscusComments.astro`
+   - Replace the empty `data-repo-id` and `data-category-id` values with the ones from giscus.app
+
+### Current Settings
+
+- **Repository**: `laurentkempe/myblog`
+- **Mapping**: `pathname` (maps each blog post URL to a discussion)
+- **Theme**: `preferred_color_scheme` (automatically adapts to system dark/light mode)
+- **Position**: Comments appear below blog post content
+- **Reactions**: Enabled on main post
+- **Lazy Loading**: Enabled for better performance
+
+### Customization
+
+The `GiscusComments` component accepts various props for customization:
+
+```astro
+<GiscusComments 
+  repo="laurentkempe/myblog"
+  category="Comments" 
+  theme="light"
+  reactionsEnabled={false}
+/>
+```
+
+Available props include `repo`, `category`, `mapping`, `theme`, `reactionsEnabled`, `inputPosition`, `lang`, and `loading`.
