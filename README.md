@@ -108,7 +108,7 @@ To configure giscus properly, you need to:
 
 2. **Get giscus configuration**:
    - Visit [giscus.app](https://giscus.app)
-   - Enter your repository name: `laurentkempe/myblog`
+   - Enter your repository name: `laurentkempe/myblog-comments`
    - Select a discussion category (recommended: "General" or create a dedicated "Comments" category)
    - Choose mapping: "pathname" (default)
    - Copy the generated `data-repo-id` and `data-category-id` values
@@ -119,7 +119,7 @@ To configure giscus properly, you need to:
 
 ### Current Settings
 
-- **Repository**: `laurentkempe/myblog`
+- **Repository**: `laurentkempe/myblog-comments`
 - **Mapping**: `pathname` (maps each blog post URL to a discussion)
 - **Theme**: `preferred_color_scheme` (automatically adapts to system dark/light mode)
 - **Position**: Comments appear below blog post content
