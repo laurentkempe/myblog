@@ -67,6 +67,39 @@ const {
 
 <script is:inline>
   (function() {
+    const STORAGE_KEY = "theme-preference";
+    
+    // Function to get current theme based on ThemeToggle logic
+    function getCurrentTheme() {
+      const savedTheme = localStorage.getItem(STORAGE_KEY);
+      if (savedTheme) {
+        return savedTheme === "dark" ? "dark" : "light";
+      } else {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+    }
+    
+    // Function to get giscus theme name
+    function getGiscusTheme(isDark) {
+      return isDark ? "dark" : "light";
+    }
+    
+    // Function to send theme change message to giscus iframe
+    function updateGiscusTheme(theme) {
+      const iframe = document.querySelector('iframe.giscus-frame');
+      if (iframe) {
+        iframe.contentWindow.postMessage({
+          giscus: {
+            setConfig: {
+              theme: getGiscusTheme(theme === "dark")
+            }
+          }
+        }, 'https://giscus.app');
+      }
+    }
+    
+    // Initialize giscus with correct theme
+    const initialTheme = getCurrentTheme();
     const script = document.createElement('script');
     script.src = 'https://giscus.app/client.js';
     script.setAttribute('data-repo', 'laurentkempe/myblog-comments');
@@ -78,7 +111,7 @@ const {
     script.setAttribute('data-reactions-enabled', '1');
     script.setAttribute('data-emit-metadata', '0');
     script.setAttribute('data-input-position', 'bottom');
-    script.setAttribute('data-theme', 'preferred_color_scheme');
+    script.setAttribute('data-theme', getGiscusTheme(initialTheme === "dark"));
     script.setAttribute('data-lang', 'en');
     script.setAttribute('data-loading', 'lazy');
     script.setAttribute('crossorigin', 'anonymous');
@@ -88,6 +121,37 @@ const {
     if (container) {
       container.appendChild(script);
     }
+    
+    // Listen for theme changes
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const isDark = document.documentElement.classList.contains('dark');
+          updateGiscusTheme(isDark ? "dark" : "light");
+        }
+      });
+    });
+    
+    // Start observing changes to the document element's class
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    
+    // Also listen for storage changes (in case theme is changed in another tab)
+    window.addEventListener('storage', function(e) {
+      if (e.key === STORAGE_KEY) {
+        const newTheme = e.newValue === "dark" ? "dark" : "light";
+        updateGiscusTheme(newTheme);
+      }
+    });
+    
+    // Listen for system theme changes when no preference is saved
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(e) {
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        updateGiscusTheme(e.matches ? "dark" : "light");
+      }
+    });
   })();
 </script>
 
