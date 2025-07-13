@@ -115,13 +115,24 @@
       modal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
 
-      // Focus the search input after a short delay
-      setTimeout(() => {
-        const searchInput = modal.querySelector("input[type='search']") as HTMLInputElement;
-        if (searchInput) {
-          searchInput.focus();
+      // Focus the search input when PagefindUI is ready
+      const searchInput = modal.querySelector("input[type='search']") as HTMLInputElement;
+      if (searchInput) {
+        if (window.PagefindUI && window.PagefindUI.onReady) {
+          window.PagefindUI.onReady(() => {
+            searchInput.focus();
+          });
+        } else {
+          // Fallback: Use MutationObserver if PagefindUI's ready event is unavailable
+          const observer = new MutationObserver(() => {
+            if (searchInput) {
+              searchInput.focus();
+              observer.disconnect();
+            }
+          });
+          observer.observe(modal, { childList: true, subtree: true });
         }
-      }, 100);
+      }
     }
 
     closeSearch() {
