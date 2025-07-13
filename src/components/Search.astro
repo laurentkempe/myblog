@@ -1,0 +1,232 @@
+---
+// Search component with Pagefind integration
+---
+
+<!-- Search button -->
+<search-toggle>
+  <button 
+    id="search-button"
+    title="Search"
+    aria-label="Open search" 
+    class="hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  </button>
+</search-toggle>
+
+<!-- Search modal overlay -->
+<div id="search-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="search-title">
+  <div class="flex items-start justify-center pt-16 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <!-- Modal header -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="search-title" class="text-lg font-medium text-gray-900 dark:text-gray-100">Search</h2>
+          <button 
+            id="search-close" 
+            class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
+            aria-label="Close search"
+          >
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Pagefind search container -->
+        <div id="pagefind-search" class="w-full"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // TypeScript declarations for Pagefind
+  declare global {
+    interface Window {
+      PagefindUI: any;
+    }
+  }
+
+  class SearchToggle extends HTMLElement {
+    private searchButton: HTMLButtonElement | null;
+    private searchModal: HTMLElement | null;
+    private searchClose: HTMLButtonElement | null;
+    private isSearchLoaded = false;
+
+    constructor() {
+      super();
+      this.searchButton = this.querySelector("#search-button");
+      this.searchModal = document.getElementById("search-modal");
+      this.searchClose = document.getElementById("search-close");
+
+      if (!this.searchButton || !this.searchModal || !this.searchClose) {
+        console.error("Search elements not found");
+        return;
+      }
+
+      // Setup event listeners
+      this.searchButton.addEventListener("click", this.openSearch.bind(this));
+      this.searchClose.addEventListener("click", this.closeSearch.bind(this));
+      
+      // Close modal when clicking outside
+      this.searchModal.addEventListener("click", (e) => {
+        if (e.target === this.searchModal) {
+          this.closeSearch();
+        }
+      });
+
+      // Close modal with Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !this.searchModal?.classList.contains("hidden")) {
+          this.closeSearch();
+        }
+      });
+    }
+
+    async openSearch() {
+      if (!this.searchModal) return;
+
+      // Load Pagefind only when first needed
+      if (!this.isSearchLoaded) {
+        await this.loadPagefind();
+        this.isSearchLoaded = true;
+      }
+
+      this.searchModal.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+
+      // Focus the search input after a short delay
+      setTimeout(() => {
+        const searchInput = this.searchModal?.querySelector("input[type='search']") as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }, 100);
+    }
+
+    closeSearch() {
+      if (!this.searchModal) return;
+
+      this.searchModal.classList.add("hidden");
+      document.body.style.overflow = "";
+      this.searchButton?.focus();
+    }
+
+    async loadPagefind() {
+      try {
+        // Load Pagefind script dynamically
+        const script = document.createElement('script');
+        script.src = '/pagefind/pagefind-ui.js';
+        script.type = 'text/javascript';
+        
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+
+        // Load Pagefind CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = '/pagefind/pagefind-ui.css';
+        document.head.appendChild(link);
+
+        // Wait a bit for the script to initialize
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Create Pagefind UI
+        const container = document.getElementById("pagefind-search");
+        if (container && window.PagefindUI) {
+          new window.PagefindUI({ 
+            element: container,
+            showSubResults: true,
+            showImages: false,
+            resetStyles: false,
+          });
+
+          // Style the Pagefind UI to match the site theme
+          this.stylePagefindUI();
+        }
+      } catch (error) {
+        console.error("Failed to load Pagefind:", error);
+        
+        // Show fallback message
+        const container = document.getElementById("pagefind-search");
+        if (container) {
+          container.innerHTML = `
+            <div class="text-gray-600 dark:text-gray-400 text-center py-4">
+              Search is temporarily unavailable. Please try again later.
+            </div>
+          `;
+        }
+      }
+    }
+
+    stylePagefindUI() {
+      // Add custom styles for Pagefind UI to match the site theme
+      const style = document.createElement("style");
+      style.textContent = `
+        .pagefind-ui {
+          --pagefind-ui-scale: 1;
+          --pagefind-ui-primary: #3b82f6;
+          --pagefind-ui-text: #374151;
+          --pagefind-ui-background: #ffffff;
+          --pagefind-ui-border: #d1d5db;
+          --pagefind-ui-tag: #f3f4f6;
+        }
+        
+        .dark .pagefind-ui {
+          --pagefind-ui-text: #e5e7eb;
+          --pagefind-ui-background: #1f2937;
+          --pagefind-ui-border: #374151;
+          --pagefind-ui-tag: #374151;
+        }
+
+        .pagefind-ui__search-input {
+          border-radius: 0.375rem;
+          border: 1px solid var(--pagefind-ui-border);
+          padding: 0.5rem 0.75rem;
+          width: 100%;
+          background: var(--pagefind-ui-background);
+          color: var(--pagefind-ui-text);
+        }
+
+        .pagefind-ui__search-input:focus {
+          outline: 2px solid var(--pagefind-ui-primary);
+          outline-offset: 2px;
+          border-color: var(--pagefind-ui-primary);
+        }
+
+        .pagefind-ui__result {
+          border: 1px solid var(--pagefind-ui-border);
+          border-radius: 0.375rem;
+          padding: 1rem;
+          margin-bottom: 0.5rem;
+          background: var(--pagefind-ui-background);
+        }
+
+        .pagefind-ui__result-link {
+          color: var(--pagefind-ui-primary);
+          text-decoration: none;
+          font-weight: 500;
+        }
+
+        .pagefind-ui__result-link:hover {
+          text-decoration: underline;
+        }
+
+        .pagefind-ui__result-excerpt {
+          color: var(--pagefind-ui-text);
+          margin-top: 0.25rem;
+          font-size: 0.875rem;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
+
+  customElements.define("search-toggle", SearchToggle);
+</script>
