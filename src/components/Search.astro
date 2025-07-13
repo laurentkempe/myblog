@@ -115,24 +115,13 @@
       modal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
 
-      // Focus the search input when PagefindUI is ready
-      const searchInput = modal.querySelector("input[type='search']") as HTMLInputElement;
-      if (searchInput) {
-        if (window.PagefindUI && window.PagefindUI.onReady) {
-          window.PagefindUI.onReady(() => {
-            searchInput.focus();
-          });
-        } else {
-          // Fallback: Use MutationObserver if PagefindUI's ready event is unavailable
-          const observer = new MutationObserver(() => {
-            if (searchInput) {
-              searchInput.focus();
-              observer.disconnect();
-            }
-          });
-          observer.observe(modal, { childList: true, subtree: true });
+      // Focus the search input - either Pagefind's or our fallback input
+      setTimeout(() => {
+        const searchInput = modal.querySelector("input[type='search']") as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
         }
-      }
+      }, 100);
     }
 
     closeSearch() {
@@ -180,14 +169,23 @@
           this.stylePagefindUI();
         }
       } catch (error) {
-        console.error("Failed to load Pagefind:", error);
+        console.warn("Pagefind not available (likely in development mode):", error);
         
-        // Show fallback message
+        // Show basic search input as fallback
         const container = document.getElementById("pagefind-search");
         if (container) {
           container.innerHTML = `
-            <div class="text-gray-600 dark:text-gray-400 text-center py-4">
-              Search is temporarily unavailable. Please try again later.
+            <div class="space-y-4">
+              <input 
+                type="search" 
+                placeholder="Search posts..." 
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                disabled
+              />
+              <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
+                <p>Search functionality requires building the site first.</p>
+                <p class="mt-1">Run <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded">npm run build</code> to enable search.</p>
+              </div>
             </div>
           `;
         }
