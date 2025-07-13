@@ -257,5 +257,7 @@
     }
   }
 
-  customElements.define("search-toggle", SearchToggle);
+  if (!customElements.get("search-toggle")) {
+    customElements.define("search-toggle", SearchToggle);
+  }
 </script>
