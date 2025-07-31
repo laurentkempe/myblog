@@ -27,6 +27,7 @@
   class SearchToggle extends HTMLElement {
     private searchButton: HTMLButtonElement | null;
     private isSearchLoaded = false;
+    private static globalKeyboardListenerAdded = false;
 
     constructor() {
       super();
@@ -42,6 +43,12 @@
 
       // Setup event listeners
       this.searchButton.addEventListener("click", this.openSearch.bind(this));
+
+      // Setup global keyboard shortcut (only once)
+      if (!SearchToggle.globalKeyboardListenerAdded) {
+        this.setupGlobalKeyboardShortcut();
+        SearchToggle.globalKeyboardListenerAdded = true;
+      }
     }
 
     createModal() {
@@ -98,6 +105,23 @@
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && !modal.classList.contains("hidden")) {
           this.closeSearch();
+        }
+      });
+    }
+
+    setupGlobalKeyboardShortcut() {
+      // Global keyboard shortcut for Ctrl+K (or Cmd+K on Mac)
+      document.addEventListener("keydown", (e) => {
+        // Check for Ctrl+K or Cmd+K
+        if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Find the first search component and open it
+          const searchComponent = document.querySelector("search-toggle") as SearchToggle;
+          if (searchComponent) {
+            searchComponent.openSearch();
+          }
         }
       });
     }
