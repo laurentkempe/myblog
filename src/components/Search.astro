@@ -139,13 +139,34 @@
       modal.classList.remove("hidden");
       document.body.style.overflow = "hidden";
 
-      // Focus the search input - either Pagefind's or our fallback input
-      setTimeout(() => {
-        const searchInput = modal.querySelector("input[type='search']") as HTMLInputElement;
-        if (searchInput) {
-          searchInput.focus();
+      // Focus the search input with retry logic for better reliability
+      this.focusSearchInput(modal);
+    }
+
+    private focusSearchInput(modal: HTMLElement, retryCount = 0) {
+      const maxRetries = 10;
+      const retryDelay = 50;
+
+      const searchInput = modal.querySelector("input[type='search']") as HTMLInputElement;
+      
+      if (searchInput && !searchInput.disabled) {
+        // Found the search input and it's enabled
+        searchInput.focus();
+        return;
+      }
+      
+      if (retryCount < maxRetries) {
+        // Retry after a short delay
+        setTimeout(() => {
+          this.focusSearchInput(modal, retryCount + 1);
+        }, retryDelay);
+      } else {
+        // Fallback: try to focus any input in the modal
+        const anyInput = modal.querySelector("input") as HTMLInputElement;
+        if (anyInput) {
+          anyInput.focus();
         }
-      }, 100);
+      }
     }
 
     closeSearch() {
@@ -182,7 +203,7 @@
         // Create Pagefind UI
         const container = document.getElementById("pagefind-search");
         if (container && window.PagefindUI) {
-          new window.PagefindUI({ 
+          const ui = new window.PagefindUI({ 
             element: container,
             showSubResults: true,
             showImages: false,
@@ -191,6 +212,9 @@
 
           // Style the Pagefind UI to match the site theme
           this.stylePagefindUI();
+
+          // Wait for Pagefind UI to be fully rendered
+          await new Promise(resolve => setTimeout(resolve, 150));
         }
       } catch (error) {
         console.warn("Pagefind not available (likely in development mode):", error);
