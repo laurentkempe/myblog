@@ -13,8 +13,8 @@ As developers, we often find ourselves tied to specific providers. The same appl
 {/* <!-- more --> */}
 # Introduction
 
-We will start with the simpliest possible example, a console application using .NET 9 leveraging Dapr Conversation building block and its Ollama component.
-Then adapt the Dapr configuration and interact with a different LLM provider, Azure Open AI.
+We will start with the simplest possible example, a console application using .NET 9 leveraging the Dapr Conversation building block and its Ollama component.
+Then we'll adapt the Dapr configuration and interact with a different LLM provider, Azure OpenAI.
 
 # Prerequisites
 
@@ -98,7 +98,7 @@ Finally, we can run the application with Dapr:
 dapr run --app-id conversation --app-port 5000 --components-path ./components -- dotnet run
 ```
 
-Or use the provided `dapr.yaml` script, running it using `dapr run -f .`
+Or use the provided `dapr.yaml` script by running it with `dapr run -f .`
 
 ```yaml
 version: 1
@@ -112,7 +112,7 @@ apps:
     command: ["dotnet", "run"]
 ```
 
-and we can see that the application is working:
+And we can see that the application is working:
 
 ```
  ❯  dapr run -f .
@@ -140,9 +140,9 @@ Writing log files to directory : D:\projects\tmp\Conversation\.dapr\logs
 == APP - conversation == Overall, Dapr is a powerful tool for building and managing distributed applications, and can help developers simplify the process of creating scalable, reliable, and maintainable microservices-based systems.
 ```
 
-# Changing the LLM provider to Azure Open AI
+# Changing the LLM provider to Azure OpenAI
 
-To change the LLM provider, we simply need to update the Dapr component configuration file. We are not touching the application code. For example, to use Azure Open AI instead of Ollama, we would create a new component file `./components/azureopenai.yaml`:
+To change the LLM provider, we simply need to update the Dapr component configuration file. We do not need to change the application code. For example, to use Azure OpenAI instead of Ollama, we would create a new component file `./components/azureopenai.yaml`:
 
 ```yaml
 apiVersion: dapr.io/v1alpha1
@@ -164,11 +164,11 @@ spec:
     value: "2025-01-01-preview"
 ```
 
-This time we are using Phi-4-mini-instruct, a smaller model from Mistral AI, available in Azure Open AI.
-You also need to set up an Azure Open AI resource in your Azure subscription and get the API key and endpoint.
+This time, we are using Phi-4-mini-instruct, a smaller model from Mistral AI, available in Azure OpenAI.
+You also need to set up an Azure OpenAI resource in your Azure subscription and get the API key and endpoint.
 
-Note that we could use the Dapr configuration API building block to dynamically get the component name at runtime. In this blog post, we keep it simple.
-So, as we hardcoded the component name in the application code, we need to update it to use the new component.
+Note that we could use the Dapr configuration API building block to dynamically get the component name at runtime. In this blog post, we'll keep it simple.
+Since we hardcoded the component name in the application code, we need to update it to use the new component.
 We update the `Program.cs` file to use the new component:
 
 ```csharp
@@ -176,7 +176,7 @@ var conversationOptions = new ConversationOptions("azure-openai");
 // previous code remains unchanged
 ```
 
-Running our console application again using `dapr run -f .`, this time with the new component configuration file:
+Run the console application again using `dapr run -f .`, this time with the new component configuration file:
 
 ```
   ❯  dapr run -f .
@@ -204,11 +204,11 @@ Writing log files to directory : D:\projects\tmp\Conversation\.dapr\logs
 
 # Conclusion
 
-In this blog post, we demonstrated how to decouple ourselves from LLM commodities by leveraging Dapr's Conversation building block. By using Dapr, we can easily switch between different LLM providers without changing our application code. This approach provides flexibility and adaptability, allowing us to choose the best LLM provider for our needs at any given time.
+In this blog post, we demonstrated how to decouple ourselves from LLM commodities by leveraging the Dapr Conversation building block. By using Dapr, we can easily switch between different LLM providers without changing our application code. This approach provides flexibility and adaptability, allowing us to choose the best LLM provider for our needs at any given time.
 
-Out of the box Dapr 1.16 supports several LLM providers, including:
+Out of the box, Dapr 1.16 supports several LLM providers, including:
 - Ollama
-- Azure Open AI
+- Azure OpenAI
 - OpenAI
 - Mistral
 - AWS Bedrock
@@ -217,7 +217,7 @@ Out of the box Dapr 1.16 supports several LLM providers, including:
 - GoogleAI
 - HuggingFace
 
-Dapr conversation building block comes with more features. And this will be the topic of other blog posts.
+The Dapr Conversation building block comes with more features, which will be the topic of other blog posts.
 
 Get the source code on GitHub [laurentkempe/daprPlayground/Conversation](TODO).
 
