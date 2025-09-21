@@ -4,9 +4,9 @@ permalink: /2025/09/21/decouple-yourself-from-your-llm-commodities-using-dapr-co
 date: 09/21/2025 09:51:21
 coverSize: partial
 tags: [AI, Azure, Dapr, C#, LLM, SLM]
-coverCaption: 'LO Ferré, Petite Anse, Martinique, France'
-coverImage: 'https://c7.staticflickr.com/9/8689/16775792438_e45283970c_h.jpg'
-thumbnailImage: 'https://c7.staticflickr.com/9/8689/16775792438_8366ee5732_q.jpg'
+coverCaption: 'Bastia, Corse, France'
+coverImage: 'https://live.staticflickr.com/65535/54800987707_d241c5c7e3_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/54800987707_51b31a42d4_q.jpg'
 draft: true
 ---
 As developers, we often find ourselves tied to specific providers. The same applies to Large Language Model (LLM) providers. This can limit our flexibility and control over our applications. In this blog post, we'll explore how to decouple ourselves from LLM commodities by leveraging Dapr's Conversation building block. This approach allows us to switch between different LLM providers seamlessly, ensuring that our applications remain adaptable and future-proof.
@@ -91,6 +91,8 @@ spec:
     - name: cacheTTL
       value: 10m
 ```
+
+We configure the model to use (llama3.2:3b). The Conversation API includes a built-in caching mechanism (enabled by the cacheTTL parameter) that optimizes both performance and cost by storing previous model responses for faster delivery to repetitive requests.
 
 Finally, we can run the application with Dapr:
 
