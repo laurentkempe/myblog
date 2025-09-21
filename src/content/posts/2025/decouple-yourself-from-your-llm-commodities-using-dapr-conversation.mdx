@@ -1,0 +1,232 @@
+---
+title: 'Decouple yourself from your LLM commodities using Dapr Conversation'
+permalink: /2025/09/21/decouple-yourself-from-your-llm-commodities-using-dapr-conversation/
+date: 09/21/2025 09:51:21
+coverSize: partial
+tags: [AI, Azure, Dapr, C#, LLM, SLM]
+coverCaption: 'LO Ferré, Petite Anse, Martinique, France'
+coverImage: 'https://c7.staticflickr.com/9/8689/16775792438_e45283970c_h.jpg'
+thumbnailImage: 'https://c7.staticflickr.com/9/8689/16775792438_8366ee5732_q.jpg'
+draft: true
+---
+As developers, we often find ourselves tied to specific providers. The same applies to Large Language Model (LLM) providers. This can limit our flexibility and control over our applications. In this blog post, we'll explore how to decouple ourselves from LLM commodities by leveraging Dapr's Conversation building block. This approach allows us to switch between different LLM providers seamlessly, ensuring that our applications remain adaptable and future-proof.
+{/* <!-- more --> */}
+# Introduction
+
+We will start with the simpliest possible example, a console application using .NET 9 leveraging Dapr Conversation building block and its Ollama component.
+Then adapt the Dapr configuration and interact with a different LLM provider, Azure Open AI.
+
+# Prerequisites
+
+- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+- [Dapr CLI](https://docs.dapr.io/getting-started/install-dapr-cli/)
+- [Ollama](https://ollama.com/) (for local LLM) with a model downloaded (e.g., llama3.2:3b)
+
+# .NET console application using Dapr Conversation building block
+
+We create a simple console application:
+
+```bash
+dotnet new console -n Conversation
+cd Conversation
+dotnet add package Dapr.AI --version 1.16
+```
+
+Then we adapt the `Program.cs` file:
+
+```csharp
+// 👇🏼 Get Dapr conversation client through DI
+var conversationClient = ConversationClientBuilder.Create();
+
+// 👇🏼 Specify that we want to use the "ollama" Dapr conversation component (./components/ollama.yaml)
+var conversationOptions = new ConversationOptions("ollama");
+
+// 👇🏼 Use Dapr conversation client to converse with the "ollama" Dapr conversation component
+var response = await conversationClient.ConverseAsync(
+    [
+        new ConversationInput(
+        [
+            new UserMessage
+            {
+                Name = "Laurent",
+                Content =
+                [
+                    new MessageContent("What is Dapr?")
+                ]
+            }
+        ])
+    ],
+    conversationOptions);
+
+Console.WriteLine($"Output response: {response.Outputs.First().Choices.First().Message.Content}");
+```
+
+`ConversationClientBuilder` is a simple helper class to get the `DaprConversationClient` through Dependency Injection:
+
+```csharp
+internal static class ConversationClientBuilder
+{
+    public static DaprConversationClient Create()
+    {
+        var services = new ServiceCollection();
+        services.AddDaprConversationClient();
+        var serviceProvider = services.BuildServiceProvider();
+        return serviceProvider.GetRequiredService<DaprConversationClient>();
+    }
+}
+```
+
+We also need to create the Dapr component configuration file for Ollama, `./components/ollama.yaml`:
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: ollama
+spec:
+  type: conversation.ollama
+  metadata:
+    - name: model
+      value: llama3.2:3b
+    - name: cacheTTL
+      value: 10m
+```
+
+Finally, we can run the application with Dapr:
+
+```bash
+dapr run --app-id conversation --app-port 5000 --components-path ./components -- dotnet run
+```
+
+Or use the provided `dapr.yaml` script, running it using `dapr run -f .`
+
+```yaml
+version: 1
+common:
+  resourcesPath: ./components/
+apps:
+  - appDirPath: ./
+    appID: conversation
+    daprHTTPPort: 3500
+    daprGRPCPort: 50001
+    command: ["dotnet", "run"]
+```
+
+and we can see that the application is working:
+
+```
+ ❯  dapr run -f .
+Validating config and starting app "conversation"
+Started Dapr with app id "conversation". HTTP Port: 3500. gRPC Port: 50001
+Writing log files to directory : D:\projects\tmp\Conversation\.dapr\logs
+== APP - conversation == Output response: Dapr (pronounced "daper") is an open-source, cross-platform microservices framework that enables the development of distributed applications. It was created by Microsoft and is designed to simplify the process of building, deploying, and managing microservices-based systems.
+== APP - conversation == 
+== APP - conversation == Dapr provides a set of APIs and tools for building, scaling, and managing microservices, including:
+== APP - conversation == 
+== APP - conversation == 1. Service discovery: Dapr provides a service discovery mechanism that allows components to register themselves with the system and be discovered by other components.
+== APP - conversation == 2. Task queuing: Dapr supports task queuing, which enables components to offload tasks to other components or external services.
+== APP - conversation == 3. Event sourcing: Dapr provides an event sourcing feature that allows components to publish and subscribe to events.
+== APP - conversation == 4. Caching: Dapr includes a caching layer that can be used to improve performance by storing frequently accessed data in memory.
+== APP - conversation == 5. Load balancing: Dapr supports load balancing, which enables components to distribute incoming requests across multiple instances.
+== APP - conversation == 
+== APP - conversation == Dapr is designed to work with a variety of programming languages and frameworks, including .NET, Python, Java, and Go. It also provides a set of tools for building, testing, and deploying microservices-based systems.
+== APP - conversation == 
+== APP - conversation == Some key benefits of using Dapr include:   
+== APP - conversation == 
+== APP - conversation == 1. Simplified development: Dapr provides a set of pre-built APIs and tools that simplify the process of building and managing microservices.
+== APP - conversation == 2. Improved scalability: Dapr's load balancing and task queuing features enable components to scale more easily and efficiently.
+== APP - conversation == 3. Increased reliability: Dapr's caching and event sourcing features can improve the reliability and fault tolerance of microservices-based systems.
+== APP - conversation == 
+== APP - conversation == Overall, Dapr is a powerful tool for building and managing distributed applications, and can help developers simplify the process of creating scalable, reliable, and maintainable microservices-based systems.
+```
+
+# Changing the LLM provider to Azure Open AI
+
+To change the LLM provider, we simply need to update the Dapr component configuration file. We are not touching the application code. For example, to use Azure Open AI instead of Ollama, we would create a new component file `./components/azureopenai.yaml`:
+
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: azure-openai
+spec:
+  type: conversation.openai
+  metadata:
+  - name: key
+    value: "eb147b4e1e714356b5b38f8cd4244409"
+  - name: model
+    value: "Phi-4-mini-instruct"
+  - name: endpoint
+    value: "https://your-resource.openai.azure.com/"
+  - name: apiType
+    value: "azure"
+  - name: apiVersion
+    value: "2025-01-01-preview"
+```
+
+This time we are using Phi-4-mini-instruct, a smaller model from Mistral AI, available in Azure Open AI.
+You also need to set up an Azure Open AI resource in your Azure subscription and get the API key and endpoint.
+
+Note that we could use the Dapr configuration API building block to dynamically get the component name at runtime. In this blog post, we keep it simple.
+So, as we hardcoded the component name in the application code, we need to update it to use the new component.
+We update the `Program.cs` file to use the new component:
+
+```csharp
+var conversationOptions = new ConversationOptions("azure-openai");
+// previous code remains unchanged
+```
+
+Running our console application again using `dapr run -f .`, this time with the new component configuration file:
+
+```
+  ❯  dapr run -f .
+Validating config and starting app "conversation"
+Started Dapr with app id "conversation". HTTP Port: 3500. gRPC Port: 50001
+Writing log files to directory : D:\projects\tmp\Conversation\.dapr\logs
+== APP - conversation == Output response: Dapr, which stands for Distributed Application Runtime, is an open-source platform that simplifies the development and operation of distributed applications. It provides a set of building blocks that help developers build resilient, scalable, and portable applications without having to worry about the underlying infrastructure.
+== APP - conversation == 
+== APP - conversation == Key features of Dapr include:
+== APP - conversation == 
+== APP - conversation == 1. **State Management**: Dapr provides a consistent and scalable way to manage state across different services and environments. It supports various state stores like Redis, Cosmos DB, and others.
+== APP - conversation == 
+== APP - conversation == 2. **Pub/Sub Messaging**: Dapr offers a messaging system that allows services to communicate asynchronously. It supports multiple messaging providers like Azure Service Bus, Google Cloud Pub/Sub, and RabbitMQ.
+== APP - conversation == 
+== APP - conversation == 3. **Service Invocation**: Dapr enables services to invoke each other in a decoupled manner. It supports various invocation patterns, including REST, gRPC, and AMQP.
+== APP - conversation == 
+== APP - conversation == 4. **Binding and Discovery**: Dapr simplifies service discovery and binding, allowing services to find and connect to each other dynamically. It supports multiple discovery mechanisms like Consul, Eureka, and Kubernetes.
+== APP - conversation == 
+== APP - conversation == 5. **Resilience and Observability**: Dapr provides built-in resilience patterns like retries, circuit breakers, and timeouts. It also offers observability features like tracing, logging, and metrics.
+== APP - conversation == 
+== APP - conversation == 6. **Portability**: Dapr is designed to be portable across different cloud providers and environments, including Kubernetes, Docker, and standalone applications.
+== APP - conversation == 
+== APP - conversation == Dapr aims to abstract away the complexities of building distributed systems, allowing developers to focus on writing business logic and improving the overall application experience. It is built on top of the OpenAPI specification, which ensures that it can easily integrate with other tools and services.
+```
+
+# Conclusion
+
+In this blog post, we demonstrated how to decouple ourselves from LLM commodities by leveraging Dapr's Conversation building block. By using Dapr, we can easily switch between different LLM providers without changing our application code. This approach provides flexibility and adaptability, allowing us to choose the best LLM provider for our needs at any given time.
+
+Out of the box Dapr 1.16 supports several LLM providers, including:
+- Ollama
+- Azure Open AI
+- OpenAI
+- Mistral
+- AWS Bedrock
+- Anthropic
+- DeepSeek
+- GoogleAI
+- HuggingFace
+
+Dapr conversation building block comes with more features. And this will be the topic of other blog posts.
+
+Get the source code on GitHub [laurentkempe/daprPlayground/Conversation](TODO).
+
+<GitHubCard user="laurentkempe" repo="daprPlayground" />
+
+# References
+* [Dapr](https://dapr.io/)
+* [Dapr Conversation API reference](https://docs.dapr.io/reference/api/conversation_api/)
+* [Dapr Supported Conversation Components](https://docs.dapr.io/reference/components-reference/supported-conversation/)
+* [Dapr Conversation API (C# SDK) quickstart](https://github.com/dapr/quickstarts/blob/release-1.16/conversation/csharp/sdk/README.md)
+* [Ollama](https://ollama.com/)
+* [Mistral AI](https://mistral.ai/)
