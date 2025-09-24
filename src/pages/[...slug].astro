@@ -1,24 +1,29 @@
 ---
-import { render } from 'astro:content';
-import { getAllPosts } from '../utils/collections';
+import { render } from "astro:content";
+import { getAllPosts } from "../utils/collections";
 
-import MarkdownPostLayout from '../layouts/MarkdownPostLayout.astro';
+import MarkdownPostLayout from "../layouts/MarkdownPostLayout.astro";
 
 export async function getStaticPaths() {
   const posts = await getAllPosts();
-  return posts.map(post => ({
-    params: { slug: post.data.permalink }, props: { post },
+  return posts.map((post) => ({
+    params: { slug: post.data.permalink },
+    props: { post },
   }));
 }
 
 const { post } = Astro.props;
 const { Content } = await render(post);
 ---
+
 <MarkdownPostLayout frontmatter={post.data} post={post}>
-    <article class="prose prose-lg max-w-none dark:prose-invert
+  <article
+    data-pagefind-body
+    class="prose prose-lg max-w-none dark:prose-invert
                     prose-h1:font-bold prose-h1:text-4xl md:prose-h1:text-4xl prose-h1:text-xl prose-h1:mb-4
                     prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline
-                    prose-p:text-justify prose-img:rounded-xl">
-        <Content />
-    </article>
+                    prose-p:text-justify prose-img:rounded-xl"
+  >
+    <Content />
+  </article>
 </MarkdownPostLayout>
