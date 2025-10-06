@@ -1,27 +1,32 @@
 ---
-import { render } from 'astro:content';
-import { getAllPresentations } from '../../utils/collections';
-import MarkdownPostLayout from '../../layouts/Layout.astro';
-import TagList from '../../components/TagList.astro';
+import { render } from "astro:content";
+import { getAllPresentations } from "../../utils/collections";
+import MarkdownPostLayout from "../../layouts/Layout.astro";
+import TagList from "../../components/TagList.astro";
 
 export async function getStaticPaths() {
   const presentations = await getAllPresentations();
 
-  return presentations.map(presentation => ({
-    params: { slug: presentation.data.permalink }, props: { presentation },
+  return presentations.map((presentation) => ({
+    params: { slug: presentation.data.permalink },
+    props: { presentation },
   }));
 }
 
 const { presentation } = Astro.props;
 const { Content } = await render(presentation);
 ---
+
 <MarkdownPostLayout frontmatter={presentation.data}>
-    <article class="prose prose-lg max-w-none dark:prose-invert
+  <article
+    data-pagefind-body
+    class="prose prose-lg max-w-none dark:prose-invert
                     prose-h1:font-bold prose-h1:text-4xl md:prose-h1:text-4xl prose-h1:text-xl prose-h1:mb-4
                     prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline
-                    prose-p:text-justify prose-img:rounded-xl">
-        <h1>{presentation.data.title}</h1>
-        <TagList tags={presentation.data.tags} />
-        <Content />
-    </article>
+                    prose-p:text-justify prose-img:rounded-xl"
+  >
+    <h1>{presentation.data.title}</h1>
+    <TagList tags={presentation.data.tags} />
+    <Content />
+  </article>
 </MarkdownPostLayout>
