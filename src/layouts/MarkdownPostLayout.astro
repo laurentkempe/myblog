@@ -54,24 +54,34 @@ const blogPostJsonLd = {
 <Layout title={frontmatter.title} jsonLd={blogPostJsonLd}>
   <p><em>{frontmatter.description}</em></p>
   {frontmatter.coverImage ? (
-    <div class="relative pt-1">
-      <Image src={`${frontmatter.coverImage}`}
-            alt={`${frontmatter.coverCaption}`}
-            width="1600"
-            height="1067"
-            class="w-full"
-      />
-      <div class="absolute text-white top-1/3 left-1/3 transform -translate-x-1/4 -translate-y-1/4">
-        <p class="text-2xl sm:text-3xl md:text-5xl font-extrabold drop-shadow-[0_4px_3px_rgb(0,0,0,0.5)] dark:drop-shadow-[0_4px_3px_rgb(255,255,255,0.5)]">{frontmatter.title}</p>
-        <p class="py-2 text-sm sm:text-base">{new Date(frontmatter.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+    <>
+      <div class="relative pt-1 cover-image-container">
+        <Image src={`${frontmatter.coverImage}`}
+              alt={`${frontmatter.coverCaption}`}
+              width="1600"
+              height="1067"
+              class="w-full"
+        />
+        <div class="absolute text-white top-1/3 left-1/3 transform -translate-x-1/4 -translate-y-1/4">
+          <p class="text-2xl sm:text-3xl md:text-5xl font-extrabold drop-shadow-[0_4px_3px_rgb(0,0,0,0.5)] dark:drop-shadow-[0_4px_3px_rgb(255,255,255,0.5)]">{frontmatter.title}</p>
+          <p class="py-2 text-sm sm:text-base">{new Date(frontmatter.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+        </div>
+        <p class="absolute text-sm sm:text-xs text-white bottom-5 right-5 hidden md:block">{frontmatter.coverCaption !== undefined && frontmatter.coverCaption}</p>
+        {frontmatter.tags?.length > 0 && (
+          <div class="absolute bottom-5 left-5 hidden md:block">
+            <TagList tags={frontmatter.tags} />
+          </div>
+        )}
       </div>
+      {frontmatter.coverCaption !== undefined && frontmatter.coverCaption && (
+        <p class="text-sm text-center py-2 text-gray-600 dark:text-gray-400 block md:hidden">{frontmatter.coverCaption}</p>
+      )}
       {frontmatter.tags?.length > 0 && (
-        <div class="absolute bottom-5 left-5">
+        <div class="py-2 block md:hidden">
           <TagList tags={frontmatter.tags} />
         </div>
       )}
-      <p class="absolute text-sm sm:text-xs text-white bottom-5 right-5">{frontmatter.coverCaption !== undefined && frontmatter.coverCaption}</p>
-    </div>
+    </>
   ) : (
     <div class="py-8">
       <h1 class="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white">{frontmatter.title}</h1>
@@ -136,4 +146,5 @@ const blogPostJsonLd = {
     .absolute {
       max-width: 100%;
     }
+
 </style>
