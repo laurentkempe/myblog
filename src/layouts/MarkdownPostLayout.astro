@@ -66,18 +66,18 @@ const blogPostJsonLd = {
           <p class="text-2xl sm:text-3xl md:text-5xl font-extrabold drop-shadow-[0_4px_3px_rgb(0,0,0,0.5)] dark:drop-shadow-[0_4px_3px_rgb(255,255,255,0.5)]">{frontmatter.title}</p>
           <p class="py-2 text-sm sm:text-base">{new Date(frontmatter.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
         </div>
-        <p class="absolute text-sm sm:text-xs text-white bottom-5 right-5 caption-overlay">{frontmatter.coverCaption !== undefined && frontmatter.coverCaption}</p>
+        <p class="absolute text-sm sm:text-xs text-white bottom-5 right-5 hidden md:block">{frontmatter.coverCaption !== undefined && frontmatter.coverCaption}</p>
         {frontmatter.tags?.length > 0 && (
-          <div class="absolute bottom-5 left-5 tags-overlay">
+          <div class="absolute bottom-5 left-5 hidden md:block">
             <TagList tags={frontmatter.tags} />
           </div>
         )}
       </div>
       {frontmatter.coverCaption !== undefined && frontmatter.coverCaption && (
-        <p class="text-sm text-center py-2 text-gray-600 dark:text-gray-400 caption-below">{frontmatter.coverCaption}</p>
+        <p class="text-sm text-center py-2 text-gray-600 dark:text-gray-400 block md:hidden">{frontmatter.coverCaption}</p>
       )}
       {frontmatter.tags?.length > 0 && (
-        <div class="py-2 tags-below">
+        <div class="py-2 block md:hidden">
           <TagList tags={frontmatter.tags} />
         </div>
       )}
@@ -147,39 +147,4 @@ const blogPostJsonLd = {
       max-width: 100%;
     }
 
-    /* Show tags and caption overlay on desktop, hide tags and caption below */
-    .tags-overlay {
-      display: block;
-    }
-
-    .tags-below {
-      display: none;
-    }
-
-    .caption-overlay {
-      display: block;
-    }
-
-    .caption-below {
-      display: none;
-    }
-
-    /* On mobile: hide overlays, show tags and caption below */
-    @media (max-width: 768px) {
-      .tags-overlay {
-        display: none;
-      }
-
-      .tags-below {
-        display: block;
-      }
-
-      .caption-overlay {
-        display: none;
-      }
-
-      .caption-below {
-        display: block;
-      }
-    }
 </style>
