@@ -55,7 +55,7 @@ const blogPostJsonLd = {
   <p><em>{frontmatter.description}</em></p>
   {frontmatter.coverImage ? (
     <>
-      <div class="relative pt-1">
+      <div class="relative pt-1 cover-image-container">
         <Image src={`${frontmatter.coverImage}`}
               alt={`${frontmatter.coverCaption}`}
               width="1600"
@@ -67,9 +67,14 @@ const blogPostJsonLd = {
           <p class="py-2 text-sm sm:text-base">{new Date(frontmatter.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
         </div>
         <p class="absolute text-sm sm:text-xs text-white bottom-5 right-5">{frontmatter.coverCaption !== undefined && frontmatter.coverCaption}</p>
+        {frontmatter.tags?.length > 0 && (
+          <div class="absolute bottom-5 left-5 tags-overlay">
+            <TagList tags={frontmatter.tags} />
+          </div>
+        )}
       </div>
       {frontmatter.tags?.length > 0 && (
-        <div class="py-2">
+        <div class="py-2 tags-below">
           <TagList tags={frontmatter.tags} />
         </div>
       )}
@@ -137,5 +142,25 @@ const blogPostJsonLd = {
 
     .absolute {
       max-width: 100%;
+    }
+
+    /* Show tags overlay on desktop, hide tags below */
+    .tags-overlay {
+      display: block;
+    }
+
+    .tags-below {
+      display: none;
+    }
+
+    /* On mobile: hide tags overlay, show tags below */
+    @media (max-width: 768px) {
+      .tags-overlay {
+        display: none;
+      }
+
+      .tags-below {
+        display: block;
+      }
     }
 </style>
