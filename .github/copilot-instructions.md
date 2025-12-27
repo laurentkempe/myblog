@@ -10,24 +10,27 @@ This is Laurent Kempé's personal technical blog - "One of the Tech Head Brother
 - Responsive design with dark/light theme support
 - SEO optimization and accessibility features
 - Social media integration
+- Giscus-powered comments system
 
 ## Tech Stack
 
-- **Framework**: Astro 5.7.0 (static site generator with island architecture)
-- **Styling**: Tailwind CSS 4.1.4 with custom animations and typography
+- **Framework**: Astro 5.16.0 (static site generator with island architecture)
+- **Styling**: Tailwind CSS 4.1.12 with custom animations and typography
 - **Content**: MDX for blog posts with frontmatter metadata
 - **Language**: TypeScript for configuration and utilities
-- **Build Tool**: Vite (integrated with Astro)
+- **Build Tool**: Vite (integrated with Astro via @tailwindcss/vite)
 - **Package Manager**: pnpm (lockfile present)
 
 ### Key Dependencies
 
-- `@astrojs/mdx` - MDX support for rich content
-- `@astrojs/sitemap` - Automatic sitemap generation
-- `astro-auto-import` - Component auto-importing
-- `astro-icon` - Icon system
-- `@astro-community/astro-embed-*` - Social media embeds (Twitter, YouTube)
-- `@tailwindcss/typography` - Typography styling for prose content
+- `@astrojs/mdx` (4.3.12) - MDX support for rich content
+- `@astrojs/sitemap` (3.6.0) - Automatic sitemap generation
+- `astro-auto-import` (0.4.4) - Component auto-importing
+- `astro-icon` (1.1.5) - Icon system with Iconify collections
+- `@astro-community/astro-embed-twitter` (0.5.8) - Twitter embeds
+- `@astro-community/astro-embed-youtube` (0.5.6) - YouTube embeds
+- `@tailwindcss/typography` (0.5.16) - Typography styling for prose content
+- `markdown-it` (14.1.0) - Markdown parsing utilities
 
 ## Project Structure
 
@@ -81,6 +84,7 @@ These components are available in MDX files without explicit imports:
 - `GitHubCard.astro` - GitHub repository cards
 - `Alert.astro` - Callout/alert boxes
 - `Reveal.astro` - Expandable content sections
+- `GiscusComments.astro` - GitHub-based comments
 - `Tweet` - Twitter embed component
 - `YouTube` - YouTube video embed
 - `Image` - Optimized image component from `astro:assets`
@@ -120,10 +124,13 @@ These components are available in MDX files without explicit imports:
 ## Development Commands
 
 ```bash
-pnpm install         # Install dependencies
-pnpm run dev         # Start development server
-pnpm run build       # Build for production
-pnpm run preview     # Preview production build
+pnpm install          # Install dependencies
+pnpm run dev          # Start development server
+pnpm run build        # Build for production
+pnpm run preview      # Preview production build
+pnpm run create-draft # Create a new draft blog post
+pnpm run list-drafts  # List all draft posts
+pnpm run publish-draft # Publish a draft post
 ```
 
 ## Content Creation Guidelines
