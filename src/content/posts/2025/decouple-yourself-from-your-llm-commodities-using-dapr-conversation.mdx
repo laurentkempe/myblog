@@ -1,13 +1,12 @@
 ---
 title: 'Decouple yourself from your LLM commodities using Dapr Conversation'
-permalink: /2025/09/21/decouple-yourself-from-your-llm-commodities-using-dapr-conversation/
-date: 09/21/2025 09:51:21
+permalink: /2025/09/24/decouple-yourself-from-your-llm-commodities-using-dapr-conversation/
+date: 09/24/2025 07:07:56
 coverSize: partial
 tags: [AI, Azure, Dapr, C#, LLM, SLM]
 coverCaption: 'Bastia, Corse, France'
 coverImage: 'https://live.staticflickr.com/65535/54800987707_d241c5c7e3_h.jpg'
 thumbnailImage: 'https://live.staticflickr.com/65535/54800987707_51b31a42d4_q.jpg'
-draft: true
 ---
 As developers, we often find ourselves tied to specific providers. The same applies to Large Language Model (LLM) providers. This can limit our flexibility and control over our applications. In this blog post, we'll explore how to decouple ourselves from LLM commodities by leveraging Dapr's Conversation building block. This approach allows us to switch between different LLM providers seamlessly, ensuring that our applications remain adaptable and future-proof.
 {/* <!-- more --> */}
@@ -166,7 +165,7 @@ spec:
     value: "2025-01-01-preview"
 ```
 
-This time, we are using Phi-4-mini-instruct, a smaller model from Mistral AI, available in Azure OpenAI.
+This time, we are using Phi-4-mini-instruct, a smaller model from Microsoft, available in Azure OpenAI.
 You also need to set up an Azure OpenAI resource in your Azure subscription and get the API key and endpoint.
 
 Note that we could use the Dapr configuration API building block to dynamically get the component name at runtime. In this blog post, we'll keep it simple.
@@ -221,7 +220,7 @@ Out of the box, Dapr 1.16 supports several LLM providers, including:
 
 The Dapr Conversation building block comes with more features, which will be the topic of other blog posts.
 
-Get the source code on GitHub [laurentkempe/daprPlayground/Conversation](TODO).
+Get the source code on GitHub [laurentkempe/daprPlayground/Conversation](https://github.com/laurentkempe/daprPlayground/tree/master/Conversation#readme).
 
 <GitHubCard user="laurentkempe" repo="daprPlayground" />
 
