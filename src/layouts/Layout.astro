@@ -67,13 +67,19 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
         <meta property="og:description" content={description} />
         <meta property="og:image" content={image} />
         <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content={Blog.SITE_TITLE} />
+        <meta property="article:author" content={AUTHOR.URL} />
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@laurentkempe" />
+        <meta name="twitter:creator" content="@laurentkempe" />
         <meta name="twitter:title" content={`${Blog.SITE_TITLE} - ${pageTitle}`} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={image} />
+
+        <!-- Author -->
+        <meta name="author" content={AUTHOR.NAME} />
 
         <!-- Canonical URL -->
         <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).toString()} />
