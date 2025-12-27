@@ -4,8 +4,25 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { Blog, AUTHOR } from "../utils/constants";
 
-const { title = Blog.SITE_SUBTITLE, frontmatter, jsonLd } = Astro.props;
+interface Props {
+    title?: string;
+    frontmatter?: Record<string, unknown>;
+    jsonLd?: Record<string, unknown>;
+    image?: string;
+    description?: string;
+}
+
+const DEFAULT_OG_IMAGE = "https://farm2.staticflickr.com/1971/31306281378_02b055ccfe_q.jpg";
+
+const { 
+    title = Blog.SITE_SUBTITLE, 
+    frontmatter, 
+    jsonLd,
+    image = DEFAULT_OG_IMAGE,
+    description = Blog.SITE_SUBTITLE
+} = Astro.props as Props;
 const pageTitle = frontmatter?.title || title;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
 ---
 <!doctype html>
 <html lang="en">
@@ -45,14 +62,18 @@ const pageTitle = frontmatter?.title || title;
         />
 
         <!-- Open Graph / Facebook -->
-        <meta property="og:type" content="blog" />
+        <meta property="og:type" content="article" />
         <meta property="og:title" content={`${Blog.SITE_TITLE} - ${pageTitle}`} />
-        <meta property="og:image" content="https://farm2.staticflickr.com/1971/31306281378_02b055ccfe_q.jpg" />
-        <meta property="og:url" content={Blog.BASE_URL} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={image} />
+        <meta property="og:url" content={canonicalUrl} />
 
         <!-- Twitter -->
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@laurentkempe" />
+        <meta name="twitter:title" content={`${Blog.SITE_TITLE} - ${pageTitle}`} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={image} />
 
         <!-- Canonical URL -->
         <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).toString()} />

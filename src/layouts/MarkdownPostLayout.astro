@@ -3,7 +3,7 @@ import TagList from '../components/TagList.astro';
 import Layout from './Layout.astro';
 import { Image } from 'astro:assets';
 import { Blog, AUTHOR } from '../utils/constants';
-import {getExcerpt} from "../utils/blog";
+import {getExcerpt, getPlainTextExcerpt} from "../utils/blog";
 import GiscusComments from '../components/GiscusComments.astro';
 const { frontmatter, post } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
@@ -50,8 +50,16 @@ const blogPostJsonLd = {
   "keywords": frontmatter.tags?.join(', ') || "",
   "url": canonicalUrl
 };
+
+// Compute description for meta tags: prefer frontmatter.description, fallback to excerpt
+const metaDescription = frontmatter.description || getPlainTextExcerpt(post.body || "");
 ---
-<Layout title={frontmatter.title} jsonLd={blogPostJsonLd}>
+<Layout 
+  title={frontmatter.title} 
+  jsonLd={blogPostJsonLd}
+  image={frontmatter.coverImage}
+  description={metaDescription}
+>
   <p><em>{frontmatter.description}</em></p>
   {frontmatter.coverImage ? (
     <>
