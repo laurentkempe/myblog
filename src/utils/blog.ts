@@ -53,7 +53,7 @@ export function getExcerpt(content: string): string {
   const moreIndex = content.indexOf('{/* <!-- more --> */}');
   if (moreIndex === -1) {
     const contentWithoutImports = lines.slice(startIndex).join('\n');
-    return `<div class="mb-4 text-gray-900 dark:text-gray-100">${md.render(contentWithoutImports)}</div>`;
+    return `<div class="prose dark:prose-invert max-w-none mb-4 text-gray-900 dark:text-gray-100">${md.render(contentWithoutImports)}</div>`;
   }
 
   // Find the line number of the more tag
@@ -61,5 +61,5 @@ export function getExcerpt(content: string): string {
   const lineCount = upToMore.split('\n').length;
   
   const excerpt = lines.slice(startIndex, lineCount - 1).join('\n');
-  return `<div class="mb-4 text-gray-900 dark:text-gray-100">${md.render(excerpt)}</div>`;
+  return `<div class="prose dark:prose-invert max-w-none mb-4 text-gray-900 dark:text-gray-100">${md.render(excerpt)}</div>`;
 }

@@ -3,6 +3,21 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* GitHub-style inline code styling */
+.prose code:not(pre code) {
+  background-color: rgba(175, 184, 193, 0.2);
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+  font-size: 85%;
+}
+.prose code:not(pre code)::before,
+.prose code:not(pre code)::after {
+  content: none;
+}
+.dark .prose code:not(pre code) {
+  background-color: rgba(110, 118, 129, 0.4);
+}
+
 .yt-width {
     width: 100%;
     max-width: none;
