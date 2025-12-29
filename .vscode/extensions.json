@@ -1,4 +1,8 @@
 {
-  "recommendations": ["astro-build.astro-vscode"],
+  "recommendations": [
+    "astro-build.astro-vscode",
+    "github.copilot",
+    "github.copilot-chat"
+  ],
   "unwantedRecommendations": []
 }

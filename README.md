@@ -18,6 +18,18 @@ All dependencies are automatically installed. Just run `pnpm run dev` when ready
 
 See [.devcontainer/README.md](.devcontainer/README.md) for detailed instructions.
 
+## 🤖 AI Development Support
+
+This project includes MCP (Model Context Protocol) server configuration for enhanced development experience with GitHub Copilot and VS Code. 
+
+**Quick Start**: Open in VS Code Insiders to access:
+- 📚 Up-to-date Astro and Tailwind CSS documentation via Context7
+- 🗂️ File system analysis and project understanding  
+- 🔍 Web search for research and content validation
+- 🐙 GitHub repository integration
+
+See [docs/MCP_CONFIGURATION.md](docs/MCP_CONFIGURATION.md) for detailed setup and usage instructions.
+
 ### 📦 Local Development
 
 ## Install dependencies
