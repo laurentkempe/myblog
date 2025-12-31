@@ -41,23 +41,23 @@ const getPageUrl = (pageNum: number) => {
 ---
 <div class="flex justify-between items-center p-6">
   <div class="space-x-2 flex items-center">
-    {page.url.first ? <a href={page.url.first} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-left" /></a> : null}
-    {page.url.prev ? <a href={page.url.prev} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-left" /></a> : null}
+    {page.url.first ? <a href={page.url.first} class="text-blue-500 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1"><Icon name="fa6-solid:angles-left" /></a> : null}
+    {page.url.prev ? <a href={page.url.prev} class="text-blue-500 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1"><Icon name="fa6-solid:angle-left" /></a> : null}
     {
       Array.from({ length: endPage - startPage + 1 }, (_, i) => {
         const pageNum = startPage + i;
         return (
           <a 
             href={getPageUrl(pageNum)}
-            class={`px-2 py-1 ${currentPage === pageNum ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}
+            class={`px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md ${currentPage === pageNum ? 'bg-blue-500 text-white' : 'text-blue-500 dark:text-blue-400 hover:underline'}`}
           >
             {pageNum}
           </a>
         );
       })
     }
-    {page.url.next ? <a href={page.url.next} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angle-right" /></a> : null}
-    {page.url.last ? <a href={page.url.last} class="text-blue-500 dark:text-blue-400 hover:underline"><Icon name="fa6-solid:angles-right" /></a> : null}
+    {page.url.next ? <a href={page.url.next} class="text-blue-500 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1"><Icon name="fa6-solid:angle-right" /></a> : null}
+    {page.url.last ? <a href={page.url.last} class="text-blue-500 dark:text-blue-400 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md p-1"><Icon name="fa6-solid:angles-right" /></a> : null}
   </div>
   <div class="text-gray-600 dark:text-gray-400">
     Page {currentPage} of {totalPages}
