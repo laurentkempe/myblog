@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
+---
+
+<Layout 
+    title="Page Not Found"
+    description="Oops! The page you're looking for seems to have wandered off into the digital wilderness."
+>
+    <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4 py-12">
+        <div class="mb-8">
+            <Icon name="fa6-solid:robot" class="w-32 h-32 text-gray-400 dark:text-gray-600 mx-auto" />
+        </div>
+        
+        <h1 class="text-6xl font-bold text-gray-900 dark:text-white mb-4">
+            404
+        </h1>
+        
+        <h2 class="text-3xl font-semibold text-gray-700 dark:text-gray-300 mb-6">
+            Oops! Page Not Found
+        </h2>
+        
+        <p class="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mb-8">
+            It seems like this page decided to take an unexpected vacation. 🏖️<br />
+            Even my robot couldn't find it in the digital wilderness!
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a 
+                href="/" 
+                class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors duration-200"
+            >
+                <Icon name="fa6-solid:house" class="w-5 h-5 mr-2" />
+                Back to Home
+            </a>
+            <a 
+                href="/blog" 
+                class="inline-flex items-center px-6 py-3 text-base font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors duration-200"
+            >
+                <Icon name="fa6-solid:book-open" class="w-5 h-5 mr-2" />
+                Browse Blog
+            </a>
+        </div>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-12">
+            Error Code: 404 • Page doesn't exist or has been moved
+        </p>
+    </div>
+</Layout>
