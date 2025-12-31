@@ -157,3 +157,116 @@ pnpm run publish-draft # Publish a draft post
 - `tsconfig.json` - TypeScript configuration
 - `src/content/config.ts` - Content collection schemas
 - `src/utils/constants.ts` - Site-wide constants and author info
+
+## Build, Test, and Validation
+
+### Building the Project
+```bash
+pnpm run build        # Production build (outputs to dist/)
+pnpm run dev          # Development server with hot reload
+pnpm run preview      # Preview production build locally
+```
+
+**Build Requirements:**
+- Node.js 20 or later recommended
+- pnpm package manager (install with `npm install -g pnpm`)
+- All dependencies must be installed first with `pnpm install`
+
+**Expected Build Output:**
+- Static HTML files in `dist/` directory
+- Generated sitemap at `dist/sitemap.xml`
+- Optimized assets and images
+
+### Linting and Testing
+⚠️ **Note**: This project currently has no linting or automated testing infrastructure. When making changes:
+- Manually verify Astro component syntax
+- Check TypeScript types compile correctly with `astro check`
+- Test locally with `pnpm run dev` before building
+- Validate MDX frontmatter matches the schema in `src/content/config.ts`
+
+### Validating Changes
+
+**For Component Changes:**
+1. Run `pnpm run dev` to start development server
+2. Navigate to affected pages in browser (typically http://localhost:4321)
+3. Test both light and dark themes with the theme toggle
+4. Verify responsive behavior at different screen sizes
+5. Check browser console for any errors
+
+**For Content Changes (Blog Posts/Speaking):**
+1. Verify frontmatter fields match schema requirements
+2. Check that `{/* <!-- more --> */}` excerpt marker is properly placed
+3. Ensure dates are in correct ISO format (YYYY-MM-DD)
+4. Validate that tags are consistent with existing tag structure
+5. Test post rendering with `pnpm run dev`
+
+**For Build Verification:**
+1. Run `pnpm run build` to ensure no build errors
+2. Run `pnpm run preview` to test the production build
+3. Check console output for warnings or errors
+4. Verify generated pages in browser
+
+## Common Pitfalls and Gotchas
+
+### MDX Content Issues
+- **YouTube Embeds**: Some posts may have YouTube components with invalid JSON data. The build will fail with "Unexpected token" errors if YouTube metadata cannot be parsed. Check the specific blog post mentioned in the error.
+- **More Marker**: The excerpt separator must be exactly `{/* <!-- more --> */}` (MDX comment syntax), not HTML comment syntax
+- **Frontmatter Types**: Date fields must be parseable dates (YYYY-MM-DD format). The schema uses `z.coerce.date()` for automatic parsing.
+
+### Component Auto-Import
+- Components listed in `astro.config.mjs` auto-import configuration are available globally in MDX files
+- Don't manually import these components - it will cause conflicts
+- Auto-imported components: `GitHubCard`, `Alert`, `Reveal`, `GiscusComments`, `Tweet`, `YouTube`, `Image`
+
+### Tailwind CSS
+- This project uses Tailwind CSS v4.1+ with Vite plugin, not PostCSS
+- Styles are applied via class names directly in components
+- Dark mode classes (e.g., `dark:bg-gray-900`) require the base light mode class to be present
+- Typography plugin classes (e.g., `prose`) handle markdown content styling
+
+### Build Performance
+- The site has many posts and generates many tag pages - builds can take 30-90 seconds
+- Development server (hot reload) is much faster for iterative changes
+- Static page generation happens at build time, not runtime
+
+### Giscus Comments
+- Comments component requires `data-repo-id` and `data-category-id` configuration
+- These IDs must be obtained from https://giscus.app
+- GitHub Discussions must be enabled on the repository for comments to work
+
+## Deployment
+
+The site deploys automatically via GitHub Actions on push to `main` branch:
+- Workflow: `.github/workflows/deploy.yml`
+- Uses `withastro/action@v3` for building
+- Deploys to external repository `laurentkempe/techheadbrothers` via GitHub Pages
+- Requires `ACTIONS_DEPLOY_KEY` secret for cross-repository deployment
+
+## Troubleshooting
+
+### Build Fails with "pnpm: command not found"
+```bash
+npm install -g pnpm
+```
+
+### Build Fails with Module Errors
+```bash
+rm -rf node_modules dist .astro
+pnpm install
+pnpm run build
+```
+
+### Type Errors in Components
+- Check that props interfaces match actual usage
+- Verify imports from `astro:assets` and other Astro modules
+- Run `astro check` (if available) for type checking
+
+### Development Server Not Hot Reloading
+- Restart the dev server with `pnpm run dev`
+- Check that you're editing files inside the `src/` directory
+- Some changes (like config files) require server restart
+
+### Images Not Displaying
+- Images should be in `public/` for static assets or imported via `astro:assets` for optimization
+- Check that image paths are correct relative to the page location
+- Verify image files exist and have correct permissions
