@@ -1,0 +1,238 @@
+---
+title: 'C# 14 More Partial Members: Partial Events and Partial Constructors'
+permalink: /2025/12/30/csharp-14-more-partial-members-partial-events-and-constructors/
+date: 12/30/2025 14:12:35
+disqusIdentifier: 20251230141235
+coverSize: partial
+tags: ["C#", ".NET"]
+coverCaption: 'Fish Hoek, South Africa'
+coverImage: 'https://live.staticflickr.com/65535/55013633930_2886bcd5db_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/55013633930_7b1eaeb9d9_q.jpg'
+draft: true
+---
+In C#, `partial` has long been a practical bridge between human-authored code and tool-generated code. With C# 14, that bridge gets wider: **instance constructors** and **events** can now be declared as partial members.
+
+This article explains what “more partial members” means in C# 14, the rules that keep it predictable, and the generator-heavy scenarios it's intended to support.
+{/* <!-- more --> */}
+
+# What are partial members in C#?
+
+A partial member is split across two declarations:
+
+- A **defining (declaring) declaration** that establishes the member's signature (and typically has no body).
+- An **implementing declaration** that provides the body (or accessors).
+
+That split is especially valuable when:
+
+- You want a clean “shape” in handwritten code.
+- A source generator can supply the implementation during compilation.
+
+C# has supported partial methods for a long time. C# 13 expanded partial members to properties and indexers. C# 14 continues that progression by adding **partial events** and **partial instance constructors**.
+
+# What's new in C# 14: partial events and partial constructors
+
+C# 14 adds support for:
+
+- `partial` **instance constructors**
+- `partial` **events**
+
+In both cases, the language enforces a strict pairing model:
+
+- You must have **exactly one defining declaration** and **exactly one implementing declaration**.
+
+That “one-and-one” rule is a big part of the appeal: it's explicit, easy to reason about, and maps cleanly to generator output.
+
+# Partial constructors in C# 14: rules and implications
+
+Partial constructors are built around a straightforward split: one place declares the constructor, another place implements it.
+
+## One defining declaration and one implementing declaration
+
+A partial constructor must have:
+
+- A **defining declaration**.
+- An **implementing declaration**.
+
+The defining declaration simply advertises the constructor signature while the implementing declaration provides the body (and any initializer). The spec shows this pattern with paired partial classes:
+
+```csharp
+// WidgetBase.cs
+public class WidgetBase(string name)
+{
+    public string Name { get; } = name;
+}
+
+// Widget.cs defining constructor declaration
+public sealed partial class Widget
+{
+    public partial Widget(string name, int size);
+}
+
+// Widget.generated.cs implementing declaration
+public partial class Widget : WidgetBase
+{
+    public int Size { get; }
+
+    public partial Widget(string name, int size) : base(name)
+    {
+        Size = size;
+    }
+}
+```
+
+Only the implementing declaration can include `: this(...)` or `: base(...)`, so consumers always see the defining declaration's clean surface.
+
+The defining declaration can't have an initializer.
+
+## How lookup and metadata emission work
+
+Partial members follow a “defining declaration wins” approach for lookup and metadata emission:
+
+- The defining declaration participates in lookup and metadata emission.
+- The implementing declaration is used for nullable analysis of the associated body.
+
+If you're building generators, this separation can help keep the public surface area (and metadata) stable while still allowing generated implementation details to evolve.
+
+# Partial events in C# 14: not field-like by design
+
+Events in C# have a “field-like” form (where the compiler provides backing storage and synthesizes `add`/`remove`) and an “accessor” form (where you write `add`/`remove` yourself). Partial events introduce a split across files, but with an important constraint: **they are intentionally not field-like**.
+
+## One defining declaration and one implementing declaration
+
+A partial event also requires exactly two pieces:
+
+- A **defining declaration**.
+- An **implementing declaration**.
+
+## The implementation must define both `add` and `remove`
+
+For a partial event, the implementing declaration must include:
+
+- `add { ... }`
+- `remove { ... }`
+
+The defining declaration stays field-like to advertise the delegate type, but the implementation carries the real accessors. Here's how a event implementation marries the two halves:
+
+```csharp
+// ScoreBoard.cs defining declaration
+public sealed partial class ScoreBoard
+{
+    public partial event EventHandler<int>? ScoreUpdated;
+}
+
+// ScoreBoard.generated.cs implementing declaration
+#nullable enable
+
+public partial class ScoreBoard
+{
+    private readonly List<EventHandler<int>> _subscribers = new();
+    
+    public void UpdateScore(int score) => _subscribers.ForEach(subscriber => subscriber(this, score));
+    
+    public partial event EventHandler<int>? ScoreUpdated
+    {
+        add
+        {
+            if (value is not null)
+            {
+                _subscribers.Add(value);
+            }
+        }
+        remove
+        {
+            if (value is not null)
+            {
+                _subscribers.Remove(value);
+            }
+        }
+    }
+}
+```
+
+Because the implementation supplies both accessors, there is no compiler-generated field, which reinforces the “not field-like” guarantee.
+
+## What “not field-like” means
+
+This is the rule that tends to surprise people:
+
+- A partial event has **no compiler-generated backing storage**.
+- A partial event can only be used with `+=` and `-=`.
+- You can't use it “as a value.”
+
+So while the defining declaration can use field-like syntax, the resulting event does not get field-like semantics.
+
+# Why C# 14 adds partial events and constructors
+
+The motivation here is strongly tied to tooling and code generation.
+
+## Weak-event libraries
+
+The feature spec calls out weak-event patterns: a user can write a simple event definition (potentially annotated for a generator), and a generator can produce the `add`/`remove` logic and any supporting infrastructure.
+
+That keeps user-facing code small while still enabling a specialized implementation.
+
+## Interop and binding generation
+
+Interop scenarios often need constructors and events whose implementation is platform-specific or runtime-specific. The spec highlights binding-generation style use cases where a source generator supplies the runtime calls.
+
+Partial constructors and partial events provide a first-class way to separate the “API surface” from the generated plumbing.
+
+# Attributes, signature matching, and documentation comments
+
+C# 14 includes detailed rules for how the two halves combine.
+
+## Signature matching
+
+Both declarations must have matching signatures. Some differences are errors, others are warnings:
+
+- Differences that are significant to the runtime are compile-time errors.
+- Tuple element name differences are errors.
+- Many other syntactic differences are warnings.
+
+One nuance called out in the spec is default parameter values on implementing constructor declarations:
+
+- Default parameter values don't need to match.
+- If the implementing constructor declares default parameter values, you get a warning because those defaults are ignored (only the defining declaration participates in lookup).
+
+## Attributes
+
+Attributes from the partial declarations are combined (concatenated), in an unspecified order, and duplicates are not removed.
+
+The spec also describes special handling for attribute targets in some cases (for example, around event declarations).
+
+## Documentation comments
+
+Doc comments have a notable rule:
+
+- If doc comments exist on only one declaration, they're used normally.
+- If doc comments exist on both declarations, **the defining declaration's doc comments are dropped**, and only the implementing declaration's doc comments are used.
+
+There's also a practical pitfall if parameter names differ between declarations: `paramref` can become confusing because documentation binds to the parameter names from the declaration where the documentation comment lives.
+
+# Language design edge: parsing breaks
+
+The feature specification notes that allowing `partial` in more contexts can introduce a parsing break. In some cases, code that previously parsed as a method could parse as a constructor once `partial` becomes valid on constructors.
+
+It's a reminder that even small grammar changes can have ripple effects, especially around method-like declarations.
+
+# Conclusion
+
+C# 14's “more partial members” continues a clear trend: making partial members a broader, more consistent language mechanism for collaboration between human-written code and generated code.
+
+The headline is simple—partial constructors and partial events—but the value is in the details:
+
+- The strict one-defining/one-implementing model.
+- Clear rules about lookup/metadata vs implementation/body analysis.
+- Intentional semantics for events (not field-like) to avoid hidden compiler-generated state.
+
+If you're writing source generators, binding generators, or libraries that want a clean separation between API surface and implementation, partial events and partial constructors are worth a close look.
+
+# References
+
+- [What's new in C# 14 - More partial members](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-14#more-partial-members)
+- [Partial Events and Constructors](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/proposals/csharp-14.0/partial-events-and-constructors)
+- [Partial member (C# Reference)](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/partial-member)
+- [Partial type (C# Reference)](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/partial-type)
+- [Partial Classes and Members (C# Programming Guide)](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/partial-classes-and-methods)
+
+Are you generating code? How will you use partial events or partial constructors? Let me know in the comments!
