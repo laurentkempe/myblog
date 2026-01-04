@@ -14,7 +14,7 @@ The fastest way to get started is using the pre-configured Dev Container:
 - **VS Code**: Install Dev Containers extension → Reopen in Container
 - **JetBrains WebStorm**: Use Remote Development → Dev Containers
 
-All dependencies are automatically installed. Just run `pnpm run dev` when ready!
+All dependencies are automatically installed. Just run `bun run dev` when ready!
 
 See [.devcontainer/README.md](.devcontainer/README.md) for detailed instructions.
 
@@ -23,13 +23,13 @@ See [.devcontainer/README.md](.devcontainer/README.md) for detailed instructions
 ## Install dependencies
 
 ```bash
-pnpm install
+bun install
 ```
 
 ## Start the Astro dev server
 
 ```bash
-pnpm run dev
+bun run dev
 ```
 
 ## Creating Draft Blog Posts
@@ -38,10 +38,10 @@ Create a new draft blog post using the provided template:
 
 ```bash
 # Interactive mode - will prompt for title
-pnpm run create-draft
+bun run create-draft
 
 # Or provide title as argument
-pnpm run create-draft "My Amazing Blog Post Title"
+bun run create-draft "My Amazing Blog Post Title"
 ```
 
 The script will:
@@ -57,7 +57,7 @@ The generated post will be saved as `src/content/posts/2025/my-amazing-blog-post
 List all draft blog posts in a formatted table:
 
 ```bash
-pnpm run list-drafts
+bun run list-drafts
 ```
 
 The script will:
@@ -74,7 +74,7 @@ The script will:
 Publish a draft blog post using an interactive interface:
 
 ```bash
-pnpm run publish-draft
+bun run publish-draft
 ```
 
 The script will:

@@ -10,9 +10,9 @@
         "memory": "4gb",
         "storage": "32gb"
     },
-    "onCreateCommand": "npm install -g pnpm@latest",
-    "postCreateCommand": "pnpm install",
-    "postStartCommand": "echo 'Dev Container is ready! Run: pnpm run dev'",
+    "onCreateCommand": "curl -fsSL https://bun.sh/install | bash && export PATH=\"$HOME/.bun/bin:$PATH\"",
+    "postCreateCommand": "bun install",
+    "postStartCommand": "echo 'Dev Container is ready! Run: bun run dev'",
     "forwardPorts": [4321],
     "portsAttributes": {
         "4321": {
@@ -45,7 +45,7 @@
         "jetbrains": {
             "settings": {
                 "javascript.nodejs.interpreter.path": "/usr/local/bin/node",
-                "nodejs.packageManagerPath": "/usr/local/bin/pnpm"
+                "nodejs.packageManagerPath": "$HOME/.bun/bin/bun"
             },
             "plugins": []
         }

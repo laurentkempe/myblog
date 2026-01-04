@@ -9,11 +9,13 @@ ports:
 tasks:
   - name: Setup
     init: |
-      npm install -g pnpm@latest
-      pnpm install
+      curl -fsSL https://bun.sh/install | bash
+      export PATH="$HOME/.bun/bin:$PATH"
+      bun install
     command: |
+      export PATH="$HOME/.bun/bin:$PATH"
       echo "🚀 Dev environment is ready!"
-      echo "Run 'pnpm run dev' to start the Astro development server"
+      echo "Run 'bun run dev' to start the Astro development server"
 
 vscode:
   extensions:

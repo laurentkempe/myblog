@@ -23,13 +23,13 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: latest
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install
+        run: bun install
 
       - name: Create slug from title
         id: slug
@@ -50,7 +50,7 @@ jobs:
 
       - name: Create draft blog post
         run: |
-          pnpm run create-draft "${{ github.event.inputs.title }}"
+          bun run create-draft "${{ github.event.inputs.title }}"
 
       - name: Commit and push changes
         run: |
