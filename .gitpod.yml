@@ -8,12 +8,13 @@ ports:
 
 tasks:
   - name: Setup
-    init: |
+    before: |
       curl -fsSL https://bun.sh/install | bash
-      export PATH="$HOME/.bun/bin:$PATH"
+      echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+      source ~/.bashrc
+    init: |
       bun install
     command: |
-      export PATH="$HOME/.bun/bin:$PATH"
       echo "🚀 Dev environment is ready!"
       echo "Run 'bun run dev' to start the Astro development server"
 

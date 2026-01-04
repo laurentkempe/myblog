@@ -10,8 +10,8 @@
         "memory": "4gb",
         "storage": "32gb"
     },
-    "onCreateCommand": "curl -fsSL https://bun.sh/install | bash && export PATH=\"$HOME/.bun/bin:$PATH\"",
-    "postCreateCommand": "bun install",
+    "onCreateCommand": "curl -fsSL https://bun.sh/install | bash",
+    "postCreateCommand": "bash -c 'export PATH=\"$HOME/.bun/bin:$PATH\" && bun install'",
     "postStartCommand": "echo 'Dev Container is ready! Run: bun run dev'",
     "forwardPorts": [4321],
     "portsAttributes": {
@@ -51,7 +51,8 @@
         }
     },
     "remoteEnv": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "PATH": "${containerEnv:HOME}/.bun/bin:${containerEnv:PATH}"
     },
     "remoteUser": "node"
 }
