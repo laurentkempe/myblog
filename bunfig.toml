@@ -1,0 +1,7 @@
+# Bun configuration file
+# https://bun.sh/docs/runtime/bunfig
+
+[run]
+# Use bun's built-in shell instead of system shell for running scripts
+# This allows scripts to use bun commands directly
+shell = "bun"
