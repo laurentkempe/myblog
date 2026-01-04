@@ -32,6 +32,8 @@ bun install
 bun run dev
 ```
 
+> **Note:** The blog uses Bun's runtime (`--bun` flag) for running Astro, which provides better performance than the default Node.js runtime. This is configured in `bunfig.toml`.
+
 ## Creating Draft Blog Posts
 
 Create a new draft blog post using the provided template:
