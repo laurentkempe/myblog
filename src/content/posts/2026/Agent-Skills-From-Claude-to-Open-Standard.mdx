@@ -1,0 +1,294 @@
+---
+title: 'Agent Skills: From Claude to Open Standard to Your Daily Coding Workflow'
+permalink: /2026/01/06/agent-skills-from-claude-to-open-standard-to-daily-coding-workflow/
+date: 1/6/2026 09:00:00
+disqusIdentifier: 20260106090000
+coverSize: partial
+tags: ["AI", "GitHub Copilot", "VS Code"]
+coverCaption: 'Aquila Private Game Reserve, South Africa'
+coverImage: 'https://live.staticflickr.com/65535/55058424290_cced09531e_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/55058424290_ca472acefb_q.jpg'
+draft: true
+
+---
+When Anthropic introduced Agent Skills for Claude, it appeared to be another proprietary AI customization feature. Today, we're witnessing something far more significant: an open standard reshaping how people across roles; developers, designers, product managers, and operations, work with AI assistants. AI Coding Agents adoption of Agent Skills has transformed this technology from an interesting experiment into an essential developer tool.
+
+If you've been using custom instructions or wondering how to make your AI assistant truly understand your project's workflows, Agent Skills provides a compelling solution.
+
+{/* <!-- more --> */}
+
+# From Proprietary Feature to Open Standard
+
+Agent Skills began with Anthropic's Claude AI, where developers first experienced giving AI agents specialized capabilities through structured instructions. Unlike simple prompts or one-off commands, Agent Skills introduced a sophisticated approach: packaging instructions, scripts, templates, and documentation into reusable, discoverable units.
+
+Anthropic's decision to release Agent Skills as an open standard transformed it from a Claude-specific feature into a movement. The format's simplicity and effectiveness attracted attention across the AI development tools ecosystem. Today, major players—Claude code, GitHub Copilot, Cursor, OpenCode, Mistral Vibe, Antigravity, OpenAI codex, and Kiro—had adopted the standard. And others are exploring integration. And others are joining it, I look at you JetBrains Junie.
+
+# What Are Agent Skills?
+
+Agent Skills is elegantly simple: a folder containing a `SKILL.md` file. This file uses YAML frontmatter for metadata and Markdown for instructions. No complex APIs, no proprietary formats—just structured text any AI agent can understand.
+
+Here's a basic Agent Skills example for creating NUnit unit tests in C#:
+
+```markdown
+---
+name: create-nunit-unit-test
+description: >
+  A skill that teaches the agent how to generate NUnit unit tests following
+  standard Arrange/Act/Assert structure, consistent naming conventions, and
+  idiomatic C# patterns.
+---
+
+# Purpose
+This skill provides procedural knowledge for generating NUnit unit tests.
+It ensures consistent structure, naming, and formatting across all generated tests.
+
+# When to Use This Skill
+The agent should load this skill when the user asks for:
+- Creating a unit test in C#
+- Using NUnit specifically
+- Generating test scaffolding for a method, class, or scenario
+- Producing Arrange/Act/Assert‑style tests
+
+# Style & Conventions
+- Use **NUnit** attributes: `[TestFixture]`, `[Test]`, `[SetUp]` when needed.
+- Use **Arrange / Act / Assert** sections with comments.
+- Use **PascalCase** for class names and test method names.
+- Test method naming convention:
+  `{MethodName}_{ScenarioDescription}_{ExpectedOutcome}`
+
+# Required Inputs
+The agent should ask for missing information if not provided:
+- Class name
+- Method name
+- Scenario description
+- Expected result or behavior
+- Optional: method parameters
+
+# Output Format
+The agent must output a complete C# file containing:
+- `using NUnit.Framework;`
+- A namespace named `GeneratedTests` unless the user specifies otherwise
+- A test fixture class named `{ClassName}Tests`
+- One or more `[Test]` methods
+
+# Test Generation Procedure
+1. **Validate Inputs**
+   - Ensure class name and method name are valid C# identifiers.
+   - If scenario or expected outcome is missing, ask the user.
+
+2. **Construct Test Class**
+   - Name: `{ClassName}Tests`
+   - Include `[TestFixture]` attribute.
+
+3. **Generate Test Method**
+   - Name: `{MethodName}_{Scenario}_{Expected}`
+   - Use underscores instead of spaces.
+   - Include `[Test]` attribute.
+
+4. **Write Test Body**
+   - **Arrange**: instantiate the SUT (`var sut = new {ClassName}();`)
+   - **Act**: call the method under test
+   - **Assert**: use `Assert.That(...)` or other NUnit assertions
+
+5. **Return Final C# Code Block**
+   - The agent must return a single fenced code block containing the full file.
+
+# Example Output (for reference only)
+The agent should follow this pattern:
+
+```csharp
+using NUnit.Framework;
+
+namespace GeneratedTests;
+
+[TestFixture]
+public class CalculatorTests
+{
+    [Test]
+    public void Add_WithPositiveNumbers_ReturnsSum()
+    {
+        // Arrange
+        var sut = new Calculator();
+
+        // Act
+        var result = sut.Add(2, 3);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(5));
+    }
+}
+```
+
+Those Agent Skills files live in your agent configuration, for example for GitHub Copilot `.github/skills/create-nunit-unit-test/SKILL.md` in your repository. Or they can be globally installed for your user account, e.g. `~/.copilot/skills/create-nunit-unit-test/SKILL.md`.
+
+<Alert mode="info">
+This is a minimal example. You can add resources like templates, example configurations, or helper scripts in the same directory, and the skill can reference them.
+</Alert>
+
+# Progressive Disclosure: The Secret Sauce
+
+What makes Agent Skills innovative isn't just the format—it's how AI agents consume them. The system uses a three-level progressive disclosure approach that optimizes context window usage:
+
+**Level 1: Discovery** — At startup, the agent reads only the `name` and `description` from each skill. This lightweight metadata helps the agent understand available capabilities without consuming context.
+
+**Level 2: Activation** — When your request matches a skill's description, the agent loads the full instructions from the `SKILL.md` file. Only then do detailed procedures become available.
+
+**Level 3: Execution** — The agent accesses additional files (scripts, examples, documentation) only as needed during execution.
+
+This architecture solves a critical problem: you can install dozens of Agent Skills without overwhelming the AI's context window. The agent loads only what's relevant to your current development task.
+
+# Setting Up Agent Skills in GitHub Copilot
+
+GitHub Copilot's Agent Skills are experimental since December 2025 (version 1.108) for VS Code. Here's your step-by-step setup guide:
+
+1. **Install VS Code** — Download from [code.visualstudio.com](https://code.visualstudio.com/)
+
+2. **Enable Agent Skills** — Open settings (Ctrl+,) and enable `chat.useAgentSkills`
+
+3. **Create your skills directory** — In your project root, create `.github/skills/`
+
+4. **Add your first skill** — Create a subdirectory for each skill with its `SKILL.md` file
+
+5. **Use Agent Mode** — In Copilot Chat, switch to Agent mode to leverage skills
+
+Once configured, Agent Skills activate automatically based on your prompts. No manual selection required—the AI determines which skills are relevant based on your descriptions.
+
+# Agent Skills vs. MCP
+
+Skills share knowledge—best practices, workflows, and procedural guidance—in simple Markdown `SKILL.md` files that anyone can author; they load progressively to conserve tokens, require no server, and run on web, desktop, and CLI, making them ideal for documentation, checklists, examples, and repeatable workflows.
+
+MCP extends functionality by connecting to APIs, databases, and external tools: it consists of code and service/tool definitions that require development and hosting, loads tool definitions up front (consuming more context), so it's best suited for tasks needing direct access to external systems.
+
+Use Skills to make knowledge discoverable and consistent and use MCP to perform integrated actions and extend platform capabilities; together they provide both lightweight guidance and powerful automation.
+
+Neverthless, I can imagine a future where Agent Skills replace MCP for many scenarios, given their simplicity, portability, and ease of authoring. As you can bundle scripts and resources with skills, they can cover many use cases MCP currently serves.
+
+# Agent Skills vs. Custom Instructions
+
+You might wonder how Agent Skills differ from custom instructions feature. Custom Instructions are best for defining coding standards and conventions, setting language or framework preferences, specifying code-review guidelines, and establishing commit-message formats. Agent Skills are designed to package reusable workflows, include executable scripts and templates, define specialized procedures (testing, debugging, deployment), and enable capabilities that run beyond the IDE (CLI and coding agents).
+
+Think of custom instructions as your coding style guide and Agent Skills as your AI development toolbox. Custom instructions tell the AI *how* you want code written; Agent Skills give the AI *specialized capabilities* to perform complex development tasks.
+
+# Real-World Examples for Developers
+
+Here are some practical Agent Skills that can transform your daily development workflow, check the [references section](#references) for pointer to more ready-to-use skills:
+
+- [Git Commit with Conventional Commits](https://github.com/github/awesome-copilot/blob/main/skills/git-commit/SKILL.md)
+- [GitHub CLI (gh)](https://github.com/github/awesome-copilot/blob/main/skills/gh-cli/SKILL.md)
+- [GitHub Issues](https://github.com/github/awesome-copilot/blob/main/skills/github-issues/SKILL.md)
+- [NuGet Manager](https://github.com/github/awesome-copilot/blob/main/skills/nuget-manager/SKILL.md)
+- [.NET Concurrency Specialist](https://github.com/Aaronontheweb/claude-code-dotnet/blob/master/agents/dotnet-concurrency-specialist.md)
+- [.NET Performance Analyst](https://github.com/Aaronontheweb/claude-code-dotnet/blob/master/agents/dotnet-performance-analyst.md)
+- [React Best Practices](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices)
+
+# Building Your Agent Skills Library
+
+Read the [Agent Skills Specification](https://agentskills.io/specification) to understand the format and capabilities. Use [Skill Creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md), an Agent Skill to create and refine new Agent Skills. Inception moment anyone 🤔?
+
+Start building your Agent Skills collection with these proven strategies:
+
+**Identify Repetitive Tasks** — Notice which development workflows you explain to the AI repeatedly. Each recurring explanation is a candidate for an Agent Skill.
+
+**Start Simple** — Begin with straightforward skills that codify standard development procedures. As you gain confidence, add scripts and more complex resources.
+
+**Make Descriptions Specific** — The quality of your skill's description directly impacts how well the AI knows when to activate it. Be explicit about use cases and capabilities.
+
+**Include Examples** — Agent Skills with concrete code examples are more effective. Show the AI what good output looks like.
+
+**Leverage Community Skills** — Explore the [github/awesome-copilot](https://github.com/github/awesome-copilot) and [anthropics/skills](https://github.com/anthropics/skills) repositories for inspiration and ready-to-use skills.
+
+**Organize by Domain** — Group related Agent Skills together. Create separate skills for testing, deployment, documentation, code review, and other specialized development domains.
+
+# Skills in Action: A Real Workflow Example
+
+Here's how Agent Skills enhance your workflow in a typical development scenario:
+
+You're working on a web application and need to add a new REST API endpoint with proper testing and documentation. With appropriate Agent Skills in place:
+
+1. **You ask:** "Help me add a new user registration endpoint with validation"
+
+2. **The `rest-api-integration` skill activates**, providing structured guidance on implementing the endpoint with proper authentication, validation, and error handling.
+
+3. **You ask:** "Create tests for this endpoint"
+
+4. **The `webapp-testing` skill engages**, generating test cases for success scenarios, validation failures, and edge cases.
+
+5. **You ask:** "Generate documentation for this endpoint"
+
+6. **The `api-documentation` skill activates**, producing comprehensive documentation with examples, error codes, and authentication details.
+
+Each Agent Skill ensures consistency in approach and completeness in implementation. Without skills, you'd need to provide detailed instructions for each request or rely on the AI's general knowledge, which might miss project-specific patterns.
+
+# Security Best Practices
+
+When working with Agent Skills, especially community-shared skills, keep these security considerations in mind:
+
+**Review Before Use** — Always examine shared Agent Skills before adding them to your project. Check for potentially **malicious scripts** or unexpected behaviors in the `SKILL.md` file and associated resources.
+
+**Use Terminal Controls** — VS Code's terminal tool provides controls for script execution, including auto-approve options with configurable allow-lists. Configure these appropriately for your security requirements.
+
+**Version Control Your Skills** — Agent Skills are just files, so commit them to your repository. This enables code review, versioning, and team collaboration on AI capabilities.
+
+**Test in Safe Environments** — Try new Agent Skills in development environments before using them in production contexts. Dev containers or isolated workspaces are ideal for testing.
+
+**Document Team Skills** — If your team uses shared Agent Skills, maintain documentation about what each skill does and when to use it.
+
+# The Future of Portable AI Capabilities
+
+Agent Skills represents more than a new feature—it's a glimpse into a future where AI development capabilities are portable, shareable, and composable. As more AI tools adopt the standard, we're moving toward an ecosystem where:
+
+- Agent Skills you write work across your entire development environment
+- Development teams can package organizational knowledge into discoverable, reusable capabilities
+- Community-developed skills solve common development problems once, benefiting everyone
+- AI assistants become truly specialized for domain-specific development tasks
+
+Whether you're using VS Code or any other editor/IDE, working in the terminal with Copilot CLI, or leveraging the any coding agent for automated tasks, your Agent Skills come with you.
+
+# Getting Started Today
+
+Ready to integrate Agent Skills into your development workflow? Follow this action plan:
+
+1. **Install VS Code** and enable Agent Skills support
+2. **Create your first skill** addressing a development task you repeat frequently
+3. **Test it** by asking GitHub Copilot to perform that task in Agent mode
+4. **Refine the description** based on when the skill activates (or doesn't)
+5. **Add more skills** gradually as you identify development opportunities
+6. **Share useful skills** with your team or the developer community
+
+The goal isn't to create dozens of Agent Skills immediately. Start with one or two that solve real problems in your development workflow, then expand your library organically as needs arise.
+
+You can also use Agent Skills with GitHub Copilot CLI, Gemini CLI... for terminal-based workflows, or with other coding agents that support the open standard. This portability ensures your investment in creating skills pays off across all your AI-assisted development tools.
+
+# The complete guide to Agent Skills Video
+
+My preferred introduction to Agent Skills is the following video from [Burke Holland](https://github.com/burkeholland), which covers the concepts, setup, and practical examples in under 20 minutes:
+
+<YouTube id="fabAI1OKKww" params="start=0" class="yt-width " />
+<br/>
+
+# Podcast 
+
+For my French readers, I discussed Agent Skills in depth on devdevdev.net episode to be published soon. I will update the blog post with a link when available.
+
+# Conclusion
+
+Agent Skills bridges the gap between generic AI assistance and specialized, context-aware support for your specific development needs. By adopting an open standard that works across AI tools, the industry has created a foundation for truly portable AI capabilities.
+
+The journey from Claude to open standard to GitHub Copilot adoption demonstrates the power of simplicity and interoperability in developer tools. As developers, we benefit from this ecosystem approach—our investment in creating Agent Skills pays dividends across our entire development toolchain.
+
+Start small, experiment with the format, and build Agent Skills that improve your daily development work. The progressive disclosure system ensures you won't overwhelm your AI assistant, and the portable format guarantees your skills remain valuable as AI tools evolve.
+
+The future of AI-assisted development isn't just about more powerful models—it's about giving those models the right context, capabilities, and knowledge to be genuinely helpful in your specific development domain. Agent Skills is a significant step in that direction.
+
+What development workflows could benefit from specialized Agent Skills? Have you tried creating skills for your AI coding assistant? Share your experiences in the comments below.
+
+# References
+
+- [Agent Skills Official Website](https://agentskills.io/)
+- [Agent Skills Specification](https://agentskills.io/specification)
+- [Claude API Docs - Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
+- [Anthropic Skills repository](https://github.com/anthropics/skills)
+- [Awesome GitHub Copilot Customizations - Skills](https://github.com/github/awesome-copilot/tree/main/skills)
+- [VS Code Agent Skills Documentation](https://code.visualstudio.com/docs/copilot/customization/agent-skills)
+- [JetBrains Junie Skills support](https://youtrack.jetbrains.com/issue/JUNIE-1422/Support-for-agentskills)
+- [AI Coding Agents Matrix](https://coding-agents-matrix.dev/)
