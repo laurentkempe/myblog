@@ -11,7 +11,7 @@ thumbnailImage: 'https://live.staticflickr.com/65535/55058424290_ca472acefb_q.jp
 draft: true
 
 ---
-When Anthropic introduced Agent Skills for Claude, it appeared to be another proprietary AI customization feature. Today, we're witnessing something far more significant: an open standard reshaping how people across roles; developers, designers, product managers, and operations, work with AI assistants. AI Coding Agents adoption of Agent Skills has transformed this technology from an interesting experiment into an essential developer tool.
+When Anthropic introduced Agent Skills for Claude, it appeared to be another proprietary AI customization feature. Today, we're witnessing something far more significant: an open standard reshaping how people across roles—developers, designers, product managers, and operations—work with AI assistants. AI coding agents' adoption of Agent Skills has transformed this technology from an interesting experiment into an essential developer tool.
 
 If you've been using custom instructions or wondering how to make your AI assistant truly understand your project's workflows, Agent Skills provides a compelling solution.
 
@@ -21,11 +21,11 @@ If you've been using custom instructions or wondering how to make your AI assist
 
 Agent Skills began with Anthropic's Claude AI, where developers first experienced giving AI agents specialized capabilities through structured instructions. Unlike simple prompts or one-off commands, Agent Skills introduced a sophisticated approach: packaging instructions, scripts, templates, and documentation into reusable, discoverable units.
 
-Anthropic's decision to release Agent Skills as an open standard transformed it from a Claude-specific feature into a movement. The format's simplicity and effectiveness attracted attention across the AI development tools ecosystem. Today, major players—Claude code, GitHub Copilot, Cursor, OpenCode, Mistral Vibe, Antigravity, OpenAI codex, and Kiro—had adopted the standard. And others are exploring integration. And others are joining it, I look at you JetBrains Junie.
+Anthropic's decision to release Agent Skills as an open standard transformed it from a Claude-specific feature into a movement. The format's simplicity and effectiveness attracted attention across the AI development tools ecosystem. Today, major players—Claude Code, GitHub Copilot, Cursor, OpenCode, Mistral Vibe, Antigravity, OpenAI Codex, and Kiro—have adopted the standard. Others are exploring integration, and more are joining it (I'm looking at you, JetBrains Junie).
 
 # What Are Agent Skills?
 
-Agent Skills is elegantly simple: a folder containing a `SKILL.md` file. This file uses YAML frontmatter for metadata and Markdown for instructions. No complex APIs, no proprietary formats—just structured text any AI agent can understand.
+Agent Skills are elegantly simple: a folder containing a `SKILL.md` file. This file uses YAML frontmatter for metadata and Markdown for instructions. No complex APIs, no proprietary formats—just structured text any AI agent can understand.
 
 Here's a basic Agent Skills example for creating NUnit unit tests in C#:
 
@@ -159,19 +159,19 @@ Skills share knowledge—best practices, workflows, and procedural guidance—in
 
 MCP extends functionality by connecting to APIs, databases, and external tools: it consists of code and service/tool definitions that require development and hosting, loads tool definitions up front (consuming more context), so it's best suited for tasks needing direct access to external systems.
 
-Use Skills to make knowledge discoverable and consistent and use MCP to perform integrated actions and extend platform capabilities; together they provide both lightweight guidance and powerful automation.
+Use Skills to make knowledge discoverable and consistent, and use MCP to perform integrated actions and extend platform capabilities; together they provide both lightweight guidance and powerful automation.
 
-Neverthless, I can imagine a future where Agent Skills replace MCP for many scenarios, given their simplicity, portability, and ease of authoring. As you can bundle scripts and resources with skills, they can cover many use cases MCP currently serves.
+Nevertheless, I can imagine a future where Agent Skills replace MCP for many scenarios, given their simplicity, portability, and ease of authoring. As you can bundle scripts and resources with skills, they can cover many use cases MCP currently serves.
 
 # Agent Skills vs. Custom Instructions
 
-You might wonder how Agent Skills differ from custom instructions feature. Custom Instructions are best for defining coding standards and conventions, setting language or framework preferences, specifying code-review guidelines, and establishing commit-message formats. Agent Skills are designed to package reusable workflows, include executable scripts and templates, define specialized procedures (testing, debugging, deployment), and enable capabilities that run beyond the IDE (CLI and coding agents).
+You might wonder how Agent Skills differ from the custom instructions feature. Custom Instructions are best for defining coding standards and conventions, setting language or framework preferences, specifying code-review guidelines, and establishing commit-message formats. Agent Skills are designed to package reusable workflows, include executable scripts and templates, define specialized procedures (testing, debugging, deployment), and enable capabilities that run beyond the IDE (CLI and coding agents).
 
 Think of custom instructions as your coding style guide and Agent Skills as your AI development toolbox. Custom instructions tell the AI *how* you want code written; Agent Skills give the AI *specialized capabilities* to perform complex development tasks.
 
 # Real-World Examples for Developers
 
-Here are some practical Agent Skills that can transform your daily development workflow, check the [references section](#references) for pointer to more ready-to-use skills:
+Here are some practical Agent Skills that can transform your daily development workflow. Check the [references section](#references) for pointers to more ready-to-use skills:
 
 - [Git Commit with Conventional Commits](https://github.com/github/awesome-copilot/blob/main/skills/git-commit/SKILL.md)
 - [GitHub CLI (gh)](https://github.com/github/awesome-copilot/blob/main/skills/gh-cli/SKILL.md)
@@ -235,14 +235,14 @@ When working with Agent Skills, especially community-shared skills, keep these s
 
 # The Future of Portable AI Capabilities
 
-Agent Skills represents more than a new feature—it's a glimpse into a future where AI development capabilities are portable, shareable, and composable. As more AI tools adopt the standard, we're moving toward an ecosystem where:
+   Agent Skills represent more than a new feature—it's a glimpse into a future where AI development capabilities are portable, shareable, and composable. As more AI tools adopt the standard, we're moving toward an ecosystem where:
 
 - Agent Skills you write work across your entire development environment
 - Development teams can package organizational knowledge into discoverable, reusable capabilities
 - Community-developed skills solve common development problems once, benefiting everyone
 - AI assistants become truly specialized for domain-specific development tasks
 
-Whether you're using VS Code or any other editor/IDE, working in the terminal with Copilot CLI, or leveraging the any coding agent for automated tasks, your Agent Skills come with you.
+Whether you're using VS Code or any other editor/IDE, working in the terminal with Copilot CLI, or leveraging any coding agent for automated tasks, your Agent Skills come with you.
 
 # Getting Started Today
 
@@ -250,14 +250,14 @@ Ready to integrate Agent Skills into your development workflow? Follow this acti
 
 1. **Install VS Code** and enable Agent Skills support
 2. **Create your first skill** addressing a development task you repeat frequently
-3. **Test it** by asking GitHub Copilot to perform that task in Agent mode
+3. **Test it** by asking GitHub Copilot to perform that task in Agent mode.
 4. **Refine the description** based on when the skill activates (or doesn't)
 5. **Add more skills** gradually as you identify development opportunities
 6. **Share useful skills** with your team or the developer community
 
 The goal isn't to create dozens of Agent Skills immediately. Start with one or two that solve real problems in your development workflow, then expand your library organically as needs arise.
 
-You can also use Agent Skills with GitHub Copilot CLI, Gemini CLI... for terminal-based workflows, or with other coding agents that support the open standard. This portability ensures your investment in creating skills pays off across all your AI-assisted development tools.
+You can also use Agent Skills with GitHub Copilot CLI or Gemini CLI for terminal-based workflows, or with other coding agents that support the open standard. This portability ensures your investment in creating skills pays off across all your AI-assisted development tools.
 
 # The complete guide to Agent Skills Video
 
@@ -268,7 +268,7 @@ My preferred introduction to Agent Skills is the following video from [Burke Hol
 
 # Podcast 
 
-For my French readers, I discussed Agent Skills in depth on devdevdev.net episode to be published soon. I will update the blog post with a link when available.
+For my French readers, I discussed Agent Skills in depth on devdevdev.net in an episode to be published soon. I will update the blog post with a link when available.
 
 # Conclusion
 
