@@ -4,6 +4,7 @@ import { getAllPresentations } from '../../utils/collections';
 import MarkdownPostLayout from '../../layouts/Layout.astro';
 import TagList from '../../components/TagList.astro';
 import FrenchFlag from '../../components/FrenchFlag.astro';
+import GiscusComments from '../../components/GiscusComments.astro';
 
 export async function getStaticPaths() {
   const presentations = await getAllPresentations();
@@ -32,4 +33,7 @@ const { Content } = await render(presentation);
         <TagList tags={presentation.data.tags} />
         <Content />
     </article>
+    
+    <!-- Comments section -->
+    <GiscusComments />
 </MarkdownPostLayout>
