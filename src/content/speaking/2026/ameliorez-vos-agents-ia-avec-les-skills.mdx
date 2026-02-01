@@ -1,0 +1,63 @@
+---
+title: 'Améliorez vos agents IA avec les skills'
+permalink: /2026/02/01/ameliorez-vos-agents-ia-avec-les-skills/
+date: 02/01/2026 10:00:00
+language: french
+tags: ["AI", "DevX", "GitHub Copilot", "VS Code"]
+youtube: https://www.youtube.com/watch?v=HQzcPLEfAIc&t=1s
+audio: 
+---
+Extrait de la table ronde devdevdev.net de Janvier 2026 où je vous explique en profondeur ce que sont les skills pour agents IA, d'où ils viennent, comment ils fonctionnent et pourquoi ils deviennent essentiels dans nos workflows modernes. Je les compare aussi aux serveurs MCP et je discute des usages possibles, des risques et des outils qui émergent pour les gérer à grande échelle.
+
+L'idée centrale :
+**Les skills permettent de transformer un modèle généraliste en agent spécialisé, en encapsulant des instructions, du code et des ressources dans un module réutilisable, partageable et composable.**
+
+Après Model Context Protocol, Anthropic introduit les skills, déjà supportés dans Claude Code, Gemini CLI ou GitHub Copilot. J'explique pourquoi ils existent et ce qu'ils apportent.
+
+<YouTube id="HQzcPLEfAIc" params="start=0" class="yt-width " />
+
+## Highlights  
+### [00:00:02](#timestamp-00:00:02) **Introduction aux skills**
+- Présentation du contexte : après MCP, Anthropic introduit les skills.  
+- Support déjà présent dans Claude Code, Gemini CLI, GitHub Copilot.  
+- Laurent Kempé pose le cadre : pourquoi les skills et à quoi ils servent.
+
+### [00:01:56](#timestamp-00:01:56) **Définition d'un skill**
+- Un skill est une **compétence modulaire**, packagée dans un dossier.  
+- Contient un fichier `skill.md` (instructions + métadonnées), et éventuellement du code, scripts, templates.  
+- Peut être chargé automatiquement par un agent.
+
+### [00:03:55](#timestamp-00:03:55) **Pourquoi utiliser des skills**
+- Spécialiser un agent dans un domaine (dev, docs, workflows…).  
+- Réduire la répétition en encapsulant une expertise.  
+- Composer plusieurs skills entre eux pour créer des workflows complexes.  
+- Partager des compétences au sein d'une équipe ou d'une entreprise.
+
+### [00:09:18](#timestamp-00:09:18) **Fonctionnement interne : divulgation progressive**
+- Le LLM charge d'abord uniquement les métadonnées (name + description).  
+- Il charge ensuite le contenu complet du skill **à la demande**, selon le contexte.  
+- Permet d'économiser le contexte et d'améliorer l'efficacité.
+
+### [00:13:09](#timestamp-00:13:09) **Risques et limites**
+- Possibilité de “skill spaghetti” si mal géré.  
+- Importance d'avoir des personnes compétentes pour structurer et valider.  
+- Nécessité de garder un contrôle humain.
+
+### [00:14:31](#timestamp-00:14:31) **Comparaison Skills vs MCP**
+- **Skill** : expertise interne, logique, instructions, scripts locaux.  
+- **MCP** : accès externe (API, bases de données, systèmes d'entreprise).  
+- Ensemble, ils permettent des agents experts, connectés et robustes.
+
+### [00:18:20](#timestamp-00:18:20) **Écosystème et partage**
+- Mention d'outils comme **Packmind** pour gérer un repository de skills.  
+- Possibilité d'avoir des skills au niveau projet, utilisateur, entreprise.  
+- Vision d'un futur où les skills deviennent des “packages” IA.
+
+### [00:20:43](#timestamp-00:20:43) **Exemples d'usage avancés**
+- Gestion de user stories.  
+- Automatisation de tâches complexes.  
+- Agents capables de traiter des projets de grande taille.
+
+# Aller plus loin
+
+Voir mon blog post en anglais : [Agent Skills: From Claude to Open Standard to Your Daily Coding Workflow](/2026/01/27/Agent-Skills-From-Claude-to-Open-Standard/).
