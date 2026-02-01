@@ -30,6 +30,7 @@ const presentations = defineCollection({
     excerpt: z.string().optional(),
     tags: z.array(z.string()),
     slides: z.string().optional(),
+    language: z.string().optional(),
     draft: z.boolean().optional().default(false)
   })
 });
