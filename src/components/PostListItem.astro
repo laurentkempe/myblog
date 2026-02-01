@@ -1,14 +1,16 @@
 ---
 import TagList from './TagList.astro';
+import FrenchFlag from './FrenchFlag.astro';
 
 interface Props {
   title: string;
   date: Date;
   href: string;
   tags?: string[];
+  language?: string;
 }
 
-const { title, date, href, tags } = Astro.props;
+const { title, date, href, tags, language } = Astro.props;
 ---
 
 <li class="text-gray-500 dark:text-gray-400">
@@ -17,6 +19,11 @@ const { title, date, href, tags } = Astro.props;
     class="text-blue-600 dark:text-blue-400 hover:underline block text-base md:text-lg"
   >
     {title}
+    {language === 'french' ? (
+      <span class="ml-2">
+        <FrenchFlag size={18} />
+      </span>
+    ) : null}
   </a>
   <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
     <span>
