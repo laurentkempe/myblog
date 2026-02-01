@@ -108,5 +108,8 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
             }
             window.localStorage.setItem("theme", theme);
         </script>
+        <script>
+          import "../scripts/youtube-timestamp-control.ts";
+        </script>
     </body>
 </html>

@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import { getAllPresentations } from '../../utils/collections';
 import MarkdownPostLayout from '../../layouts/Layout.astro';
 import TagList from '../../components/TagList.astro';
+import FrenchFlag from '../../components/FrenchFlag.astro';
 
 export async function getStaticPaths() {
   const presentations = await getAllPresentations();
@@ -20,7 +21,14 @@ const { Content } = await render(presentation);
                     prose-h1:font-bold prose-h1:text-4xl md:prose-h1:text-4xl prose-h1:text-xl prose-h1:mb-4
                     prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline
                     prose-p:text-justify prose-img:rounded-xl">
-        <h1>{presentation.data.title}</h1>
+        <h1>
+          {presentation.data.title}
+          {presentation.data.language === 'french' ? (
+            <span class="ml-2">
+              <FrenchFlag size={22} />
+            </span>
+          ) : null}
+        </h1>
         <TagList tags={presentation.data.tags} />
         <Content />
     </article>
