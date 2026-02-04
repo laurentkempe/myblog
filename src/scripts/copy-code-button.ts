@@ -92,8 +92,6 @@ function addCopyButtonsToAllCodeBlocks() {
   codeBlocks.forEach((pre) => {
     addCopyButtonToCodeBlock(pre as HTMLPreElement);
   });
-  
-  console.log(`Copy code button: Added buttons to ${codeBlocks.length} code blocks`);
 }
 
 /**
