@@ -70,7 +70,8 @@ function addCopyButtonToCodeBlock(pre: HTMLPreElement) {
   button.addEventListener('click', async () => {
     const code = pre.querySelector('code');
     if (code) {
-      const text = code.textContent || '';
+      // Use innerText to get user-friendly text without extra whitespace from syntax highlighting
+      const text = code.innerText || code.textContent || '';
       const success = await copyToClipboard(text);
       
       if (success) {
