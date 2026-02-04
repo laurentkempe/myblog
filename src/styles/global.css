@@ -75,6 +75,6 @@ pre:hover .copy-code-button {
   color: white;
 }
 
-.hidden {
+.copy-button-hidden {
   display: none;
 }
