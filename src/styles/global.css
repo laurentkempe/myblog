@@ -24,6 +24,10 @@
   }
 
 /* Copy code button styles */
+.code-block-wrapper {
+  position: relative;
+}
+
 .copy-code-button {
   position: absolute;
   top: 0.5rem;
@@ -45,7 +49,7 @@
   color: #374151;
 }
 
-pre:hover .copy-code-button {
+.code-block-wrapper:hover .copy-code-button {
   opacity: 1;
   pointer-events: auto;
 }

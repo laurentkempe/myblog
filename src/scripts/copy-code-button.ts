@@ -57,13 +57,16 @@ function showCopyFeedback(button: HTMLButtonElement) {
  * Add copy button to a code block
  */
 function addCopyButtonToCodeBlock(pre: HTMLPreElement) {
-  // Skip if button already exists
-  if (pre.querySelector('.copy-code-button')) {
+  // Skip if already wrapped
+  if (pre.parentElement?.classList.contains('code-block-wrapper')) {
     return;
   }
 
-  // Make sure the pre element has relative positioning
-  pre.style.position = 'relative';
+  // Wrap pre in a container so the button stays fixed during horizontal scroll
+  const wrapper = document.createElement('div');
+  wrapper.className = 'code-block-wrapper';
+  pre.parentNode?.insertBefore(wrapper, pre);
+  wrapper.appendChild(pre);
 
   const button = createCopyButton();
   
@@ -80,7 +83,7 @@ function addCopyButtonToCodeBlock(pre: HTMLPreElement) {
     }
   });
 
-  pre.appendChild(button);
+  wrapper.appendChild(button);
 }
 
 /**
