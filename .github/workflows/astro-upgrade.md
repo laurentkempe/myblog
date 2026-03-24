@@ -43,8 +43,8 @@ dependencies. Key packages to check include:
 - `astro-icon`
 - `@astro-community/astro-embed-twitter`
 - `@astro-community/astro-embed-youtube`
-- `@tailwindcss/vite`
-- `tailwindcss`
+- `@tailwindcss/vite` (only if required by the new Astro version as a peer dependency)
+- `tailwindcss` (only if required by the new Astro version as a peer dependency)
 
 For the `astro` core package, check the latest release on npm:
 ```
@@ -97,7 +97,7 @@ Apply ALL the changes needed for the upgrade:
 1. Update `package.json` with the new version of `astro` and any companion packages
 2. Update `astro.config.mjs` if configuration changes are needed
 3. Update any source files that require code changes
-4. Run `npm install` (or detect the package manager from `pnpm-lock.yaml` and use `pnpm install`) to regenerate the lockfile
+4. Run `pnpm install` to regenerate the lockfile (this project uses pnpm, as confirmed by `pnpm-lock.yaml`)
 
 Then create a pull request with:
 - **Branch name**: `astro-upgrade/v{new-version}` (e.g., `astro-upgrade/v5.0.0`)
