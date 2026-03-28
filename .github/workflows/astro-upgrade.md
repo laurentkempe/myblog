@@ -25,6 +25,9 @@ safe-outputs:
     draft: false
     preserve-branch-name: true
     max: 1
+    allowed-files:
+      - package.json
+      - pnpm-lock.yaml
 ---
 
 # Astro Upgrade Workflow
