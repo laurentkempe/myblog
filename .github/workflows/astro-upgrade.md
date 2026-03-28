@@ -28,6 +28,7 @@ safe-outputs:
     allowed-files:
       - package.json
       - pnpm-lock.yaml
+      - .github/workflows/astro-upgrade.lock.yml
       - astro.config.mjs
       - tsconfig.json
       - src/**
