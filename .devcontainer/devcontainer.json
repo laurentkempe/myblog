@@ -1,6 +1,6 @@
 {
     "name": "Laurent's Blog - Astro Development",
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bullseye",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bullseye",
     "features": {
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/github-cli:1": {}
