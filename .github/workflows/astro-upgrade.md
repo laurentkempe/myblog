@@ -32,6 +32,7 @@ safe-outputs:
       - astro.config.mjs
       - tsconfig.json
       - src/**
+    protected-files: allowed
 ---
 
 # Astro Upgrade Workflow
