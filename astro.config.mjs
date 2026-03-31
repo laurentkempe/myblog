@@ -23,6 +23,7 @@ export default defineConfig({
         './src/components/GiscusComments.astro',
         {
           '@astro-community/astro-embed-twitter': ['Tweet'],
+          '@astro-community/astro-embed-bluesky': ['BlueskyPost'],
           '@astro-community/astro-embed-youtube': ['YouTube'],
           'astro:assets': ['Image']
         }

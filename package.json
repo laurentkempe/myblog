@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@astro-community/astro-embed-twitter": "^0.5.11",
+    "@astro-community/astro-embed-bluesky": "^0.1.6",
     "@astro-community/astro-embed-youtube": "^0.5.10",
     "@astrojs/mdx": "^5.0.0",
     "@astrojs/sitemap": "^3.7.1",
