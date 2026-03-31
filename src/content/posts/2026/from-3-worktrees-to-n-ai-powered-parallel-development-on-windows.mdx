@@ -28,7 +28,7 @@ Running five or eight worktrees simultaneously? The idea would have seemed absur
 
 ## The First Try: Thanks to Captain Safia
 
-I first experimented with this workflow after reading [Safia Abdalla's article on Git worktrees for fun and profit](https://blog.safia.rocks/2025/09/03/git-worktrees/). She described a setup using `git worktree`, with a git bare clone. It was a clever way to manage multiple worktrees without duplicating the full repository, but it still felt clunky. So, I started to use [Grove](https://github.com/captainsafia/grove), her worktree management tool, and it was a game-changer. I was first surprised by her choice to use TypeScript, for someone who was part of .NET team. But the tool itself was exactly what I needed. I decided to port it to .NET, as I didn't like the 108 MB size of the original tool. It went down to 5.73 MB with .NET 10 AOT 🎉
+I first experimented with this workflow after reading [Safia Abdalla's article on Git worktrees for fun and profit](https://blog.safia.rocks/2025/09/03/git-worktrees/). She described a setup using `git worktree`, with a git bare clone. It was a clever way to manage multiple worktrees without duplicating the full repository, but it still felt clunky. So, I started to use [Grove](https://github.com/captainsafia/grove), her worktree management tool, and it was a game-changer. I was first surprised by her choice to use TypeScript, for someone who was part of the .NET team. But the tool itself was exactly what I needed. I decided to port it to .NET, as I didn't like the 108 MB size of the original tool. It went down to 5.73 MB with .NET 10 AOT 🎉
 
 That was my first port of Grove. More to come...
 
@@ -52,7 +52,7 @@ Four tools make this workflow practical. Each solves a specific friction point, 
 
 ### Worktrunk: Worktrees Without the Ceremony
 
-As I didn't want to maintain my own worktree management tool, I started researching for other existing ones. That's when I found [Worktrunk](https://worktrunk.dev/) by Maximilian Roos — a CLI for Git worktree management, designed for parallel AI agent workflows written in Rust.
+As I didn't want to maintain my own worktree management tool, I started searching for other existing ones. That's when I found [Worktrunk](https://worktrunk.dev/) by Maximilian Roos — a CLI for Git worktree management, designed for parallel AI agent workflows written in Rust.
 
 Instead of the usual dance of `git worktree add` followed by `cd` and branch creation, you type:
 
@@ -62,9 +62,9 @@ git-wt switch --create my-feature
 
 One command. The branch is created, the worktree is set up, and you're in it. On Windows, I use the `git-wt` alias since `wt` conflicts with Windows Terminal — a minor detail, but the kind that matters in daily use.
 
-I also configured worktrunk hooks; `post-create` to restore nugets with `dotnet restore` and `post-start` to run `dotnet build` so that every new worktree is ready for development. 
+I also configured worktrunk hooks: `post-create` to restore NuGet packages with `dotnet restore` and `post-start` to run `dotnet build` so that every new worktree is ready for development. 
 
-`git-wt list` gives you a dashboard of all worktrees with quite some status indicators. When you're done, `git-wt remove` removes worktree; delete branch if merged. And there are much more commands `merge`, `step`...
+`git-wt list` gives you a dashboard of all worktrees with quite a few status indicators. When you're done, `git-wt remove` removes the worktree; deletes the branch if merged. And there are many more commands: `merge`, `step`...
 
 I am using worktrunk with the Grove idea of git bare clone.
 
@@ -72,7 +72,7 @@ I am using worktrunk with the Grove idea of git bare clone.
 
 ### psmux: A Native Terminal Multiplexer for Windows
 
-After closing several time by mistake Windows Terminal tabs in which GitHub Copilot CLI agents were running, I realized that the terminal was a weak link in the workflow. If I had multiple worktrees with agents running, I needed a way to keep them all visible and accessible without worrying about accidentally closing one. I remembered about my Linux experience with `tmux`, and I started looking for a Windows equivalent.
+After accidentally closing several Windows Terminal tabs in which GitHub Copilot CLI agents were running, I realized that the terminal was a weak link in the workflow. If I had multiple worktrees with agents running, I needed a way to keep them all visible and accessible without worrying about accidentally closing one. I recalled my Linux experience with `tmux`, and I started looking for a Windows equivalent.
 
 That's when I found [psmux](https://psmux.pages.dev/), a native Windows terminal multiplexer built in Rust. If you've ever been jealous of Linux developers casually splitting their terminal into six panes with tmux, psmux is the answer.
 
@@ -100,7 +100,7 @@ What makes this scale is custom agents. You define them as markdown profiles in 
 
 ### Squad: When One Agent Isn't Enough
 
-[Squad](https://bradygaster.github.io/squad/) by Brady Gaster is where things get very interesting. It's an open-source programmable multi-agent runtime for GitHUb Copilot that turns Copilot into a team of specialists. Build AI teams that persist, learn, and coordinate — with real governance, not vibes.
+[Squad](https://bradygaster.github.io/squad/) by Brady Gaster is where things get very interesting. It's an open-source programmable multi-agent runtime for GitHub Copilot that turns Copilot into a team of specialists. Build AI teams that persist, learn, and coordinate — with real governance, not vibes.
 
 The core idea is the **fan-out pattern**. Instead of one agent doing everything sequentially, you describe a team — each member with a role, skills, and file-write permissions — and they can work simultaneously:
 
@@ -115,7 +115,7 @@ Squad's governance layer matters in practice. File-write guards prevent agents f
 
 <GitHubCard user="bradygaster" repo="squad" />
 
-My second port of Grove a to .NET was done with a squad.
+My second port of Grove to .NET was done with a squad.
 
 <BlueskyPost id="https://bsky.app/profile/did:plc:6ck7c3ok7j52wx35cb7jl5jm/post/3mfd2lvbnts2x" />
 
@@ -139,7 +139,7 @@ This workflow is still evolving. I'm experimenting with Squad team creating GitH
 
 I extended the workflow with some PowerShell scripts to automate common patterns — like creating a new worktree in a psmux session using the name of a git branch with an agent session already set up. Or, switching to an existing worktree and attaching to its psmux session with one command. The goal is to make the workflow as seamless as possible, so that the tools fade into the background and I can focus on the work.
 
-The broader shift is what excites me most. Git worktrees went from a daily use with some pain points to a core part of my development workflow with Terminal multiplexing. The same is happening with autonomous AI agents, and multi-agent squad orchestration — each useful on its own, but together they unlock a way of working I wouldn't have imagined a year ago.
+The broader shift is what excites me most. Git worktrees went from a daily-use tool with some pain points to a core part of my development workflow with terminal multiplexing. The same is happening with autonomous AI agents, and multi-agent squad orchestration — each useful on its own, but together they unlock a way of working I wouldn't have imagined a year ago.
 
 My old ceiling of three worktrees wasn't a git limitation. It was a tooling limitation. With the right tools, the ceiling is gone — and the only real limit is how clearly you can define what needs to be done.
 
