@@ -1,0 +1,148 @@
+---
+title: 'From 3 Worktrees to N: How AI Agents Changed My Parallel Development Workflow on Windows'
+permalink: /2026/03/31/from-3-worktrees-to-n-ai-powered-parallel-development-on-windows/
+date: 03/31/2026 14:56:31
+disqusIdentifier: 20260331145631
+coverSize: partial
+tags: ["Git", "AI", "Developer Tools", "GitHub Copilot", "CLI", "Windows"]
+coverCaption: 'Franschhoek, South Africa'
+coverImage: 'https://live.staticflickr.com/65535/55179391632_e655409436_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/55179391632_7253e2e9b1_q.jpg'
+draft: true
+---
+For years, my git worktree setup was modest: two worktrees for active development, and one more for code reviews. Three worktrees, tops. It worked. I never questioned it.
+
+Then AI coding agents arrived — tools that write code, run tests, and iterate autonomously — and suddenly three worktrees felt like a bottleneck. Each agent needs its own isolated workspace. Each task deserves its own branch, its own directory, its own terminal. The question shifted from "how many worktrees can I manage?" to "how many can I run in parallel?"
+
+{/* <!-- more --> */}
+
+Today, I run N worktrees. Features, bug fixes, code reviews, experiments — each gets its own workspace, across both my work projects and personal ones. Here's the toolkit and workflow that made it practical.
+
+## The Old Way: Three Worktrees and a Lot of Stashing
+
+I'd keep my main development worktree, and when a code review came in, I'd switch to the review worktree and switch branch. Two reviews at the same time? That was my ceiling.
+
+The friction was real. Creating a git worktree with plain commands meant typing the branch name three times across two commands. Switching context meant closing terminals, reopening them in different directories, remembering where I was. And if a review came in while I was mid-feature? Stash, switch, review, switch back, pop. The cognitive overhead was the real cost — not the commands themselves, but keeping track of everything.
+
+Running five or eight worktrees simultaneously? The idea would have seemed absurd.
+
+## The First Try: Thanks to Captain Safia
+
+I first experimented with this workflow after reading [Safia Abdalla's article on Git worktrees for fun and profit](https://blog.safia.rocks/2025/09/03/git-worktrees/). She described a setup using `git worktree`, with a git bare clone. It was a clever way to manage multiple worktrees without duplicating the full repository, but it still felt clunky. So, I started to use [Grove](https://github.com/captainsafia/grove), her worktree management tool, and it was a game-changer. I was first surprised by her choice to use TypeScript, for someone who was part of .NET team. But the tool itself was exactly what I needed. I decided to port it to .NET, as I didn't like the 108 MB size of the original tool. It went down to 5.73 MB with .NET 10 AOT 🎉
+
+That was my first port of Grove. More to come...
+
+<BlueskyPost id="https://bsky.app/profile/did:plc:6ck7c3ok7j52wx35cb7jl5jm/post/3md2crfayb22r" />
+
+I started using GitHub Copilot CLI to run AI agents more and more in parallel, and the idea of having multiple worktrees with agents running in each of them became more and more appealing. 
+
+<GitHubCard user="captainsafia" repo="grove" />
+
+## The Catalyst: AI Agents Need Isolation
+
+The shift came from a simple realization: **AI agents that write code need their own workspace**. You can't have two autonomous agents editing files in the same directory. They'll step on each other's changes, create merge conflicts in real-time, and generally make a mess.
+
+Git worktrees solve this perfectly. Each worktree is its own full working directory with its own branch, but they all share the same `.git` repository. No cloning, no duplicating history. An agent running in `project/myapp-feature-auth` is completely isolated from another in `project/myapp-fix-logging`, yet both are working on the same project.
+
+The bottleneck was never git. It was the tooling around it — the terminal management, the worktree lifecycle, the orchestration. Once I found the right tools, the ceiling disappeared.
+
+## The Parallel Development Toolkit
+
+Four tools make this workflow practical. Each solves a specific friction point, and together they compose into something greater than any one of them alone.
+
+### Worktrunk: Worktrees Without the Ceremony
+
+As I didn't want to maintain my own worktree management tool, I started researching for other existing ones. That's when I found [Worktrunk](https://worktrunk.dev/) by Maximilian Roos — a CLI for Git worktree management, designed for parallel AI agent workflows written in Rust.
+
+Instead of the usual dance of `git worktree add` followed by `cd` and branch creation, you type:
+
+```powershell
+git-wt switch --create my-feature
+```
+
+One command. The branch is created, the worktree is set up, and you're in it. On Windows, I use the `git-wt` alias since `wt` conflicts with Windows Terminal — a minor detail, but the kind that matters in daily use.
+
+I also configured worktrunk hooks; `post-create` to restore nugets with `dotnet restore` and `post-start` to run `dotnet build` so that every new worktree is ready for development. 
+
+`git-wt list` gives you a dashboard of all worktrees with quite some status indicators. When you're done, `git-wt remove` removes worktree; delete branch if merged. And there are much more commands `merge`, `step`...
+
+I am using worktrunk with the Grove idea of git bare clone.
+
+<GitHubCard user="max-sixty" repo="worktrunk" />
+
+### psmux: A Native Terminal Multiplexer for Windows
+
+After closing several time by mistake Windows Terminal tabs in which GitHub Copilot CLI agents were running, I realized that the terminal was a weak link in the workflow. If I had multiple worktrees with agents running, I needed a way to keep them all visible and accessible without worrying about accidentally closing one. I remembered about my Linux experience with `tmux`, and I started looking for a Windows equivalent.
+
+That's when I found [psmux](https://psmux.pages.dev/), a native Windows terminal multiplexer built in Rust. If you've ever been jealous of Linux developers casually splitting their terminal into six panes with tmux, psmux is the answer.
+
+It ships as `psmux`, `pmux`, **and** `tmux` binaries, so existing muscle memory transfers directly. It reads `.tmux.conf`, supports 76 tmux-compatible commands, and creates sessions very fast. No WSL required. No dependencies. It just works with PowerShell 7, cmd, Git Bash, or whatever shell you prefer.
+
+```
+psmux new-session -s myproject
+```
+
+<GitHubCard user="psmux" repo="psmux" />
+
+Session persistence is what makes psmux essential for a multi-worktree workflow. I can detach from a session, close my terminal, come back hours later, and reattach to find everything exactly where I left it — agents still running, output still visible. The plugin ecosystem includes psmux-resurrect for session recovery, which pairs nicely with long-running agent sessions. I will need to try this add-on.
+
+### GitHub Copilot CLI: The Agent Engine
+
+[GitHub Copilot CLI](https://github.com/features/copilot/cli/) is currently the engine powering each worktree. It's a terminal-native AI coding agent included in all Copilot plans, supporting multiple modes of autonomy.
+
+The mode I use most is **autopilot** — the agent reads the codebase, makes changes, runs tests, and iterates until the task is done. For bounded tasks, that's all you need. Point it at a worktree with a clear instruction, and let it work.
+
+For larger tasks, there's **`/fleet`**, which decomposes work into subtasks and runs them in parallel via sub-agents. The built-in sub-agents cover the common cases: explore for codebase questions, task for builds and tests, code-review for analyzing changes, and general-purpose for everything else.
+
+What makes this scale is custom agents. You define them as markdown profiles in `.github/agents/` or `~/.copilot/agents/`, each with specialized instructions, tools, and MCP server access. I have agents for different concerns — one that knows my testing patterns, one familiar with my project's architecture, one specialized for documentation. Combined with `AGENTS.md` for project-level context, each agent starts with genuine understanding of the codebase.
+
+<GitHubCard user="github" repo="copilot-cli" />
+
+### Squad: When One Agent Isn't Enough
+
+[Squad](https://bradygaster.github.io/squad/) by Brady Gaster is where things get very interesting. It's an open-source programmable multi-agent runtime for GitHUb Copilot that turns Copilot into a team of specialists. Build AI teams that persist, learn, and coordinate — with real governance, not vibes.
+
+The core idea is the **fan-out pattern**. Instead of one agent doing everything sequentially, you describe a team — each member with a role, skills, and file-write permissions — and they can work simultaneously:
+
+```powershell
+squad init
+copilot --agent squad --yolo
+```
+
+Each agent maintains persistent memory through `history.md` files, and the team shares decisions through `decisions.md`. All state lives in a `.squad/` directory committed to the repo. It's git-native: the agent team's work is reviewable, revertible, and branchable — just like any other code.
+
+Squad's governance layer matters in practice. File-write guards prevent agents from stepping on each other. PII scrubbing catches sensitive data before it's committed. A reviewer lockout ensures no agent reviews its own work. These aren't theoretical safety features — they're what makes it possible to run multiple agents with confidence.
+
+<GitHubCard user="bradygaster" repo="squad" />
+
+My second port of Grove a to .NET was done with a squad.
+
+<BlueskyPost id="https://bsky.app/profile/did:plc:6ck7c3ok7j52wx35cb7jl5jm/post/3mfd2lvbnts2x" />
+
+## Tips and Lessons Learned
+
+After several weeks with this workflow across multiple projects, here's what matters most.
+
+**Start small.** Don't try to run eight worktrees on day one. Begin with two — your manual work and one autonomous agent. Get comfortable with the rhythm of launching, monitoring, and reviewing before scaling up.
+
+**Clear instructions are everything.** The quality of an agent's output is directly proportional to the clarity of its input. "Fix the bug" produces mediocre results. "The timeout occurs because the query in `OrderRepository.GetHistory()` loads all records without pagination — add cursor-based pagination and update the integration tests" produces excellent results.
+
+**Detach, don't close.** With psmux, always detach from sessions rather than closing them. Long-running agents continue working in detached sessions. I've started a Squad team before lunch and come back to find a fully implemented feature waiting for review.
+
+**Not every task needs an agent.** Sometimes the fastest path is writing the code yourself. A five-line config change doesn't need an autonomous agent. Save the orchestration for tasks where parallelism and isolation actually pay off.
+
+**Review everything.** I review every line an agent produces, just as I would a colleague's pull request. The agents are fast and capable, but they're not infallible. This workflow is "AI-assisted," not "AI-replaced."
+
+## What's Next for AI-Powered Parallel Development
+
+This workflow is still evolving. I'm experimenting with Squad team creating GitHub issues and GitHub boards to track work across agents when the Ralph loop is running. Also with personal squads that I can use across projects.
+
+I extended the workflow with some PowerShell scripts to automate common patterns — like creating a new worktree in a psmux session using the name of a git branch with an agent session already set up. Or, switching to an existing worktree and attaching to its psmux session with one command. The goal is to make the workflow as seamless as possible, so that the tools fade into the background and I can focus on the work.
+
+The broader shift is what excites me most. Git worktrees went from a daily use with some pain points to a core part of my development workflow with Terminal multiplexing. The same is happening with autonomous AI agents, and multi-agent squad orchestration — each useful on its own, but together they unlock a way of working I wouldn't have imagined a year ago.
+
+My old ceiling of three worktrees wasn't a git limitation. It was a tooling limitation. With the right tools, the ceiling is gone — and the only real limit is how clearly you can define what needs to be done.
+
+More to come on the subject!
+
+And, what about you? Are you running multiple worktrees with AI agents? What tools are you using? What challenges have you faced? I'd love to hear about your experiences in the comments.
