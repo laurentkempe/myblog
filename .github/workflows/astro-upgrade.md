@@ -33,6 +33,13 @@ safe-outputs:
       - tsconfig.json
       - src/**
     protected-files: allowed
+  close-pull-request:
+    target: "*"
+    required-labels: [astro]
+    max: 5
+  add-comment:
+    target: "*"
+    max: 5
 ---
 
 # Astro Upgrade Workflow
@@ -61,6 +68,19 @@ https://registry.npmjs.org/astro/latest
 
 Compare the latest published version of `astro` with the version currently specified
 in `package.json`. If the versions are the same, stop — there is nothing to upgrade.
+
+## Step 1.5: Check for Existing Upgrade PRs
+
+Before proceeding, search for open PRs in this repository that:
+- Have the `astro` label, **or**
+- Have a branch name starting with `astro-upgrade/`, **or**
+- Have a title containing "upgrade astro"
+
+If an open PR already exists **for the same version** you are about to upgrade to,
+**stop immediately** — the upgrade PR already exists.
+
+If open PRs exist **for an older version**, note their PR numbers. You will close them
+in Step 6 after creating the new upgrade PR.
 
 ## Step 2: Research the Upgrade
 
@@ -116,3 +136,13 @@ Then create a pull request with:
 If there are breaking changes that you cannot automatically resolve (e.g., complex
 API migrations that require human judgment), still create the PR with the partial
 changes and clearly document the remaining manual steps in the PR body.
+
+## Step 6: Close Outdated Upgrade PRs
+
+If you noted any outdated open Astro upgrade PRs in Step 1.5, close each one now.
+For each outdated PR:
+
+1. **Add a comment** explaining that a newer version is available:
+   > Superseded by #NEW_PR — a newer Astro version (vX.Y.Z) is now available.
+   Replace `#NEW_PR` with the actual number of the PR you just created in Step 5.
+2. **Close the PR** without merging.
