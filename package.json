@@ -23,7 +23,7 @@
     "astro": "6.1.3",
     "astro-auto-import": "^0.5.1",
     "astro-icon": "^1.1.5",
-    "markdown-it": "^14.1.0",
+    "markdown-it": "^14.1.1",
     "tailwindcss": "^4.1.12",
     "tailwindcss-animate": "^1.0.7"
   },
