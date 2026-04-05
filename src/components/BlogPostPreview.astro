@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import TagList from './TagList.astro';
 import type { CollectionEntry } from 'astro:content';
 import { getExcerpt } from '../utils/blog';
+import { Icon } from 'astro-icon/components';
 
 interface Props {
   post: CollectionEntry<'posts'>;
@@ -16,6 +17,7 @@ const { post } = Astro.props;
       <a href={`${post.data.permalink}`} class="text-blue-600 dark:text-blue-400 hover:underline block">{post.data.title}</a>
     </h2>
     <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mt-1 mb-2">
+      <Icon name="fa6-solid:calendar" class="w-3.5 h-3.5 shrink-0" />
       <span>
         {new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
       </span>

@@ -1,5 +1,6 @@
 ---
 import { getTagSlug } from '../utils/tags';
+import { Icon } from 'astro-icon/components';
 
 interface Props {
   tags?: string[];
@@ -9,7 +10,8 @@ const { tags } = Astro.props;
 ---
 
 {tags && tags.length > 0 && (
-  <div class="flex gap-1 flex-wrap">
+  <div class="flex items-center gap-1 flex-wrap">
+    <Icon name="fa6-solid:tag" class="w-3 h-3 text-gray-500 dark:text-gray-400 shrink-0" />
     {[...tags].sort().map(tag => (
       <a 
         href={`/tags/${getTagSlug(tag)}`}
