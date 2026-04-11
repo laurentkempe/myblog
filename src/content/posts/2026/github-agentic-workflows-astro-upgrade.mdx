@@ -108,15 +108,124 @@ Let me walk through the important pieces.
 
 **`safe-outputs.create-pull-request`** — This is where the write permission lives. The PR must have the title prefix `"chore: "`, will get the labels `dependencies` and `astro`, will never be created as a draft, and is capped at one open PR at a time (`max: 1`). The `allowed-files` list is the most important security control here: the agent can only include those specific files in the PR diff. If it tries to touch anything else, the PR creation is blocked. I added `protected-files: allowed` after an early version of the workflow failed to update `astro.config.mjs` — without that flag, protected config files are off-limits by default.
 
-The body of the Markdown file describes the workflow in five steps, written in natural language. It reads almost like a runbook:
+The body of the Markdown file describes the workflow in six steps, written in natural language. It reads almost like a runbook:
 
 1. **Check for New Astro Releases** — Read `package.json` to find the current version. Fetch `https://registry.npmjs.org/astro/latest`. If already on the latest, stop.
-2. **Research the Upgrade** — Fetch the Astro changelog from GitHub and the official upgrade guide at `docs.astro.build`. Identify any breaking changes relevant to my installed version range.
-3. **Inspect the Codebase** — Read `astro.config.mjs`, `package.json`, `tsconfig.json`, and `src/content/config.ts` to understand what the blog actually uses.
-4. **Plan the Upgrade** — List all the package bumps, configuration changes, and source code updates required.
-5. **Apply the Changes and Create a PR** — Update the files, run `pnpm install`, and open a pull request on the branch `astro-upgrade/v{version}` with a body that describes every change made.
+2. **Check for Existing Upgrade PRs** — Before proceeding, search for any open PRs with the `astro` label or a branch name starting with `astro-upgrade/`. If a PR already exists for the same version, stop immediately to avoid duplicates. If older version PRs exist, note their numbers for cleanup later.
+3. **Research the Upgrade** — Fetch the Astro changelog from GitHub and the official upgrade guide at `docs.astro.build`. Identify any breaking changes relevant to my installed version range, including required peer dependency updates.
+4. **Inspect the Codebase** — Read `astro.config.mjs`, `package.json`, `tsconfig.json`, and `src/content/config.ts` to understand what the blog actually uses. Search for patterns affected by breaking changes.
+5. **Plan the Upgrade** — List all the package bumps (Astro core and all companion `@astrojs/*` packages), configuration changes, and source code updates required.
+6. **Apply the Changes and Create a PR** — Update the files, run `pnpm install`, and open a pull request on the branch `astro-upgrade/v{version}` with a body that describes every change made.
+7. **Close Outdated Upgrade PRs** — If any older Astro upgrade PRs were found in step 2, close them with a comment explaining they've been superseded by the new PR.
 
-That's it. No shell scripting, no GitHub Actions YAML gymnastics, no brittle regex for version parsing. Just an intention expressed clearly, with explicit constraints on what the agent is allowed to do.
+```text
+# Astro Upgrade Workflow
+
+You are an Astro upgrade automation agent. Your job is to check for new Astro releases
+and, if any are found, create a pull request with the necessary upgrade changes.
+
+## Step 1: Check for New Astro Releases
+
+Read the current `package.json` from this repository to identify all Astro-related
+dependencies. Key packages to check include:
+- `astro` (core)
+- `@astrojs/mdx`
+- `@astrojs/sitemap`
+- `astro-auto-import`
+- `astro-icon`
+- `@astro-community/astro-embed-twitter`
+- `@astro-community/astro-embed-youtube`
+- `@tailwindcss/vite` (only if required by the new Astro version as a peer dependency)
+- `tailwindcss` (only if required by the new Astro version as a peer dependency)
+
+For the `astro` core package, check the latest release on npm:
+`
+https://registry.npmjs.org/astro/latest
+`
+
+Compare the latest published version of `astro` with the version currently specified
+in `package.json`. If the versions are the same, stop — there is nothing to upgrade.
+
+## Step 1.5: Check for Existing Upgrade PRs
+
+Before proceeding, search for open PRs in this repository that:
+- Have the `astro` label, **or**
+- Have a branch name starting with `astro-upgrade/`, **or**
+- Have a title containing "upgrade astro"
+
+If an open PR already exists **for the same version** you are about to upgrade to,
+**stop immediately** — the upgrade PR already exists.
+
+If open PRs exist **for an older version**, note their PR numbers. You will close them
+in Step 6 after creating the new upgrade PR.
+
+## Step 2: Research the Upgrade
+
+If a newer version of `astro` exists:
+
+1. **Read the Astro changelog** to understand what changed:
+   Fetch: `https://raw.githubusercontent.com/withastro/astro/main/packages/astro/CHANGELOG.md`
+   Focus on the entries between the current version and the latest version.
+
+2. **Read the Upgrading Astro guide** for official upgrade instructions:
+   Fetch: `https://docs.astro.build/en/upgrade-astro/`
+
+3. Identify:
+   - All breaking changes that apply to this repository
+   - Required code changes (configuration, imports, API changes, etc.)
+   - Updated peer dependency versions (e.g., `@astrojs/*` packages that must be updated together)
+   - Any deprecated features being used in this codebase
+
+## Step 3: Inspect the Codebase
+
+Read the following key files to understand what needs to change:
+- `astro.config.mjs` — main Astro configuration
+- `package.json` — dependency versions
+- `src/content/config.ts` — content collection schemas (if Astro content layer changed)
+- `tsconfig.json` — TypeScript configuration
+- Any other files mentioned in the changelog as likely requiring changes
+
+Search the source code for patterns that are affected by breaking changes identified in Step 2.
+
+## Step 4: Plan the Upgrade
+
+Based on your research, create a detailed upgrade plan listing:
+1. Which packages need version bumps (astro and all `@astrojs/*` companions)
+2. Configuration changes required in `astro.config.mjs`
+3. Code changes required in `src/` files
+4. Any other file changes needed
+
+## Step 5: Apply the Changes and Create a PR
+
+Apply ALL the changes needed for the upgrade:
+
+1. Update `package.json` with the new version of `astro` and any companion packages
+2. Update `astro.config.mjs` if configuration changes are needed
+3. Update any source files that require code changes
+4. Run `pnpm install` to regenerate the lockfile (this project uses pnpm, as confirmed by `pnpm-lock.yaml`)
+
+Then create a pull request with:
+- **Branch name**: `astro-upgrade/v{new-version}` (e.g., `astro-upgrade/v5.0.0`)
+- **Title**: `chore: upgrade astro to v{new-version}`
+- **Body**: Include a summary of the upgrade, all breaking changes found, and the changes made.
+  Reference the changelog URL and the upgrading guide URL.
+
+If there are breaking changes that you cannot automatically resolve (e.g., complex
+API migrations that require human judgment), still create the PR with the partial
+changes and clearly document the remaining manual steps in the PR body.
+
+## Step 6: Close Outdated Upgrade PRs
+
+If you noted any outdated open Astro upgrade PRs in Step 1.5, close each one now.
+For each outdated PR:
+
+1. **Add a comment** explaining that a newer version is available:
+   > Superseded by #NEW_PR — a newer Astro version (vX.Y.Z) is now available.
+   Replace `#NEW_PR` with the actual number of the PR you just created in Step 5.
+2. **Close the PR** without merging.
+```
+
+That's it. No shell scripting, no GitHub Actions YAML gymnastics, no brittle regex for version parsing. Just an intention expressed clearly, with explicit constraints on what the agent is allowed to do. The workflow even handles its own housekeeping, preventing duplicate PRs and cleaning up outdated ones automatically.
 
 ## What the PR Looks Like in Practice
 
@@ -124,7 +233,7 @@ The pull requests this workflow creates are genuinely good. The PR description d
 
 When there are breaking changes — and Astro has had a few across its minor versions — the agent finds them in the changelog, checks whether they apply to my configuration, and applies the fix. When the upgrade is straightforward, the PR is minimal: a version bump in `package.json` and an updated `pnpm-lock.yaml`.
 
-I've reviewed four Astro upgrade PRs since I set this up. Three merged without any changes on my part. One needed a small manual tweak to a component the agent correctly flagged as potentially affected but couldn't safely fix automatically. That's a good outcome.
+I've reviewed five Astro upgrade PRs since I set this up. Five merged without any changes on my part. That's a good outcome.
 
 ## Why This Feels Safe to Run
 
@@ -142,10 +251,13 @@ I've been following GitHub Next's research projects for a while — Copilot Work
 
 The authoring experience is also genuinely pleasant. Writing automation in natural language, with constraints expressed declaratively, is a fundamentally different experience from debugging complex GitHub Actions YAML at 11pm. The intent is readable. The constraints are visible. The output is auditable.
 
-I'm already thinking about other automated dependency management workflows: automatically bumping my other Astro integrations, flagging deprecated API usage in new Tailwind releases, or auto-generating release notes. The pattern is clear and composable.
+I'm already thinking about other automated dependency management workflows: automatically updating code base documentation, or auto-generating release notes. The pattern is clear and composable.
 
 GitHub Agentic Workflows is still a research demonstrator — explicitly not a product, subject to significant change — so I'd read the [announcement post](https://github.blog/ai-and-ml/automate-repository-tasks-with-github-agentic-workflows/) and the [GitHub Next project page](https://githubnext.com/) before building anything critical on top of it. But for personal projects, blogs, and exploratory use, the experience is already compelling.
 
 If you're an Astro user, or just someone who wants to stop manually chasing dependency upgrades, I'd encourage you to look at [my workflow file](https://github.com/laurentkempe/myblog/blob/main/.github/workflows/astro-upgrade.md) as a starting point. It took me an afternoon to get right, and the coffee the next morning tasted that much better for it.
 
 Have you tried GitHub Agentic Workflows? What would you automate first? I'd love to hear what use cases you're thinking about — drop a comment below.
+
+You can get all the code on GitHub
+<GitHubCard user="laurentkempe" repo="myblog" />
