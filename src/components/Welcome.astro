@@ -1,14 +1,24 @@
 ---
 import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components'
+
+// Profile images – swap the light-theme URL once you have it
+const PROFILE_IMAGE_DARK  = "https://live.staticflickr.com/65535/54218216293_4d1b48b283_w.jpg";
+const PROFILE_IMAGE_LIGHT = "https://live.staticflickr.com/65535/54218216293_4d1b48b283_w.jpg"; // TODO: replace with light-theme image URL
 ---
 <div class="grid grid-cols-1 md:grid-cols-3 mb-5 gap-0 md:gap-4 prose prose-lg max-w-none dark:prose-dark">
     <div class="md:col-span-1 flex items-center justify-center">
         <a href="/about-laurent-kempe" class="hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-md" title="About Laurent Kempé">
+            <!-- Light theme image (hidden in dark mode) -->
             <Image 
-                src="https://live.staticflickr.com/65535/54218216293_4d1b48b283_w.jpg" 
-                alt="Laurent Kempé" width="50" height="50"
-                class="rounded-full aspect-square w-40 sm:w-40 md:w-48 lg:w-64 object-cover" />
+                src={PROFILE_IMAGE_LIGHT}
+                alt="Laurent Kempé" width="256" height="256"
+                class="rounded-full aspect-square w-40 sm:w-40 md:w-48 lg:w-64 object-cover dark:hidden" />
+            <!-- Dark theme image (hidden in light mode) -->
+            <Image 
+                src={PROFILE_IMAGE_DARK}
+                alt="Laurent Kempé" width="256" height="256"
+                class="rounded-full aspect-square w-40 sm:w-40 md:w-48 lg:w-64 object-cover hidden dark:block" />
         </a>
     </div>
     <div class="md:col-span-2 flex flex-col justify-center">

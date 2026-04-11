@@ -21,6 +21,7 @@ export default defineConfig({
         './src/components/Alert.astro',
         './src/components/Reveal.astro',
         './src/components/GiscusComments.astro',
+        './src/components/AboutProfileImage.astro',
         {
           '@astro-community/astro-embed-twitter': ['Tweet'],
           '@astro-community/astro-embed-bluesky': ['BlueskyPost'],

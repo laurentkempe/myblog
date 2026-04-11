@@ -1,0 +1,21 @@
+---
+import { Image } from 'astro:assets';
+
+// Profile images – swap the light-theme URL once you have it
+const PROFILE_IMAGE_DARK  = "https://live.staticflickr.com/1971/31306281378_02b055ccfe_z.jpg";
+const PROFILE_IMAGE_LIGHT = "https://live.staticflickr.com/1971/31306281378_02b055ccfe_z.jpg"; // TODO: replace with light-theme image URL
+
+const sharedClass = "container mx-auto px-4 py-4 flex flex-col sm:flex-row max-w-[640px]";
+---
+<!-- Light theme image (hidden in dark mode) -->
+<Image src={PROFILE_IMAGE_LIGHT}
+    alt="Laurent Kempé"
+    width="640"
+    height="427"
+    class={`${sharedClass} dark:hidden`} />
+<!-- Dark theme image (hidden in light mode) -->
+<Image src={PROFILE_IMAGE_DARK}
+    alt="Laurent Kempé"
+    width="640"
+    height="427"
+    class={`${sharedClass} hidden dark:block`} />
