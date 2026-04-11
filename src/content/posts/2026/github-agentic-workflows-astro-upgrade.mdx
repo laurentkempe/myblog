@@ -1,15 +1,15 @@
 ---
 title: 'Automate Astro Upgrades with GitHub Agentic Workflows'
-permalink: /2026/04/01/github-agentic-workflows-astro-upgrade/
-date: 04/01/2026 08:00:00
-disqusIdentifier: 20260401080000
+permalink: /2026/04/11/github-agentic-workflows-astro-upgrade/
+date: 04/11/2026 09:09:16
+disqusIdentifier: 20260411090916
 coverSize: partial
 tags: ["GitHub Actions", "AI", "Astro", "GitHub Copilot", "Automation", "GitHub Next"]
-coverCaption: 'Franschhoek, South Africa'
-coverImage: 'https://live.staticflickr.com/65535/55179391632_e655409436_h.jpg'
-thumbnailImage: 'https://live.staticflickr.com/65535/55179391632_7253e2e9b1_q.jpg'
-draft: true
+coverCaption: 'Table Bay, South Africa'
+coverImage: 'https://live.staticflickr.com/65535/55199117647_ac71dafb8c_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/55199117647_1ca6e6cdbd_q.jpg'
 ---
+
 I opened GitHub on my phone before my morning coffee had finished brewing. There it was — a pull request, freshly opened, titled **"chore: upgrade astro to v6.1.2"**. I hadn't asked anyone to do it. I hadn't filed an issue, assigned a task, or written a single command. An agent had woken up, checked the npm registry, read the Astro changelog, inspected my codebase, applied the changes, run `pnpm install`, and handed me a PR to review. All I had to do was drink my coffee and click Merge.
 
 This is the promise of what GitHub Next is calling **Continuous AI** — and it's already working on my blog.
@@ -18,7 +18,7 @@ This is the promise of what GitHub Next is calling **Continuous AI** — and it'
 
 ## The Spark: Idan Gazit at the MVP Summit
 
-The Microsoft MVP Summit is one of those rare, invite-only events where product teams and researchers share things that haven't been announced yet. This year, [Idan Gazit](https://github.com/idan), Head of Research at [GitHub Next](https://githubnext.com/), gave a live demo that made me set down my laptop and pay close attention.
+The Microsoft MVP Summit is one of those rare, invite-only events where product teams and researchers share things that haven't been announced yet. Normally those are under NDA, but this was already public. This year, [Idan Gazit](https://github.com/idan), Head of Research at [GitHub Next](https://githubnext.com/), gave a live demo that made me set down my laptop and pay close attention.
 
 He showed his personal blog repository — also powered by [Astro](https://astro.build/) — and walked us through a workflow file he had written in plain Markdown. On a schedule, it checks whether a new version of Astro has been published. If there is one, it fetches the changelog, reads the codebase, and opens a pull request with all the necessary changes already applied. No human involvement until the PR appears.
 
