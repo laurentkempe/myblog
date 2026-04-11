@@ -1,0 +1,151 @@
+---
+title: 'Automate Astro Upgrades with GitHub Agentic Workflows'
+permalink: /2026/04/01/github-agentic-workflows-astro-upgrade/
+date: 04/01/2026 08:00:00
+disqusIdentifier: 20260401080000
+coverSize: partial
+tags: ["GitHub Actions", "AI", "Astro", "GitHub Copilot", "Automation", "GitHub Next"]
+coverCaption: 'Franschhoek, South Africa'
+coverImage: 'https://live.staticflickr.com/65535/55179391632_e655409436_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/55179391632_7253e2e9b1_q.jpg'
+draft: true
+---
+I opened GitHub on my phone before my morning coffee had finished brewing. There it was — a pull request, freshly opened, titled **"chore: upgrade astro to v6.1.2"**. I hadn't asked anyone to do it. I hadn't filed an issue, assigned a task, or written a single command. An agent had woken up, checked the npm registry, read the Astro changelog, inspected my codebase, applied the changes, run `pnpm install`, and handed me a PR to review. All I had to do was drink my coffee and click Merge.
+
+This is the promise of what GitHub Next is calling **Continuous AI** — and it's already working on my blog.
+
+{/* <!-- more --> */}
+
+## The Spark: Idan Gazit at the MVP Summit
+
+The Microsoft MVP Summit is one of those rare, invite-only events where product teams and researchers share things that haven't been announced yet. This year, [Idan Gazit](https://github.com/idan), Head of Research at [GitHub Next](https://githubnext.com/), gave a live demo that made me set down my laptop and pay close attention.
+
+He showed his personal blog repository — also powered by [Astro](https://astro.build/) — and walked us through a workflow file he had written in plain Markdown. On a schedule, it checks whether a new version of Astro has been published. If there is one, it fetches the changelog, reads the codebase, and opens a pull request with all the necessary changes already applied. No human involvement until the PR appears.
+
+I started building my own version that same afternoon.
+
+## How I Used to Handle Astro Updates
+
+Before I show you the workflow, let me describe the unglamorous reality of how this worked before.
+
+I'd either stumble across a new Astro release in my timeline, or catch it in GitHub notifications when someone I follow merged an upgrade. I'd open my repository, create a GitHub Issue along the lines of "Upgrade Astro to vX.Y.Z", and assign it directly to Copilot. Copilot would churn through the issue, figure out what needed changing, and eventually open a pull request.
+
+That flow wasn't bad — I genuinely liked it — but it required me to notice the release, decide to act, and manually kick off the dependency update process. Sometimes I'd be a few minor versions behind before I got around to it.
+
+Now the agent does the noticing. I just show up for review.
+
+## What GitHub Agentic Workflows Actually Are
+
+[GitHub Agentic Workflows](https://github.github.com/gh-aw/) is a research demonstrator from [GitHub Next](https://githubnext.com/), announced in February 2026 by Don Syme and Peli de Halleux. The core idea is elegant: instead of writing complex GitHub Actions YAML by hand, you describe your automation intent in a plain Markdown file with a YAML frontmatter block. You then run `gh aw compile`, which generates a `.lock.yml` file — a valid, fully inspectable GitHub Actions workflow YAML that you commit alongside it.
+
+The Markdown file is the source of truth. The `.lock.yml` is its compiled output. Both live in `.github/workflows/`.
+
+One of the most interesting aspects is the concept of **safe outputs**. By default, the agent running your workflow has read-only access to your repository. The only way it can write anything — create a PR, post a comment — is through pre-approved, sanitized channels declared in the frontmatter under `safe-outputs`. This is careful security architecture: it means the agent cannot do arbitrary things to your repository, regardless of prompt injection or edge cases. It goes through a defined, auditable channel or it does nothing.
+
+And critically: **PRs are never merged automatically**. The agent opens the PR. You review and merge. That human checkpoint is a deliberate design principle, not an oversight.
+
+This sits inside a broader research vision GitHub Next calls [**Continuous AI**](https://githubnext.com/projects/continuous-ai) — the idea that AI-enriched automation in software collaboration will become as routine as CI/CD. Just as we don't think twice about a test suite running on every push, we'll eventually not think twice about an agent checking for outdated dependencies, summarizing PRs, or keeping documentation in sync with the code.
+
+## A Tour of My Workflow File
+
+Here is the frontmatter of [my `astro-upgrade.md`](https://github.com/laurentkempe/myblog/blob/main/.github/workflows/astro-upgrade.md):
+
+```yaml
+---
+name: Astro Upgrade
+description: Daily check for new Astro releases and automatic upgrade PR creation
+on:
+  schedule: daily on weekdays
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+tools:
+  github:
+    toolsets: [default]
+  web-fetch:
+  bash: true
+  edit:
+network:
+  allowed:
+    - github
+    - docs.astro.build
+    - node
+safe-outputs:
+  create-pull-request:
+    title-prefix: "chore: "
+    labels: [dependencies, astro]
+    draft: false
+    preserve-branch-name: true
+    max: 1
+    allowed-files:
+      - package.json
+      - pnpm-lock.yaml
+      - .github/workflows/astro-upgrade.lock.yml
+      - astro.config.mjs
+      - tsconfig.json
+      - src/**
+    protected-files: allowed
+  close-pull-request:
+    target: "*"
+    required-labels: [astro]
+    max: 5
+  add-comment:
+    target: "*"
+    max: 5
+---
+```
+
+Let me walk through the important pieces.
+
+**`on: schedule: daily on weekdays`** — The workflow runs every weekday. If there is no new version of Astro, it stops immediately and does nothing. No noise.
+
+**`permissions`** — Read-only on contents, pull requests, and issues. The agent cannot write to the repository directly. That access comes only through `safe-outputs`.
+
+**`tools`** — I'm granting the agent the default GitHub toolset (for reading repo files and PR state), HTTP fetch capabilities, the ability to run bash commands, and the `edit` tool so it can modify files locally before creating the PR.
+
+**`network.allowed`** — An explicit allowlist of external hosts. The agent can talk to GitHub, the Astro documentation site, and the npm registry. Nothing else. This is enforced at the network layer by what GitHub Next calls the Agent Workflow Firewall — it prevents the agent from reaching arbitrary external services.
+
+**`safe-outputs.create-pull-request`** — This is where the write permission lives. The PR must have the title prefix `"chore: "`, will get the labels `dependencies` and `astro`, will never be created as a draft, and is capped at one open PR at a time (`max: 1`). The `allowed-files` list is the most important security control here: the agent can only include those specific files in the PR diff. If it tries to touch anything else, the PR creation is blocked. I added `protected-files: allowed` after an early version of the workflow failed to update `astro.config.mjs` — without that flag, protected config files are off-limits by default.
+
+The body of the Markdown file describes the workflow in five steps, written in natural language. It reads almost like a runbook:
+
+1. **Check for New Astro Releases** — Read `package.json` to find the current version. Fetch `https://registry.npmjs.org/astro/latest`. If already on the latest, stop.
+2. **Research the Upgrade** — Fetch the Astro changelog from GitHub and the official upgrade guide at `docs.astro.build`. Identify any breaking changes relevant to my installed version range.
+3. **Inspect the Codebase** — Read `astro.config.mjs`, `package.json`, `tsconfig.json`, and `src/content/config.ts` to understand what the blog actually uses.
+4. **Plan the Upgrade** — List all the package bumps, configuration changes, and source code updates required.
+5. **Apply the Changes and Create a PR** — Update the files, run `pnpm install`, and open a pull request on the branch `astro-upgrade/v{version}` with a body that describes every change made.
+
+That's it. No shell scripting, no GitHub Actions YAML gymnastics, no brittle regex for version parsing. Just an intention expressed clearly, with explicit constraints on what the agent is allowed to do.
+
+## What the PR Looks Like in Practice
+
+The pull requests this workflow creates are genuinely good. The PR description documents the previous version, the new version, what changed in the Astro changelog, and a list of every file touched and why. It's the kind of PR body I'd want to write myself but rarely do for a dependency bump.
+
+When there are breaking changes — and Astro has had a few across its minor versions — the agent finds them in the changelog, checks whether they apply to my configuration, and applies the fix. When the upgrade is straightforward, the PR is minimal: a version bump in `package.json` and an updated `pnpm-lock.yaml`.
+
+I've reviewed four Astro upgrade PRs since I set this up. Three merged without any changes on my part. One needed a small manual tweak to a component the agent correctly flagged as potentially affected but couldn't safely fix automatically. That's a good outcome.
+
+## Why This Feels Safe to Run
+
+I know that "an AI automatically modifying files in my production repository" sounds alarming, so I want to be direct about the security design.
+
+The agent has **read-only permissions** by default. The only write operation it can perform goes through the `create-pull-request` safe output channel, which is pre-declared in the frontmatter — not decided at runtime. The `allowed-files` list is evaluated at compile time, not by the agent. The network is allowlisted at the infrastructure layer. The agent's execution environment is sandboxed.
+
+The `.lock.yml` file is fully human-readable YAML. You can inspect exactly what GitHub Actions steps will run. `gh aw compile` generates it and you commit it — you are not running a black box.
+
+And again: **the PR is never auto-merged**. Every one lands in my PR queue for review. I can close it, push changes to it, or merge it. The agent brings the work to me; it doesn't bypass me.
+
+## Closing Thoughts
+
+I've been following GitHub Next's research projects for a while — Copilot Workspace, SpecLang, and now Agentic Workflows. What strikes me about this one is how immediately practical it is. This isn't a speculative demo. It's a workflow running on my real blog, every weekday, producing real PRs that I review and merge.
+
+The authoring experience is also genuinely pleasant. Writing automation in natural language, with constraints expressed declaratively, is a fundamentally different experience from debugging complex GitHub Actions YAML at 11pm. The intent is readable. The constraints are visible. The output is auditable.
+
+I'm already thinking about other automated dependency management workflows: automatically bumping my other Astro integrations, flagging deprecated API usage in new Tailwind releases, or auto-generating release notes. The pattern is clear and composable.
+
+GitHub Agentic Workflows is still a research demonstrator — explicitly not a product, subject to significant change — so I'd read the [announcement post](https://github.blog/ai-and-ml/automate-repository-tasks-with-github-agentic-workflows/) and the [GitHub Next project page](https://githubnext.com/) before building anything critical on top of it. But for personal projects, blogs, and exploratory use, the experience is already compelling.
+
+If you're an Astro user, or just someone who wants to stop manually chasing dependency upgrades, I'd encourage you to look at [my workflow file](https://github.com/laurentkempe/myblog/blob/main/.github/workflows/astro-upgrade.md) as a starting point. It took me an afternoon to get right, and the coffee the next morning tasted that much better for it.
+
+Have you tried GitHub Agentic Workflows? What would you automate first? I'd love to hear what use cases you're thinking about — drop a comment below.
