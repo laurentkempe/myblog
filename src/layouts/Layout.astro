@@ -92,6 +92,7 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
         </div>
         <Footer />
         <SearchModal />
+        <script type="module" src="/search-init.js"></script>
         <script is:inline>
             const theme = (() => {
               if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
