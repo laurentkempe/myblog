@@ -27,3 +27,7 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 screenshots/
+
+# search index files
+documents.json
+/scripts/docfind

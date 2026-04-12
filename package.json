@@ -4,7 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run build:search && astro build",
+    "build:search": "npm run build:search-index && npm run build:search-wasm",
+    "build:search-index": "node scripts/build-search-index.cjs",
+    "build:search-wasm": "scripts/docfind documents.json public",
     "preview": "astro preview",
     "astro": "astro",
     "create-draft": "node create-draft.js",
