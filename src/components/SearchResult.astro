@@ -1,0 +1,33 @@
+---
+/**
+ * SearchResult Component
+ * 
+ * Individual search result item.
+ * This is a template component - actual results are rendered via JavaScript.
+ */
+
+interface Props {
+  title: string;
+  href: string;
+  excerpt: string;
+}
+
+const { title, href, excerpt } = Astro.props;
+---
+
+<!-- This component serves as a template reference -->
+<!-- Actual results are rendered dynamically in search.js -->
+<template id="search-result-template">
+  <li class="group cursor-pointer px-6 py-4 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+    <a href="{href}" class="block focus:outline-none">
+      <div class="flex items-baseline gap-2">
+        <h3 class="flex-1 text-base font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+          {title}
+        </h3>
+      </div>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+        {excerpt}
+      </p>
+    </a>
+  </li>
+</template>

@@ -1,0 +1,216 @@
+---
+/**
+ * SearchModal Component
+ * 
+ * Full-screen modal overlay for search functionality.
+ * Features:
+ * - Search input with debouncing
+ * - Results display container
+ * - Loading state
+ * - Empty state
+ * - Keyboard navigation
+ * - Focus trap
+ */
+---
+
+<div
+  id="search-modal"
+  class="hidden fixed inset-0 z-50 overflow-y-auto"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="search-title"
+>
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" aria-hidden="true"></div>
+
+  <!-- Modal Container -->
+  <div class="flex min-h-screen items-start justify-center p-4 sm:p-6 md:p-20">
+    <div class="relative w-full max-w-2xl transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow-2xl transition-all">
+      <!-- Search Input -->
+      <div class="relative">
+        <svg
+          class="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
+        </svg>
+        <input
+          id="search-input"
+          type="text"
+          placeholder="Search blog posts..."
+          aria-label="Search query"
+          autocomplete="off"
+          spellcheck="false"
+          class="h-14 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
+        />
+        <!-- Close Button -->
+        <button
+          id="search-close-button"
+          type="button"
+          class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+          aria-label="Close search"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Results Container -->
+      <div class="border-t border-gray-200 dark:border-gray-700">
+        <!-- Loading State -->
+        <div id="search-loading" class="hidden px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+          <div class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-transparent"></div>
+          <span class="ml-2">Searching...</span>
+        </div>
+
+        <!-- Results List -->
+        <ul
+          id="search-results"
+          class="max-h-96 scroll-py-2 overflow-y-auto text-sm"
+          role="listbox"
+        >
+          <!-- Results will be inserted here by JavaScript -->
+        </ul>
+
+        <!-- Empty State (when no query) -->
+        <div id="search-empty" class="px-6 py-14 text-center">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+          <h3 id="search-title" class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">Search blog posts</h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Start typing to search across all blog posts
+          </p>
+          <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+            Use ↑ ↓ to navigate, Enter to select, Esc to close
+          </p>
+        </div>
+
+        <!-- No Results State -->
+        <div id="search-no-results" class="hidden px-6 py-14 text-center">
+          <svg
+            class="mx-auto h-12 w-12 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+          </svg>
+          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            No posts found for "<span id="search-no-results-query" class="font-semibold"></span>"
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let selectedIndex = -1;
+
+  // Close modal
+  function closeModal() {
+    const modal = document.getElementById('search-modal');
+    const button = document.getElementById('search-button');
+    const input = document.getElementById('search-input') as HTMLInputElement;
+    
+    if (modal) {
+      modal.classList.add('hidden');
+      button?.setAttribute('aria-expanded', 'false');
+      
+      // Clear input and results
+      if (input) input.value = '';
+      showEmptyState();
+      selectedIndex = -1;
+    }
+  }
+
+  // Show empty state
+  function showEmptyState() {
+    document.getElementById('search-empty')?.classList.remove('hidden');
+    document.getElementById('search-no-results')?.classList.add('hidden');
+    document.getElementById('search-loading')?.classList.add('hidden');
+    const results = document.getElementById('search-results');
+    if (results) results.innerHTML = '';
+  }
+
+  // Close button click
+  document.getElementById('search-close-button')?.addEventListener('click', closeModal);
+
+  // Click outside modal to close
+  document.getElementById('search-modal')?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).id === 'search-modal') {
+      closeModal();
+    }
+  });
+
+  // ESC key to close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('search-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    }
+  });
+
+  // Arrow key navigation
+  document.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('search-modal');
+    if (modal?.classList.contains('hidden')) return;
+
+    const results = document.querySelectorAll('#search-results li');
+    if (results.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIndex = (selectedIndex + 1) % results.length;
+      updateSelection(results);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIndex = selectedIndex <= 0 ? results.length - 1 : selectedIndex - 1;
+      updateSelection(results);
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      e.preventDefault();
+      const link = results[selectedIndex].querySelector('a') as HTMLAnchorElement;
+      if (link) link.click();
+    }
+  });
+
+  function updateSelection(results: NodeListOf<Element>) {
+    results.forEach((result, index) => {
+      if (index === selectedIndex) {
+        result.classList.add('bg-gray-100', 'dark:bg-gray-700');
+        result.scrollIntoView({ block: 'nearest' });
+      } else {
+        result.classList.remove('bg-gray-100', 'dark:bg-gray-700');
+      }
+    });
+  }
+</script>

@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run build:search && astro build",
+    "build": "npm run build:search && node_modules/.bin/astro build",
     "build:search": "npm run build:search-index && npm run build:search-wasm",
     "build:search-index": "node scripts/build-search-index.cjs",
     "build:search-wasm": "scripts/docfind documents.json public",
