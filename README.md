@@ -4,6 +4,42 @@
 
 [Laurent Kempé - One of the Tech Head Brothers](https://laurentkempe.com/) leveraging now [Astro](https://astro.build/).
 
+## Features
+
+### 🔍 Fast Client-Side Search
+
+The blog includes a high-performance search engine powered by [docfind](https://github.com/microsoft/docfind) - a WebAssembly-based search that runs entirely in your browser:
+
+- **⚡ Ultra-fast**: Search results in 1-3ms across 585+ blog posts
+- **🔍 Smart**: Fuzzy matching handles typos automatically
+- **📦 Compact**: 687 KB WASM index (5.20 MB source data)
+- **🚀 No Server**: Runs entirely client-side via WebAssembly
+- **⌨️ Keyboard Shortcuts**: `Cmd/Ctrl+K` to search, `↑/↓` to navigate, `Enter` to select
+- **🎨 Theme Support**: Works seamlessly in light and dark modes
+
+#### Using Search
+
+- Press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux) to open search
+- Start typing to search across all blog posts
+- Use arrow keys to navigate results
+- Press `Enter` to open a post or `ESC` to close
+
+#### Rebuilding Search Index
+
+The search index is automatically built during the site build process. To manually rebuild:
+
+```bash
+npm run build:search
+```
+
+This command:
+1. Extracts all blog posts from `src/content/posts/`
+2. Generates `documents.json` (intermediate file)
+3. Builds WASM search index using docfind CLI
+4. Outputs `public/docfind.js` and `public/docfind_bg.wasm`
+
+For more details, see the [docfind documentation](docs/README.md).
+
 ## Development Options
 
 ### 🚀 Quick Start with Dev Containers (Recommended)
