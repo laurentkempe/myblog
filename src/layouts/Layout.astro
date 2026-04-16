@@ -87,14 +87,21 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
             (() => {
               const STORAGE_KEY = "theme-preference";
               const LEGACY_STORAGE_KEY = "theme";
-              const savedTheme = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
-              const theme = savedTheme === "dark" || savedTheme === "light"
-                ? savedTheme
-                : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+              const savedTheme = localStorage.getItem(STORAGE_KEY);
+              const legacyTheme = localStorage.getItem(LEGACY_STORAGE_KEY);
+              let theme: "dark" | "light";
+
+              if (savedTheme === "dark" || savedTheme === "light") {
+                theme = savedTheme;
+              } else if (legacyTheme === "dark" || legacyTheme === "light") {
+                theme = legacyTheme;
+                localStorage.setItem(STORAGE_KEY, theme);
+                localStorage.removeItem(LEGACY_STORAGE_KEY);
+              } else {
+                theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+              }
 
               document.documentElement.classList.toggle("dark", theme === "dark");
-              localStorage.setItem(STORAGE_KEY, theme);
-              localStorage.removeItem(LEGACY_STORAGE_KEY);
             })();
         </script>
     </head>

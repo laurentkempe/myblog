@@ -42,10 +42,13 @@
       }
 
       // Load theme preference
-      const savedTheme = localStorage.getItem(this.STORAGE_KEY) ?? localStorage.getItem(this.LEGACY_STORAGE_KEY);
-      if (savedTheme) {
+      const savedTheme = localStorage.getItem(this.STORAGE_KEY);
+      const legacyTheme = localStorage.getItem(this.LEGACY_STORAGE_KEY);
+      if (savedTheme === "dark" || savedTheme === "light") {
         this.darkTheme = savedTheme === "dark";
-        localStorage.setItem(this.STORAGE_KEY, this.darkTheme ? "dark" : "light");
+      } else if (legacyTheme === "dark" || legacyTheme === "light") {
+        this.darkTheme = legacyTheme === "dark";
+        localStorage.setItem(this.STORAGE_KEY, legacyTheme);
         localStorage.removeItem(this.LEGACY_STORAGE_KEY);
       } else {
         this.darkTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
