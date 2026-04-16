@@ -95,7 +95,6 @@
     toggleTheme() {
       this.darkTheme = !this.darkTheme;
       localStorage.setItem(this.STORAGE_KEY, this.darkTheme ? "dark" : "light");
-      localStorage.removeItem(this.LEGACY_STORAGE_KEY);
     }
   }
 
