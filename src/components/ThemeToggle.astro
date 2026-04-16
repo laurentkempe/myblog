@@ -28,6 +28,7 @@
 
   class ThemeToggle extends HTMLElement {
     private readonly STORAGE_KEY = "theme-preference";
+    private readonly LEGACY_STORAGE_KEY = "theme";
     private _darkTheme = false;
     private button: HTMLButtonElement | null;
 
@@ -41,9 +42,11 @@
       }
 
       // Load theme preference
-      const savedTheme = localStorage.getItem(this.STORAGE_KEY);
+      const savedTheme = localStorage.getItem(this.STORAGE_KEY) ?? localStorage.getItem(this.LEGACY_STORAGE_KEY);
       if (savedTheme) {
         this.darkTheme = savedTheme === "dark";
+        localStorage.setItem(this.STORAGE_KEY, this.darkTheme ? "dark" : "light");
+        localStorage.removeItem(this.LEGACY_STORAGE_KEY);
       } else {
         this.darkTheme = window.matchMedia("(prefers-color-scheme: dark)").matches;
       }
@@ -92,6 +95,7 @@
     toggleTheme() {
       this.darkTheme = !this.darkTheme;
       localStorage.setItem(this.STORAGE_KEY, this.darkTheme ? "dark" : "light");
+      localStorage.removeItem(this.LEGACY_STORAGE_KEY);
     }
   }
 

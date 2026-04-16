@@ -83,6 +83,20 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
 
         <!-- Canonical URL -->
         <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).toString()} />
+        <script is:inline>
+            (() => {
+              const STORAGE_KEY = "theme-preference";
+              const LEGACY_STORAGE_KEY = "theme";
+              const savedTheme = localStorage.getItem(STORAGE_KEY) ?? localStorage.getItem(LEGACY_STORAGE_KEY);
+              const theme = savedTheme === "dark" || savedTheme === "light"
+                ? savedTheme
+                : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+              document.documentElement.classList.toggle("dark", theme === "dark");
+              localStorage.setItem(STORAGE_KEY, theme);
+              localStorage.removeItem(LEGACY_STORAGE_KEY);
+            })();
+        </script>
     </head>
     <body class="bg-white dark:bg-gray-900">
         <Header />
@@ -90,24 +104,6 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
             <slot />
         </div>
         <Footer />
-        <script is:inline>
-            const theme = (() => {
-              if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
-                return localStorage.getItem("theme");
-              }
-              if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-                return "dark";
-              }
-              return "light";
-            })();
-
-            if (theme === "light") {
-              document.documentElement.classList.remove("dark");
-            } else {
-              document.documentElement.classList.add("dark");
-            }
-            window.localStorage.setItem("theme", theme);
-        </script>
         <script>
           import "../scripts/youtube-timestamp-control.ts";
         </script>
