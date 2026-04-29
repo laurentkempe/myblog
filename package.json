@@ -24,7 +24,7 @@
     "astro-auto-import": "^0.5.1",
     "astro-icon": "^1.1.5",
     "markdown-it": "^14.1.1",
-    "tailwindcss": "^4.2.2",
+    "tailwindcss": "^4.2.4",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
