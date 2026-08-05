@@ -67,7 +67,8 @@ https://registry.npmjs.org/astro/latest
 ```
 
 Compare the latest published version of `astro` with the version currently specified
-in `package.json`. If the versions are the same, stop — there is nothing to upgrade.
+in `package.json`. If the versions are the same, call `noop` with the message
+"Astro is already up to date" and stop — there is nothing to upgrade.
 
 ## Step 1.5: Check for Existing Upgrade PRs
 
@@ -77,6 +78,7 @@ Before proceeding, search for open PRs in this repository that:
 - Have a title containing "upgrade astro"
 
 If an open PR already exists **for the same version** you are about to upgrade to,
+call `noop` with the message "Upgrade PR already exists for this version" and
 **stop immediately** — the upgrade PR already exists.
 
 If open PRs exist **for an older version**, note their PR numbers. You will close them
