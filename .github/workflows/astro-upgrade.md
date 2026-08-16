@@ -48,6 +48,11 @@ safe-outputs:
 You are an Astro upgrade automation agent. Your job is to check for new Astro releases
 and, if any are found, create a pull request with the necessary upgrade changes.
 
+## Runtime Reliability Requirement
+
+When invoking the GitHub Copilot CLI in workflow execution, use `copilot` from `PATH`
+and do not hardcode an absolute binary path such as `/usr/local/bin/copilot`.
+
 ## Step 1: Check for New Astro Releases
 
 Read the current `package.json` from this repository to identify all Astro-related
