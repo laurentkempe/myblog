@@ -480,6 +480,13 @@ jobs:
         env:
           GH_HOST: github.com
           GH_AW_COMPILED_VERSION: v0.84.3
+      - name: Ensure Copilot CLI at the harness path
+        run: |
+          set -euo pipefail
+          if [ ! -x /usr/local/bin/copilot ]; then
+            target="$(command -v copilot || true)"
+            [ -n "$target" ] && sudo ln -sf "$target" /usr/local/bin/copilot
+          fi
       - name: Install AWF binary
         run: bash "${RUNNER_TEMP}/gh-aw/actions/install_awf_binary.sh" v0.27.43 --rootless
       - name: Determine automatic lockdown mode for GitHub MCP Server
@@ -1394,6 +1401,13 @@ jobs:
         env:
           GH_HOST: github.com
           GH_AW_COMPILED_VERSION: v0.84.3
+      - name: Ensure Copilot CLI at the harness path
+        run: |
+          set -euo pipefail
+          if [ ! -x /usr/local/bin/copilot ]; then
+            target="$(command -v copilot || true)"
+            [ -n "$target" ] && sudo ln -sf "$target" /usr/local/bin/copilot
+          fi
       - name: Install AWF binary
         run: bash "${RUNNER_TEMP}/gh-aw/actions/install_awf_binary.sh" v0.27.43
       - name: Execute GitHub Copilot CLI

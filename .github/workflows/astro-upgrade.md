@@ -8,6 +8,14 @@ permissions:
   pull-requests: read
   issues: read
   copilot-requests: write
+pre-agent-steps:
+  - name: Ensure Copilot CLI at the harness path
+    run: |
+      set -euo pipefail
+      if [ ! -x /usr/local/bin/copilot ]; then
+        target="$(command -v copilot || true)"
+        [ -n "$target" ] && sudo ln -sf "$target" /usr/local/bin/copilot
+      fi
 tools:
   github:
     toolsets: [default]
