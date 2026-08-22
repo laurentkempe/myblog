@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import tailwindcss from "@tailwindcss/vite";
 import icon from 'astro-icon';
 // Should come before mdx import
@@ -13,6 +14,11 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   site: 'https://laurentkempe.com',
+  markdown: {
+    // astro-auto-import currently only supports the unified Markdown processor,
+    // so keep using it instead of the new default Sätteri processor introduced in Astro 7.
+    processor: unified(),
+  },
   integrations: [
     icon(),
     AutoImport({
