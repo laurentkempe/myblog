@@ -1,8 +1,8 @@
 ---
 name: Astro Upgrade
-description: Daily check for new Astro releases and automatic upgrade PR creation
+description: Weekly check for new Astro releases and automatic upgrade PR creation
 on:
-  schedule: daily on weekdays
+  schedule: "0 5 * * 6" # Saturday 06:00 CET (05:00 UTC)
 permissions:
   contents: read
   pull-requests: read
@@ -37,6 +37,7 @@ safe-outputs:
     allowed-files:
       - package.json
       - pnpm-lock.yaml
+      - pnpm-workspace.yaml
       - .github/workflows/astro-upgrade.lock.yml
       - astro.config.mjs
       - tsconfig.json
