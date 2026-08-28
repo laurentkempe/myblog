@@ -1,6 +1,6 @@
 ---
 name: Astro Upgrade
-description: Daily check for new Astro releases and automatic upgrade PR creation
+description: Weekly check for new Astro releases and automatic upgrade PR creation
 on:
   schedule: "0 5 * * 6" # Saturday 06:00 CET (05:00 UTC)
 permissions:
