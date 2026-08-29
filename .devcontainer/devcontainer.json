@@ -1,16 +1,16 @@
 {
     "name": "Laurent's Blog - Astro Development",
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bullseye",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bullseye@sha256:764c83a4bd2000ca02a9e221cff0b2fe3b4aa77aeb418ac00d8d15ef0fdd2635",
     "features": {
-        "ghcr.io/devcontainers/features/git:1": {},
-        "ghcr.io/devcontainers/features/github-cli:1": {}
+        "ghcr.io/devcontainers/features/git:1@sha256:fd75977de13a9979000e0e78baf949adb0ca71d2398995fa22e0a36d7e7e7fe2": {},
+        "ghcr.io/devcontainers/features/github-cli:1@sha256:94879eebb6a0e4e2f197de9f12db7427cb4a25b82d93c55239ce8c8fc394a1b4": {}
     },
     "hostRequirements": {
         "cpus": 2,
         "memory": "4gb",
         "storage": "32gb"
     },
-    "onCreateCommand": "npm install -g pnpm@latest",
+    "onCreateCommand": "npm install -g pnpm@11.24.0",
     "postCreateCommand": "pnpm install",
     "postStartCommand": "echo 'Dev Container is ready! Run: pnpm run dev'",
     "forwardPorts": [4321],
