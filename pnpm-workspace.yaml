@@ -2,3 +2,7 @@ allowBuilds:
   '@tailwindcss/oxide': false
   esbuild: true
   sharp: true
+
+# Remove once Vite's resolved optional peer no longer selects vulnerable yaml versions.
+overrides:
+  yaml: 2.8.3
