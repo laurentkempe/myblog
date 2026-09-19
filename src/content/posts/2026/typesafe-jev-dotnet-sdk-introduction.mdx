@@ -1,0 +1,240 @@
+---
+title: 'TypeSafe''s Jev AI Model in .NET: A Community SDK for Structured AI Output in C#'
+permalink: /2026/09/19/typesafe-jev-dotnet-sdk-introduction/
+date: 09/19/2026 18:27:12
+disqusIdentifier: 20260919182712
+coverSize: partial
+tags: ["C#", ".NET", "AI"]
+coverCaption: 'Zicavo, Pont de Camera, Corse'
+coverImage: 'https://live.staticflickr.com/65535/55537756388_d3c0b5f063_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/55537756388_7d7864d84e_q.jpg'
+---
+Most AI tooling I've used in the last couple of years follows the same pattern. You send a prompt, get back text, and then write brittle code to turn that text into something your app can actually use. JSON mode helps. Function calling helps more. Even then, you are still asking a model trained to write for people to produce machine-readable output, and hoping it doesn't wrap the JSON in a markdown fence, drop a field, or invent a category that is not in your enum.
+
+Two days ago I found [TypeSafe](https://typesafe.ai) and its model, Jev. It takes a different approach. Instead of generating text, it evaluates typed questions against a piece of input and returns structured, typed decisions. No parsing. No "please respond only with valid JSON." I liked the idea enough that I had GitHub Copilot with HydraFusion port TypeSafe's official TypeScript SDK to .NET 11 and C# 15. This post is part introduction to the model and part walkthrough of the ported TypeSafe .NET SDK, so you can try it in C# yourself.
+
+## What TypeSafe and Jev actually are
+
+TypeSafe calls what it is building "Machine Native Intelligence". That is a way of saying the model is designed for software-to-software and AI-to-AI interactions, not for chatting with a person. A chat model is optimized to produce a response that reads well. Jev is optimized to produce a calibrated decision that your code can act on.
+
+Jev is TypeSafe's flagship model and the first in a class they call System One. The name nods to Daniel Kahneman's Thinking, Fast and Slow. System 1 is the brain's fast, intuitive judgment engine. System 2 is slower and more deliberate. Jev is built to be your application's System 1: a narrow judgment call embedded inside a larger workflow that can call a slower reasoning model when it genuinely needs to think something through.
+
+Under the hood, TypeSafe frames this as a third era of model post-training. RLHF, or Reinforcement Learning from Human Feedback, gave us ChatGPT-style chat models tuned to produce responses that humans prefer. RLVR, or Reinforcement Learning with Verifiable Rewards, gave us reasoning models that are better at math and other benchmark-heavy tasks, but they are slower and more expensive. TypeSafe's own method, RLCD, or Reinforcement Learning for Calibrated Decisions, optimizes for something else again: decisions with well-calibrated probabilities rather than text a person finds convincing. The docs make a sharp point here: a response can be persuasive to a human without being reliable enough for unattended automation. That is the gap RLCD is trying to close.
+
+## State and the three primitives: Noul, Choice, and Score
+
+Every call to Jev has the same shape. You give it a state, which is the content to evaluate, and one or more questions to ask about it. The state can be a string, a JSON object, or an array of text. Each question is typed as one of three primitives:
+
+- Noul: "Is this statement true?" A yes or no probability returned as a single number between 0 and 1. Use it for binary judgments like, "Does this message request a refund?" or "Is this a defect report?"
+- Choice: "Choose an option from a list." Use it for unordered categories like routing a ticket to a department, classifying a document type, or detecting a language.
+- Score: "Score the state on a rubric." Use it for ordinal judgments like severity, urgency, frustration, or skill level. A score answer can fall between two defined levels, not just land exactly on one.
+
+The shape of the answer matters. The TypeSafe docs are pretty explicit about this. Forcing an ordinal judgment like urgency into a vague Noul, or forcing a genuinely unordered category into a Score, produces awkward and hard-to-interpret answers. Match the primitive to the decision you actually want.
+
+You can send several questions of different types in a single call, and they are evaluated in parallel against the same state. That means adding more questions barely changes latency. It also avoids the context rot that comes from packing everything into one giant prompt.
+
+## Confidence scores and the act, confirm, escalate pattern
+
+Choice and Score answers come back with a confidence value between 0 and 1. That confidence is derived from the shape of the probability distribution the model produces. A peaked distribution means the model is fairly sure. A flatter one means it is genuinely unsure. Noul does not have a separate confidence field, because the probability itself carries that signal.
+
+High confidence means act automatically. Medium confidence means proceed cautiously, confirm, or flag for review. Low confidence means do not act and escalate. They give a nice example with a banking assistant, where checking an account balance can tolerate lower confidence than approving a wire transfer. The point that stuck with me is that a model that can say "I don't know" is often more trustworthy than one that always produces a confident-sounding answer, whether it is right or not.
+
+## Atomic questions, not agents
+
+This philosophy is worth calling out because it cuts against a lot of the current "agentic AI" framing. TypeSafe is not trying to sell you an autonomous agent that loops and decides its own next action. The pitch is the opposite: keep control flow in your regular code, and use Jev only for narrow, atomic, structured judgments that software can branch on, sort by, and route with.
+
+That also means decomposing broad, compound questions into smaller signals. Instead of one giant "is this spam?" Noul, the docs suggest breaking it into several independent checks, like `requests_credentials`, `offers_unexpected_reward`, `creates_time_pressure`, `sender_identity_mismatch`, `link_domain_mismatch`, and `disguises_link_destination`, then combining them with your own weighting logic in code. That gives you something inspectable and tunable instead of a black box that you cannot reason about six months later.
+
+## Why "I" built a TypeSafe .NET SDK
+
+TypeSafe ships an official TypeScript SDK, but nothing for .NET. As, I wanted to experiement with TypeSafe and Jev in C#, I asked GitHub Copilot with HydraFusion to port it while reading the docs to understand the concepts. The result is an unofficial, vibe coded and not supported community TypeSafe .NET SDK, targeting .NET 11.0 and C# 15, with zero dependencies.
+
+<Alert mode="warning">
+This is an unofficial community port and is not supported by TypeSafe. Use it at your own risk.
+</Alert>
+
+A few design choices are worth calling out:
+
+- `TypeSafeClient` implements `IDisposable` and is configured with `TypeSafeClientOptions`. That includes the API key, base URL, model, timeout, retry policy, logger, and optional HttpClient.
+- `Answer`s are a polymorphic C# 15 `closed record` hierarchy: `NoulAnswer`, `ChoiceAnswer`, and `ScoreAnswer` all derive from `Answer`. They deserialize correctly from JSON using `System.Text.Json` based on the discriminator the API returns. You get a real, pattern-matchable C# type back instead of a loosely typed blob.
+- `Question`s are built with static factories like `Questions.Noul(...)`, `Questions.Choice(...)`, and `Questions.Score(...)`, rather than a pile of constructors. That keeps the call site close to the concept it represents.
+- The client includes built-in retry with exponential backoff and jitter. It honors Retry-After and retry-after-ms headers, and it exposes a typed error hierarchy such as `BadRequestError`, `RateLimitError`, `ApiTimeoutError`, and friends, so you can handle failure modes explicitly instead of catching a generic exception.
+- Configuration falls back sensibly: explicit option value, then environment variable, then a default. The defaults are https://api.typesafe.ai, model jev-latest, and a 10 second timeout. The environment variables are `TYPESAFE_API_KEY`, `TYPESAFE_BASE_URL`, `TYPESAFE_DEFAULT_MODEL`, and `TYPESAFE_LOG_LEVEL`.
+
+To be clear, again, this is a vibe coded port of the TypeSafe TypeScript SDK for .NET, not an official TypeSafe project. It follows the shape of their TypeScript SDK closely, but if you are building something production-critical, you should still cross-check behavior against the official docs and API.
+
+## A minimal C# example of structured AI output
+
+Here is the smallest useful call: one Noul question, one Choice question, and one Score question, all against the same piece of state.
+
+```csharp
+#:project src/TypeSafe/TypeSafe.csproj
+
+using TypeSafe;
+
+using var client = new TypeSafeClient(new TypeSafeClientOptions
+{
+    ApiKey = "your-api-key"
+});
+
+var result = await client.SystemOneAsync(new SystemOneRequest
+{
+    State = new { text = "Evaluate this statement." },
+    Questions = new Dictionary<string, Question>
+    {
+        ["safe"] = Questions.Noul(
+            instructions: "Assess safety.",
+            criteria: new NoulCriteria
+            {
+                True = "The statement is safe.",
+                False = "The statement is unsafe."
+            }),
+        ["topic"] = Questions.Choice(
+            instructions: new { task = "Choose a topic." },
+            criteria: new Dictionary<string, object?>
+            {
+                ["science"] = "Scientific content",
+                ["other"] = null
+            }),
+        ["quality"] = Questions.Score(
+            instructions: "Rate quality.",
+            criteria: ["poor", new { label = "good" }, "excellent"])
+    }
+});
+
+var safeProbability = ((NoulAnswer)result.Answers["safe"]).Noul;
+Console.WriteLine($"Safe probability: {safeProbability}");
+```
+
+Notice that instructions and criteria accept plain strings or structured objects. That is not an accident. TypeSafe's API treats JSON-shaped instructions as first-class, and that matters once your questions need more precision than a sentence can express.
+
+```
+C:\Program Files\dotnet\dotnet.exe run --file D:\projects\typesafe\dotnetsdk\Sample.cs
+
+Safe probability: 0.85
+```
+
+## A more realistic example: AI classification for support ticket triage in C#
+
+This is closer to how I would actually use it: one call that decides whether a ticket is a bug, which team should own it, and how urgent it is, all in parallel against the same ticket state.
+
+```csharp
+var state = new
+{
+    ticket = new
+    {
+        subject = "Checkout fails with a 500 error",
+        body = "Every attempt to pay with a saved card returns an error page. This started this morning.",
+        customer_tier = "enterprise",
+    },
+};
+
+var request = new SystemOneRequest
+{
+    State = state,
+    Questions = new Dictionary<string, Question>
+    {
+        ["is_bug"] = Questions.Noul(
+            "Does the ticket describe a defect in the product?",
+            new NoulCriteria
+            {
+                True = "The customer reports broken or incorrect behaviour.",
+                False = "The ticket is a question, feature request, or billing issue.",
+            }),
+
+        ["category"] = Questions.Choice(
+            "Which team should own this ticket?",
+            new Dictionary<string, object?>
+            {
+                ["billing"] = "Payments, invoices, and refunds.",
+                ["platform"] = "Availability, errors, and performance of the website.",
+                ["account"] = "Login, permissions, and provisioning.",
+            }),
+
+        ["urgency"] = Questions.Score(
+            "How urgent is this ticket?",
+            ["not urgent", "low", "medium", "high", "drop everything"]),
+    },
+};
+
+var result = await client.SystemOneAsync(request);
+
+foreach (var (name, answer) in result.Answers)
+{
+    var description = answer switch
+    {
+        NoulAnswer noul => $"noul {noul.Noul:P1}",
+        ChoiceAnswer choice => $"{choice.Choice} (confidence {choice.Confidence:P1})",
+        ScoreAnswer score => $"{score.Score:0.##} (confidence {score.Confidence:P1})"
+    };
+    Console.WriteLine($"{name}: {description}");
+}
+```
+
+That switch expression is doing real work. You get an exhaustively typed answer per question, and then you decide in ordinary C# what counts as high confidence for auto-routing and what should be handed to a human. The sample app in `samples/TypeSafe.Sample/Program.cs` extends this exact scenario and also shows how to map each SDK error type to a distinct process exit code.
+
+
+```
+D:/projects/typesafe/dotnetsdk/samples/TypeSafe.Sample/bin/Debug/net11.0/TypeSafe.Sample.exe
+Base URL      : https://api.typesafe.ai/
+Default model : jev-latest
+
+Available models
+----------------
+[typesafe:information] GET /v1/models returned 200.
+  jev-latest       2026-09-10T18:38:01.391457+00:00 The latest iteration of TypeSafe's System One Model: Jev
+  jev-preview      2026-09-10T18:39:06.057655+00:00 A preview version of `jev-latest`: should be better in most ways
+
+[typesafe:information] POST /v1/systemone returned 200.
+Evaluation
+----------
+  model      : jev-1.13.0
+  request id : req_01a0ba41ebed7836b663dff59e755a6b
+  is_bug     : noul 97.0%
+  category   : billing (confidence 37.0%) [platform 42%, billing 58%, account 0%]
+  urgency    : 3.58 (confidence 65.0%) legend: {"0":"not urgent","1":"low","2":"medium","3":"high","4":"drop everything"}
+  usage      : 506 in / 70 out
+```
+
+## Where Jev is actually useful
+
+The docs group use cases into a few buckets: AI automation software, real-time applications, AI map-reduce over large datasets, universal verification, and harness engineering. In practical terms, that covers:
+
+- Customer support: triage, routing, urgency scoring, refund-eligibility checks
+- Trust and safety or moderation: decomposed spam and phishing detection, policy-violation checks
+- Fraud or financial crime: risk-scaled decisions where confidence thresholds gate automatic action versus escalation
+- E-commerce: product taxonomy classification, listing quality checks
+- Insurance and legal or compliance work: structured field verification against policy text
+- Data extraction: pulling and validating structured fields out of unstructured documents
+- Search, retrieval, and ranking: scoring relevance or ordering candidates at low latency
+- Model routing and LLM guardrails: deciding whether a request needs a heavier reasoning model or should be blocked outright
+
+If your task looks like classification, detection, scoring, routing, ranking, or verification, and you would normally ask an LLM to output JSON and hope for the best, this is worth a look.
+
+## Practical notes on using Jev in production
+
+A few things are worth knowing before you try it:
+
+- Jev is currently text-only. It handles strings, JSON, and arrays of text, but not images, audio, or video.
+- English gets the best accuracy. Other languages, including CJK scripts, trail behind right now.
+- Typical latency seems super fast per call, regardless of how many questions you attach. It seems fast enough to live on a request path instead of only in a batch job.
+- An 80 percent probability means roughly 80 percent of similarly scored predictions are correct across many calls, not that any single answer is 80 percent "sure" in a way you can rely on individually.
+
+## Try TypeSafe's .NET SDK yourself
+
+If you are a .NET developer curious about structured AI decisions without the parsing dance, grab the sample app, set `TYPESAFE_API_KEY`, and run the ticket-triage example against your own data. Swap in your own state shape, add or remove questions, and watch how little response time changes as you do it. It is a genuinely different way to bring a model into a codebase, and it is worth ten minutes of your time even if you end up sticking with your current LLM setup for everything else. Where could your application benefit from replacing fragile JSON parsing with a calibrated, structured decision, let me know in the comments?
+
+You can get all the code on GitHub
+<GitHubCard user="laurentkempe" repo="TypeSafeJevPlayground" />
+<br/>
+
+# References
+
+- [TypeSafe Jev Documentation](https://docs.typesafe.ai/introduction)
+- [System One Concept](https://docs.typesafe.ai/concepts/system-one)
+- [How to build with TypeSafe](https://docs.typesafe.ai/concepts/how-to-build-with-system-one#example-decompose-spam-detection)
+- [Confidence-gated routing - Example: voice banking commands](https://docs.typesafe.ai/patterns/confidence-routing#example-voice-banking-commands)
+- [Atomic Questions Composed in Code](https://docs.typesafe.ai/introduction#atomic-questions-composed-in-code)
+- [Example use cases](https://docs.typesafe.ai/concepts/use-case-map)
+- [Models - Current Models](https://docs.typesafe.ai/models#current-models)
+- [GitHub Copilot Project HydraFusion: Frontier quality via multi-model orchestration](https://github.blog/ai-and-ml/github-copilot/project-hydrafusion-frontier-quality-via-multi-model-orchestration/)
