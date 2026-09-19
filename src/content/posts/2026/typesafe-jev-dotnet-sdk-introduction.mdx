@@ -13,6 +13,8 @@ Most AI tooling I've used in the last couple of years follows the same pattern. 
 
 Two days ago I found [TypeSafe](https://typesafe.ai) and its model, Jev. It takes a different approach. Instead of generating text, it evaluates typed questions against a piece of input and returns structured, typed decisions. No parsing. No "please respond only with valid JSON." I liked the idea enough that I had GitHub Copilot with HydraFusion port TypeSafe's official TypeScript SDK to .NET 11 and C# 15. This post is part introduction to the model and part walkthrough of the ported TypeSafe .NET SDK, so you can try it in C# yourself.
 
+{/* <!-- more --> */}
+
 ## What TypeSafe and Jev actually are
 
 TypeSafe calls what it is building "Machine Native Intelligence". That is a way of saying the model is designed for software-to-software and AI-to-AI interactions, not for chatting with a person. A chat model is optimized to produce a response that reads well. Jev is optimized to produce a calibrated decision that your code can act on.
