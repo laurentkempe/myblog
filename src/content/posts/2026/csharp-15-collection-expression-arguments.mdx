@@ -1,0 +1,157 @@
+---
+title: "C# 15 Collection Expression Arguments: What's New vs C# 12 and 13"
+permalink: /2026/09/26/csharp-15-collection-expression-arguments/
+date: 09/26/2026 11:40:45
+disqusIdentifier: 20260926114045
+coverSize: partial
+tags: ["C#", ".NET"]
+coverCaption: 'Route de Chisa, Corse, France'
+coverImage: 'https://live.staticflickr.com/65535/55537401520_49f5b9e54b_h.jpg'
+thumbnailImage: 'https://live.staticflickr.com/65535/55537401520_546d05ffe3_q.jpg'
+---
+C# 15 brings a focused upgrade to collection expressions: **collection expression arguments** via a leading `with(...)` element.
+
+If you're already using C# 12 collection expressions, this addresses a common friction point: you can now pass constructor/factory-style arguments inline inside `[...]`.
+{/* <!-- more --> */}
+
+## C# 12 vs C# 13 vs C# 15 (quick comparison)
+
+| Version | What changed | What it did **not** change |
+|---|---|---|
+| **C# 12** | Added collection expressions (`[...]`) and spread (`..`) | No inline way to pass constructor/factory arguments |
+| **C# 13** | Expanded `params` collections for method parameters | Did not change collection expression construction syntax |
+| **C# 14** | ❌ No collection expression changes |
+| **C# 15** | Adds `with(...)` as the first element in collection expressions | Does not make arrays/spans accept collection arguments |
+
+**Keep this distinction explicit:**
+
+- **C# 13** improves **method parameter** shape (`params` collections).
+- **C# 15** improves **collection construction** syntax (`with(...)` in `[...]`).
+
+## Recap: what C# 12 introduced
+
+C# 12 gave us:
+
+```csharp
+int[] values = [1, 2, 3];
+int[] all = [0, ..values, 4];
+```
+
+This made collection initialization easier to read, but it still didn't let you pass capacity/comparer/factory options inline.
+
+## Recap: what C# 13 introduced
+
+C# 13 expanded the `params` modifier to work with collection types beyond arrays:
+
+```csharp
+// params now accepts Span<T>, ReadOnlySpan<T>, and collection interfaces
+public void LogValues(params Span<int> numbers) { ... }
+LogValues(1, 2, 3);  // Works the same way
+```
+
+## What C# 15 adds to collection expressions
+
+In C# 15, a collection expression can begin with `with(...)`:
+
+```csharp
+List<int> numbers = [with(capacity: 100), 1, 2, 3, ..more];
+```
+
+`with(...)` supplies arguments for collection creation where supported (constructor binding, builder `Create(...)`, curated interface signatures).
+
+### Syntax rule: `with(...)` must be first
+
+✅ Valid:
+
+```csharp
+[with(capacity: 100), ..items]
+```
+
+❌ Invalid:
+
+```csharp
+[..items, with(capacity: 100)]
+```
+
+## Practical examples
+
+### 1) Pre-size collections for readability and intent
+
+```csharp
+List<int> ids = [with(capacity: 256), ..sourceIds];
+```
+
+This keeps initialization in one expression and makes your intent obvious.
+
+### 2) Collection builder scenarios
+
+For collection builders, C# 15 supports extra parameters to `Create(...)` **before** the final `ReadOnlySpan<T>` parameter.
+
+Conceptual shape:
+
+```csharp
+static MyCollection<T> Create(SomeOption option, ReadOnlySpan<T> items)
+```
+
+Usage:
+
+```csharp
+Tags tags = [with(StringComparer.OrdinalIgnoreCase), "CSharp", "CSHARP", "csharp", "dotnet"];
+Tags newTags = [with(), "CSharp", "CSHARP", "csharp", "dotnet"];
+Tags oldTags = ["CSharp", "CSHARP", "csharp", "dotnet"];
+
+[CollectionBuilder(typeof(Tags), nameof(Create))]
+internal sealed class Tags(string[] values, StringComparer comparer) : HashSet<string>(values, comparer)
+{
+    public static Tags Create(StringComparer comparer, ReadOnlySpan<string> items) => new([.. items], comparer);
+
+    public static Tags Create(ReadOnlySpan<string> items) => new([.. items], StringComparer.OrdinalIgnoreCase);
+}
+```
+
+## Limitations and gotchas
+
+### Arrays and spans are out of scope
+
+If your target is an array or span, `with(...)` is not supported.
+
+### `dynamic` arguments are disallowed
+
+Arguments inside `with(...)` cannot be `dynamic`.
+
+### `with(...)` does not influence type inference/conversion
+
+By design, `with(...)` arguments are ignored for conversion/type inference decisions (aligned with `new(...)` precedent).
+
+### Normal overload and ambiguity rules still apply
+
+Constructor and builder overload resolution still applies. If more than one candidate matches, ambiguity is still possible.
+
+## Why C# 15 collection expression arguments matter
+
+C# 15 improves single-expression collection initialization by enabling:
+
+- Clearer intent (`capacity`, options, comparer-like inputs where supported)
+- Fewer split initialization statements
+- Cleaner API usage for custom collection builders
+
+## Adoption checklist
+
+1. Use `with(...)` where intent is clear (capacity/options).
+2. Don't use it for arrays/spans (unsupported).
+3. Keep the version mental model clear:
+   - **C# 13** = `params` calling shape
+   - **C# 15** = collection construction shape
+4. Validate ambiguous constructor/builder APIs in your own types.
+
+## Conclusion
+
+C# 15 collection expression arguments are a targeted evolution of C# 12 collection expressions: same `[...]` model, now with first-element `with(...)` for constructor/builder/interface-target arguments.
+
+In practice, that means clearer, more expressive initialization with fewer statements—while still respecting the boundaries: first element only, no `dynamic`, and no array/span support.
+
+## References
+
+- [What's new in C# 15 - Collection expression arguments](https://learn.microsoft.com/en-us/dotnet/csharp/whats-new/csharp-15#collection-expression-arguments)
+- [Collection expressions](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/operators/collection-expressions#collection-expression-arguments)
+
