@@ -1,0 +1,432 @@
+---
+interface ReaderDocument {
+  id: string;
+  location: 'new' | 'later' | 'shortlist' | 'archive';
+  title?: string | null;
+  author?: string | null;
+  site_name?: string | null;
+  category?: string | null;
+  reading_progress?: number | null;
+  last_opened_at?: string | null;
+  image_url?: string | null;
+  source_url?: string | null;
+  url?: string | null;
+}
+
+interface Props {
+  snapshot: {
+    generatedAt: string;
+    documents: ReaderDocument[];
+  };
+}
+
+const { snapshot } = Astro.props;
+
+function parseDate(value: string | null | undefined): Date | null {
+  if (!value || !/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))?$/.test(value)) return null;
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+  const calendar = new Date(0);
+  calendar.setUTCFullYear(year, month - 1, day);
+  calendar.setUTCHours(0, 0, 0, 0);
+  if (calendar.getUTCFullYear() !== year || calendar.getUTCMonth() !== month - 1 || calendar.getUTCDate() !== day) return null;
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? date : null;
+}
+
+const generatedAt = parseDate(snapshot.generatedAt);
+if (!generatedAt || !snapshot.generatedAt.endsWith('Z')) {
+  throw new Error('NowReading requires a valid UTC ISO generatedAt timestamp.');
+}
+if (!Array.isArray(snapshot.documents)) {
+  throw new Error('NowReading requires a documents array.');
+}
+
+const categories = new Map([
+  ['article', { label: 'Articles', icon: '\u{1F4C4}' }],
+  ['epub', { label: 'Books', icon: '\u{1F4DA}' }],
+  ['tweet', { label: 'Tweets', icon: '\u{1F426}' }],
+  ['rss', { label: 'RSS', icon: '\u{1F4F0}' }],
+  ['email', { label: 'Email', icon: '\u2709\uFE0F' }],
+  ['pdf', { label: 'PDFs', icon: '\u{1F4D1}' }],
+  ['video', { label: 'Videos', icon: '\u{1F3AC}' }],
+  ['podcast', { label: 'Podcasts', icon: '\u{1F399}' }],
+  ['audiobook', { label: 'Audiobooks', icon: '\u{1F3A7}' }],
+  ['note', { label: 'Notes', icon: '\u{1F4DD}' }],
+  ['highlight', { label: 'Highlights', icon: '\u{1F58D}' }],
+]);
+
+function safeUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const parsed = new URL(value);
+    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return null;
+    if ([...parsed.searchParams.keys()].some(key => /^(?:access[_-]?token|auth(?:orization)?|api[_-]?key|password|secret|signature|token)$/i.test(key))) return null;
+    return parsed.href;
+  } catch (error) {
+    if (error instanceof TypeError) return null;
+    throw error;
+  }
+}
+
+function isReaderUrl(url: string): boolean {
+  const host = new URL(url).hostname;
+  return host === 'read.readwise.io' || host === 'readwise.io' || host.endsWith('.readwise.io');
+}
+
+function titleHue(title: string): number {
+  let hash = 0;
+  for (const character of title) hash = (hash * 31 + character.codePointAt(0)!) | 0;
+  return ((hash % 360) + 360) % 360;
+}
+
+const dayKey = (date: Date) => date.toISOString().slice(0, 10);
+const formatDate = (date: Date, options: Intl.DateTimeFormatOptions) =>
+  date.toLocaleDateString('en-US', { ...options, timeZone: 'UTC' });
+const warnings = { undated: 0, invalidProgress: 0, rejectedLinks: 0, missingTitles: 0, duplicates: 0 };
+const seen = new Map<string, string>();
+const documents = snapshot.documents.flatMap(document => {
+  if (!document || typeof document.id !== 'string' || !document.id.trim()) {
+    throw new Error('NowReading document IDs must be nonempty strings.');
+  }
+  if (!['new', 'later', 'shortlist', 'archive'].includes(document.location)) {
+    throw new Error(`NowReading has an unsupported location for document ${document.id}.`);
+  }
+  const signature = JSON.stringify([
+    document.location, document.title, document.author, document.site_name, document.category,
+    document.reading_progress, document.last_opened_at, document.image_url, document.source_url, document.url,
+  ]);
+  if (seen.has(document.id)) {
+    if (seen.get(document.id) !== signature) {
+      throw new Error(`NowReading has conflicting copies of document ${document.id}; recollect its metadata.`);
+    }
+    warnings.duplicates++;
+    return [];
+  }
+  seen.set(document.id, signature);
+  const progress = document.reading_progress;
+  if (typeof progress !== 'number' || !Number.isFinite(progress) || progress < 0 || progress > 1) {
+    warnings.invalidProgress++;
+    return [];
+  }
+  if (!(document.location === 'archive' ? progress > 0.9 : progress >= 0.05 && progress <= 0.99)) return [];
+  const openedAt = parseDate(document.last_opened_at);
+  if (!openedAt) warnings.undated++;
+  const title = document.title?.trim() || 'Untitled';
+  if (!document.title?.trim()) warnings.missingTitles++;
+  const source = safeUrl(document.source_url);
+  const reader = safeUrl(document.url);
+  const image = safeUrl(document.image_url);
+  warnings.rejectedLinks += [
+    [document.source_url, source], [document.url, reader], [document.image_url, image],
+  ].filter(([original, safe]) => original && !safe).length;
+  const publicSource = source && !isReaderUrl(source) ? source : null;
+  const publicUrl = reader && !isReaderUrl(reader) ? reader : null;
+  const href = publicSource || publicUrl || source || reader || `https://read.readwise.io/read/${encodeURIComponent(document.id)}`;
+  const category = document.category?.trim().toLowerCase() || 'other';
+  return [{
+    id: document.id, location: document.location, title,
+    author: document.author?.trim() || document.site_name?.trim() || '',
+    category, progress, openedAt, href, image, hue: titleHue(title),
+    categoryInfo: categories.get(category) || { label: category === 'other' ? 'Other' : category, icon: '\u{1F4D6}' },
+  }];
+}).sort((a, b) => (b.openedAt?.getTime() ?? -Infinity) - (a.openedAt?.getTime() ?? -Infinity) || a.id.localeCompare(b.id));
+
+const current = documents.filter(document => document.location !== 'archive');
+const finished = documents.filter(document => document.location === 'archive');
+const months = new Map<string, { label: string; items: typeof finished }>();
+for (const document of finished) {
+  const key = document.openedAt ? dayKey(document.openedAt).slice(0, 7) : 'unknown';
+  if (!months.has(key)) {
+    months.set(key, {
+      label: document.openedAt ? formatDate(document.openedAt, { month: 'long', year: 'numeric' }) : 'Date unknown',
+      items: [],
+    });
+  }
+  months.get(key)!.items.push(document);
+}
+
+const filters = new Map([...categories].slice(0, 5));
+for (const document of finished) filters.set(document.category, document.categoryInfo);
+const today = new Date(generatedAt);
+today.setUTCHours(0, 0, 0, 0);
+const start = new Date(today);
+start.setUTCDate(1);
+start.setUTCMonth(start.getUTCMonth() - 5);
+const gridStart = new Date(start);
+gridStart.setUTCDate(gridStart.getUTCDate() - (gridStart.getUTCDay() + 6) % 7);
+const gridEnd = new Date(today);
+gridEnd.setUTCDate(gridEnd.getUTCDate() + (7 - gridEnd.getUTCDay()) % 7);
+const counts = new Map<string, number>();
+for (const document of finished) {
+  if (!document.openedAt) continue;
+  const key = dayKey(document.openedAt);
+  if (key >= dayKey(start) && key <= dayKey(today)) counts.set(key, (counts.get(key) || 0) + 1);
+}
+const weeks: { label: string; days: { key: string; count: number; active: boolean; label: string }[] }[] = [];
+for (let cursor = new Date(gridStart); cursor <= gridEnd;) {
+  const week = { label: '', days: [] as typeof weeks[number]['days'] };
+  for (let day = 0; day < 7; day++) {
+    const key = dayKey(cursor);
+    const active = cursor >= start && cursor <= today;
+    const count = counts.get(key) || 0;
+    if (active && (cursor.getUTCDate() === 1 || key === dayKey(start))) {
+      week.label = formatDate(cursor, { month: 'short' });
+    }
+    week.days.push({
+      key, count, active,
+      label: `${formatDate(cursor, { month: 'long', day: 'numeric', year: 'numeric' })}: ${active ? `${count} finished ${count === 1 ? 'item' : 'items'} last opened` : 'outside snapshot window'}`,
+    });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  weeks.push(week);
+}
+const intensity = (count: number) => count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : count <= 6 ? 3 : 4;
+const dated = finished.filter(document => document.openedAt !== null);
+const warningMessages = [
+  warnings.undated ? `Displayed items with missing or invalid reading dates: ${warnings.undated}. They are excluded from activity counts.` : '',
+  warnings.invalidProgress ? `${warnings.invalidProgress} records have missing, invalid, or out-of-range progress and were excluded.` : '',
+  warnings.rejectedLinks ? `${warnings.rejectedLinks} unsafe or credential-bearing URLs were rejected.` : '',
+  warnings.missingTitles ? `Displayed items without titles: ${warnings.missingTitles}.` : '',
+  warnings.duplicates ? `Identical duplicate records collapsed: ${warnings.duplicates}.` : '',
+].filter(Boolean);
+if (warningMessages.length) console.warn(`[NowReading] ${warningMessages.join(' ')}`);
+---
+
+<article class="reading-log not-prose" data-reading-log>
+  <header class="reading-header">
+    <p class="eyebrow">A personal reading log</p>
+    <h1>What I'm reading</h1>
+    <p>Powered by <a href="https://readwise.io/read">Readwise Reader</a></p>
+    <p class="snapshot-date">Snapshot <time datetime={snapshot.generatedAt}>{formatDate(generatedAt, { month: 'long', day: 'numeric', year: 'numeric' })}</time>. All dates are UTC.</p>
+  </header>
+
+  <section aria-label="Currently Reading">
+    <h2>Currently Reading <span class="section-count">{current.length}</span></h2>
+    {current.length ? (
+      <div class="reading-cards">
+        {current.map(document => (
+          <a class="reading-card" href={document.href} style={`--cover-hue: ${document.hue}`}>
+            {document.image && <img src={document.image} alt="" loading="lazy" decoding="async" width="480" height="320" data-reading-cover />}
+            <div class="card-caption">
+              <h3>{document.title}</h3>
+              {document.author && <p>{document.author}</p>}
+              <span class="progress-label">{Math.round(document.progress * 100)}% read</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-label={`${document.title}: reading progress`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.round(document.progress * 100)}>
+              <span style={`width: ${document.progress * 100}%`}></span>
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : <p class="empty-state">Nothing in progress right now.</p>}
+  </section>
+
+  <section aria-label="Reading Activity">
+    <h2>Reading Activity</h2>
+    <p class="section-description">
+      {formatDate(start, { month: 'short', day: 'numeric', year: 'numeric' })} &ndash; {formatDate(today, { month: 'short', day: 'numeric', year: 'numeric' })}
+    </p>
+    <p class="activity-summary">{[...counts.values()].reduce((total, count) => total + count, 0)} finished items last opened across {counts.size} active days.</p>
+    <div class="activity-grid" role="img" aria-label="Six-month reading activity heatmap. An accessible daily count list follows.">
+      <div class="weekday-labels" aria-hidden="true">
+        <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span></span>
+      </div>
+      <div class="activity-weeks">
+        {weeks.map(week => (
+          <div class="activity-week">
+            <span class="month-label" aria-hidden="true">{week.label}</span>
+            {week.days.map(day => (
+              <span class:list={['activity-day', `level-${intensity(day.count)}`, { inactive: !day.active }]} title={day.label} aria-hidden="true"></span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="activity-legend" aria-hidden="true">
+      <span>Less</span>{[0, 1, 2, 3, 4].map(level => <span class={`legend-cell level-${level}`}></span>)}<span>More</span>
+    </div>
+    <details class="activity-details">
+      <summary>Daily activity counts</summary>
+      {counts.size ? (
+        <ul>{[...counts].sort(([a], [b]) => b.localeCompare(a)).map(([date, count]) => (
+          <li><time datetime={date}>{date}</time>: {count} finished {count === 1 ? 'item' : 'items'} last opened</li>
+        ))}</ul>
+      ) : <p>No dated reading activity in this window.</p>}
+      <p>All unlisted dates in the window have zero items.</p>
+    </details>
+    <p class="activity-note">Activity uses the last-opened dates of finished archived items, not verified completion dates or time spent reading.</p>
+  </section>
+
+  <section aria-label="Recently Read">
+    <h2>Recently Read <span class="section-count">{finished.length}</span></h2>
+    {dated.length > 0 && <p class="section-description">
+      Dated history: {formatDate(dated[dated.length - 1].openedAt!, { month: 'short', day: 'numeric', year: 'numeric' })} &ndash; {formatDate(dated[0].openedAt!, { month: 'short', day: 'numeric', year: 'numeric' })}
+    </p>}
+    <div class="category-filters" role="group" aria-label="Filter recently read by category" data-reading-filters hidden>
+      <button type="button" data-reading-filter="all" aria-pressed="true">All</button>
+      {[...filters].map(([category, info]) => (
+        <button type="button" data-reading-filter={category} aria-pressed="false">{info.label}</button>
+      ))}
+    </div>
+    <p class="filter-status" role="status" aria-live="polite" data-reading-status></p>
+    {!finished.length && <p class="empty-state">No finished items in this snapshot.</p>}
+    {[...months].map(([key, month]) => (
+      <div class="reading-month" data-reading-month={key}>
+        <h3>{month.label}</h3>
+        <ul class="reading-entries">
+          {month.items.map(document => (
+            <li class="reading-entry" data-reading-entry data-reading-category={document.category}>
+              <span class="entry-date">
+                {document.openedAt ? <time datetime={document.openedAt.toISOString()}>{formatDate(document.openedAt, { month: 'short', day: '2-digit' })}</time> : 'Undated'}
+              </span>
+              <span class="entry-icon" role="img" aria-label={document.categoryInfo.label}>{document.categoryInfo.icon}</span>
+              <div class="entry-content">
+                <a href={document.href}>{document.title}</a>
+                {document.author && <p>{document.author}</p>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+    <p class="empty-state" data-reading-empty hidden>No finished items match this category.</p>
+  </section>
+  {warningMessages.length > 0 && <aside class="metadata-warnings" aria-label="Snapshot metadata notices">
+    <h2>Snapshot notes</h2>
+    <ul>{warningMessages.map(message => <li>{message}</li>)}</ul>
+  </aside>}
+</article>
+
+<script>
+  function initializeReadingLogs() {
+    document.querySelectorAll<HTMLElement>('[data-reading-log]').forEach(log => {
+      if (log.dataset.readingInitialized) return;
+      log.dataset.readingInitialized = 'true';
+      const filters = log.querySelector<HTMLElement>('[data-reading-filters]');
+      const buttons = Array.from(log.querySelectorAll<HTMLButtonElement>('[data-reading-filter]'));
+      const entries = Array.from(log.querySelectorAll<HTMLElement>('[data-reading-entry]'));
+      const months = Array.from(log.querySelectorAll<HTMLElement>('[data-reading-month]'));
+      const empty = log.querySelector<HTMLElement>('[data-reading-empty]');
+      const status = log.querySelector<HTMLElement>('[data-reading-status]');
+      buttons.forEach(button => button.addEventListener('click', () => {
+        const category = button.dataset.readingFilter;
+        let visible = 0;
+        entries.forEach(entry => {
+          entry.hidden = category !== 'all' && entry.dataset.readingCategory !== category;
+          if (!entry.hidden) visible++;
+        });
+        months.forEach(month => {
+          month.hidden = !Array.from(month.querySelectorAll<HTMLElement>('[data-reading-entry]')).some(entry => !entry.hidden);
+        });
+        buttons.forEach(control => control.setAttribute('aria-pressed', String(control === button)));
+        if (empty) empty.hidden = visible !== 0;
+        if (status) status.textContent = `${visible} finished ${visible === 1 ? 'item' : 'items'} shown`;
+      }));
+      if (filters && entries.length) filters.hidden = false;
+      log.querySelectorAll<HTMLImageElement>('[data-reading-cover]').forEach(image => {
+        const hideBrokenImage = () => { image.hidden = true; };
+        image.addEventListener('error', hideBrokenImage);
+        if (image.complete && image.naturalWidth === 0) hideBrokenImage();
+      });
+    });
+  }
+  initializeReadingLogs();
+  document.addEventListener('astro:page-load', initializeReadingLogs);
+</script>
+
+<style>
+  .reading-log {
+    --reading-text: #111827;
+    --reading-muted: #6b7280;
+    --reading-border: #e5e7eb;
+    --reading-surface: #f3f4f6;
+    --reading-accent: #2563eb;
+    --reading-level-1: #dbeafe;
+    --reading-level-2: #93c5fd;
+    --reading-level-3: #3b82f6;
+    --reading-level-4: #1d4ed8;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 0;
+    color: var(--reading-text);
+    line-height: 1.6;
+  }
+  :global(.dark) .reading-log {
+    --reading-text: #f9fafb;
+    --reading-muted: #9ca3af;
+    --reading-border: #374151;
+    --reading-surface: #1f2937;
+    --reading-accent: #60a5fa;
+    --reading-level-1: #1e3a5f;
+    --reading-level-2: #1d4ed8;
+    --reading-level-3: #3b82f6;
+    --reading-level-4: #93c5fd;
+  }
+  .reading-log [hidden] { display: none !important; }
+  .reading-log a { color: var(--reading-accent); text-decoration: none; }
+  .reading-log a:hover { text-decoration: underline; }
+  .reading-log :is(a, button, summary):focus-visible { outline: 2px solid var(--reading-accent); outline-offset: 4px; }
+  .reading-header h1 { font-size: clamp(2rem, 6vw, 3.25rem); font-weight: 800; line-height: 1.15; margin: 0.5rem 0 1rem; letter-spacing: -0.035em; }
+  .reading-header p { margin: 0.4rem 0; }
+  .eyebrow, .reading-month h3 { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.75rem; font-weight: 600; color: var(--reading-muted); }
+  .snapshot-date, .section-description, .activity-summary, .activity-note, .activity-details, .metadata-warnings, .filter-status { font-size: 0.8125rem; color: var(--reading-muted); }
+  .reading-log section { border-top: 1px solid var(--reading-border); margin-top: 2rem; padding-top: 1.5rem; }
+  .reading-log h2 { margin: 0 0 1rem; font-size: 1.125rem; font-weight: 700; }
+  .section-count { margin-left: 0.35rem; color: var(--reading-muted); font-size: 0.875rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .reading-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+  .reading-log .reading-card { display: block; position: relative; overflow: hidden; aspect-ratio: 3 / 2; border-radius: 0.75rem; color: white; background: linear-gradient(135deg, hsl(var(--cover-hue) 35% 45%), hsl(var(--cover-hue) 25% 20%)); transition: transform 160ms ease; }
+  .reading-card:hover { transform: translateY(-3px); }
+  .reading-card img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+  .card-caption { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: end; padding: 0.75rem 0.75rem 0.65rem; background: linear-gradient(transparent, rgb(0 0 0 / 85%)); }
+  .card-caption h3 { margin: 0; font-size: 0.9rem; line-height: 1.3; font-weight: 600; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+  .card-caption p { margin: 0.2rem 0 0; font-size: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .progress-label { font-size: 0.65rem; opacity: 0.85; }
+  .progress-track { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: rgb(0 0 0 / 45%); }
+  .progress-track span { display: block; height: 100%; background: #60a5fa; }
+  .activity-grid { display: flex; gap: 0.5rem; margin-top: 1rem; }
+  .weekday-labels { flex: 0 0 1.8rem; display: grid; grid-template-rows: 1rem repeat(7, 1fr); gap: 3px; font-size: 0.6rem; color: var(--reading-muted); align-items: center; }
+  .activity-weeks { display: flex; flex: 1; min-width: 0; gap: 3px; }
+  .activity-week { display: grid; flex: 1; min-width: 0; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1rem repeat(7, 1fr); gap: 3px; }
+  .month-label { font-size: 0.65rem; line-height: 1rem; color: var(--reading-muted); white-space: nowrap; }
+  .activity-day { display: block; width: 100%; aspect-ratio: 1; border-radius: 2px; }
+  .level-0 { background: var(--reading-surface); }
+  .level-1 { background: var(--reading-level-1); }
+  .level-2 { background: var(--reading-level-2); }
+  .level-3 { background: var(--reading-level-3); }
+  .level-4 { background: var(--reading-level-4); }
+  .activity-day.inactive { background: transparent; }
+  .activity-legend { display: flex; align-items: center; justify-content: end; gap: 4px; margin-top: 0.6rem; font-size: 0.65rem; color: var(--reading-muted); }
+  .legend-cell { width: 10px; height: 10px; border-radius: 2px; }
+  .activity-details { margin-top: 1rem; }
+  .activity-details summary { cursor: pointer; }
+  .activity-details ul { max-height: 12rem; overflow-y: auto; padding-left: 1.25rem; }
+  .activity-note { margin-top: 1rem; }
+  .category-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .category-filters button { cursor: pointer; border: 1px solid var(--reading-border); color: var(--reading-muted); background: transparent; border-radius: 999px; padding: 0.35rem 0.75rem; font: inherit; font-size: 0.8rem; }
+  .category-filters button:hover { background: var(--reading-surface); }
+  .category-filters button[aria-pressed="true"] { color: var(--reading-accent); border-color: var(--reading-accent); background: var(--reading-surface); }
+  .reading-month { margin-top: 1.5rem; }
+  .reading-month h3 { margin: 0 0 0.75rem; }
+  .reading-entries { list-style: none; margin: 0; padding: 0; }
+  .reading-entry { display: flex; gap: 0.75rem; padding: 0.7rem 0; border-bottom: 1px solid var(--reading-border); align-items: baseline; }
+  .entry-date { flex: 0 0 3.25rem; font-size: 0.75rem; font-variant-numeric: tabular-nums; color: var(--reading-muted); }
+  .entry-icon { flex: 0 0 1.25rem; font-size: 0.875rem; }
+  .entry-content { min-width: 0; overflow-wrap: anywhere; }
+  .entry-content a { font-size: 0.9375rem; font-weight: 500; }
+  .entry-content p { margin: 0.15rem 0 0; font-size: 0.75rem; color: var(--reading-muted); }
+  .empty-state { color: var(--reading-muted); font-size: 0.9rem; padding: 0.5rem 0; }
+  .metadata-warnings { border-top: 1px solid var(--reading-border); margin-top: 2rem; padding-top: 1rem; }
+  .metadata-warnings h2 { font-size: 0.875rem; }
+  .metadata-warnings ul { padding-left: 1.25rem; }
+  @media (max-width: 480px) {
+    .reading-log { padding: 2rem 0; }
+    .reading-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .reading-entry { gap: 0.5rem; }
+    .activity-weeks, .activity-week, .weekday-labels { gap: 2px; }
+    .month-label { font-size: 0.55rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reading-log .reading-card { transition: none; }
+    .reading-log .reading-card:hover { transform: none; }
+  }
+</style>
