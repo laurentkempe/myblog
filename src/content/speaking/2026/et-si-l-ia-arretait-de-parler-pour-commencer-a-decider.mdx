@@ -1,0 +1,136 @@
+---
+title: "Et si l'IA arrêtait de parler pour commencer à décider ?"
+permalink: /2026/10/21/et-si-l-ia-arretait-de-parler-pour-commencer-a-decider/
+date: 10/21/2026 18:00:00
+language: french
+tags: ["AI"]
+youtube: https://www.youtube.com/watch?v=LS1DaHxYCiE
+audio: 
+---
+Extrait de la table ronde devdevdev.net d'Octobre 2026 où je vous présente le nouveau modèle system one appelé Jev de TypeSafe AI.
+
+<YouTube id="LS1DaHxYCiE" params="start=0" class="yt-width " />
+
+La plupart des applications basées sur des LLM fonctionnent aujourd'hui selon le même schéma : on envoie un prompt, on récupère du texte, puis on essaie de transformer ce texte en données exploitables par du code. Même avec le JSON mode ou le function calling, il reste toujours une part de fragilité : un champ manquant, un format inattendu ou une réponse qui ne respecte pas exactement le contrat attendu.
+
+La vision de TypeSafe AI est radicalement différente. L'objectif n'est pas de produire du texte pour des humains, mais de produire des décisions structurées pour des logiciels.
+
+Autrement dit, là où ChatGPT est conçu pour tenir une conversation, Jev est conçu pour permettre à une application de prendre une décision automatisée en toute confiance.
+
+Ce qui rend Jev particulièrement intéressant, ce n'est pas seulement son approche orientée décision, mais aussi son rapport performance-prix. Là où un LLM traditionnel peut prendre plusieurs secondes pour produire une réponse textuelle, Jev vise des décisions en quelques centaines de millisecondes, pour un coût de seulement quelques centimes de dollar par million de tokens. Cette combinaison ouvre la porte à des millions de décisions automatisées par jour sans faire exploser les coûts d'infrastructure.
+
+# Jev : une IA pensée pour les workflows logiciels
+
+Jev est le modèle principal de TypeSafe et appartient à une catégorie appelée "System One". Le nom fait référence aux travaux de Daniel Kahneman sur les deux modes de pensée :
+- System 1 : rapide, intuitif, instantané.
+- System 2 : lent, réfléchi, analytique.
+
+Jev cherche à devenir le "System 1" d'une application. Son rôle n'est pas de raisonner pendant plusieurs minutes, mais de prendre rapidement une décision ciblée qui sera ensuite intégrée dans un workflow plus large.
+Par exemple :
+ - Ce ticket est-il un bug ?
+ - Cette demande doit-elle être routée vers l'équipe facturation ?
+ - Ce message semble-t-il frauduleux ?
+ - Cette transaction nécessite-t-elle une validation humaine ?
+
+Ce sont précisément les types de décisions pour lesquelles Jev a été conçu.
+
+# L'idée clé : poser des questions typées
+Le concept central de Jev est très simple. On fournit :
+1.  Un état ("state"), c'est-à-dire les données à analyser.
+2.  Une ou plusieurs questions à poser sur ces données.
+
+Chaque question appartient à l'un des trois primitifs fondamentaux :
+
+## Noul
+Question binaire.
+Exemple :
+> Ce message contient-il une demande de remboursement ?
+
+La réponse est une probabilité entre 0 et 1.
+
+## Choice
+Classification parmi plusieurs catégories.
+Exemple :
+
+> Quelle équipe doit traiter ce ticket ?
+Réponse possible :
+ - Facturation
+ - Platforme
+ - Comptabilité
+
+Le modèle retourne la catégorie sélectionnée ainsi qu'un niveau de confiance.
+
+## Score
+Évaluation sur une échelle graduée.
+Exemple :
+
+> Quel est le niveau d'urgence de cette demande ?  
+
+La réponse peut se situer entre plusieurs niveaux et est accompagnée d'un score de confiance.
+
+# Pourquoi c'est différent d'un LLM traditionnel ?
+	- L'aspect le plus intéressant est que Jev ne cherche pas à produire une réponse convaincante.
+	- Il cherche à produire une décision calibrée.
+	- TypeSafe explique que de nombreux modèles actuels sont entraînés à générer des réponses appréciées par les humains grâce au RLHF (Reinforcement Learning from Human Feedback). Jev utilise une approche différente appelée RLCD, pour "Reinforcement Learning for Calibrated Decisions".
+	- L'objectif n'est donc pas :
+	-
+	  > "Quelle réponse semble correcte ?"  
+	- mais plutôt :
+	-
+	  > "Quelle décision puis-je prendre avec un niveau de confiance mesurable ?"  
+	- C'est une différence fondamentale lorsqu'on souhaite automatiser des processus métiers.
+- # Le concept le plus puissant : la confiance
+	- Chaque réponse est accompagnée d'une mesure de confiance.
+	- Cela permet d'appliquer une stratégie très simple :
+		- Confiance élevée → action automatique.
+		- Confiance moyenne → vérification supplémentaire.
+		- Confiance faible → escalade vers un humain.
+	- Cette approche est particulièrement intéressante pour les systèmes critiques où toutes les décisions ne doivent pas être automatisées de la même manière.
+	- Consulter son solde bancaire nécessite moins de certitude qu'autoriser un virement important. Jev fournit les signaux nécessaires pour faire cette distinction.
+- # Pas des agents, mais des décisions atomiques
+	- Une autre idée forte du projet est son opposition à la tendance actuelle du tout-agent.
+	- TypeSafe ne cherche pas à créer un agent autonome capable de tout faire.
+	- Au contraire, la recommandation est :
+		- garder la logique métier dans le code ;
+		- décomposer les problèmes complexes en petites décisions ;
+		- utiliser Jev uniquement pour les jugements difficiles à coder manuellement.
+	- Par exemple, au lieu de demander :
+	-
+	  > Ce message est-il du spam ?  
+	- on peut poser plusieurs questions indépendantes :
+		- Demande-t-il des identifiants ?
+		- Crée-t-il un sentiment d'urgence ?
+		- Le domaine du lien est-il suspect ?
+		- L'expéditeur semble-t-il usurper une identité ?
+	- Le développeur conserve ensuite la maîtrise de l'algorithme final.
+- # Cas d'usage concrets
+	- Selon les exemples présentés, Jev est particulièrement adapté à :
+		- la classification de tickets de support ;
+		- le routage automatique ;
+		- la détection de fraude ;
+		- la modération ;
+		- la vérification documentaire ;
+		- l'extraction de données structurées ;
+		- la recherche et le ranking ;
+		- les guardrails autour d'autres LLM ;
+		- le choix dynamique d'un modèle plus puissant lorsque cela est nécessaire.
+- # Le message à retenir pour les développeurs .NET
+	- Dans mes articles, j'explique avoir porté le SDK TypeScript officiel vers .NET afin de pouvoir expérimenter Jev depuis C# avec un modèle objet fortement typé.
+	- Mais au-delà du SDK, l'idée importante est probablement celle-ci :
+	-
+	  > Nous utilisons souvent les LLM comme des générateurs de texte alors que beaucoup de nos besoins réels sont des problèmes de classification, de scoring, de routage ou de validation.  
+	- TypeSafe et Jev proposent justement une IA spécialisée dans ce type de décisions, avec des résultats structurés, typés et accompagnés d'un niveau de confiance exploitable directement par le code.
+	- ### Conclusion pour le podcast
+		- "Jev ne cherche pas à remplacer ChatGPT. Il cherche à résoudre un problème différent. Là où les modèles conversationnels excellent pour dialoguer avec des humains, Jev est conçu pour aider les logiciels à prendre des décisions fiables, mesurables et automatisables. C'est peut-être l'une des directions les plus intéressantes de l'IA actuelle : passer d'une IA qui parle à une IA qui décide."
+
+
+## Highlights  
+
+
+
+# Aller plus loin
+
+Voir mes blog posts en anglais : 
+* [TypeSafe's Jev AI Model in .NET: A Community SDK for Structured AI Output in C#](/2026/09/19/typesafe-jev-dotnet-sdk-introduction/).
+* [Building a TypeSafe's Jev MCP server with .NET](/2026/10/10/building-a-typesafe-jev-mcp-server-dotnet/).
+* [TypeSafe Jev .NET SDK 0.7.0: Experimental Images and Bounding Boxes](/2026/10/17/typesafe-dotnet-sdk-v0-7-0/).
