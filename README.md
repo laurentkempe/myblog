@@ -69,24 +69,25 @@ The script will:
   - Date
   - Tags
 
-## Publishing Draft Blog Posts
+## Publishing Draft Blog Posts and Speaking Entries
 
-Publish a draft blog post using an interactive interface:
+Publish a draft blog post or speaking entry using an interactive interface:
 
 ```bash
 pnpm run publish-draft
 ```
 
 The script will:
-- Scan all blog posts for drafts (marked with `draft: true`)
-- Display an interactive list with keyboard navigation
+- Scan MDX files in `src/content/posts/` and `src/content/speaking/` for drafts (marked with `draft: true`)
+- Display a combined interactive list with Blog/Speaking labels and keyboard navigation
 - Allow selection using ↑/↓ arrow keys and Enter to confirm
-- Update the blog post frontmatter:
+- Update the selected entry's frontmatter:
   - Set the current date and time
   - Update the permalink with the new publication date
-  - Update the disqusIdentifier with the new publication date
+  - Update the disqusIdentifier with the new publication date, if present
   - Remove the `draft: true` flag
-- Move the post to the correct year folder if needed (e.g., draft from 2024 → published in 2025)
+- Move the entry to the current year folder within its original collection if needed (e.g., `speaking/2024/` → `speaking/2025/`)
+- Preserve other metadata and the MDX body; speaking dates are replaced with the publication date, not kept as event dates
 
 ### Navigation Controls:
 - **↑/↓ Arrow Keys**: Navigate through the list of drafts

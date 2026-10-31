@@ -118,7 +118,7 @@ function scanForMDXFiles(dir) {
             }
         }
     } catch (error) {
-        // Skip directories that can't be read
+        throw new Error(`Could not scan ${dir}: ${error.message}`);
     }
     
     return files;
@@ -245,13 +245,13 @@ async function selectDraftInteractively(drafts) {
         
         function displayMenu() {
             console.clear();
-            console.log('📝 Select a draft blog post to publish:\n');
+            console.log('📝 Select a draft blog post or speaking entry to publish:\n');
             
             drafts.forEach((draft, index) => {
                 const prefix = index === selectedIndex ? '▶ ' : '  ';
                 const title = draft.title.substring(0, 50) + (draft.title.length > 50 ? '...' : '');
                 const date = new Date(draft.date).toDateString();
-                console.log(`${prefix}${title} (${date})`);
+                console.log(`${prefix}[${draft.collectionLabel}] ${title} (${date})`);
             });
             
             console.log('\n↑/↓ Navigate • Enter: Select • q: Quit');
@@ -312,20 +312,27 @@ async function selectDraftInteractively(drafts) {
  */
 async function main() {
     try {
-        const postsDir = path.join(__dirname, 'src', 'content', 'posts');
+        const collections = [
+            { root: path.join(__dirname, 'src', 'content', 'posts'), label: 'Blog' },
+            { root: path.join(__dirname, 'src', 'content', 'speaking'), label: 'Speaking' }
+        ];
         
-        if (!fs.existsSync(postsDir)) {
-            console.error('Error: Posts directory not found at', postsDir);
-            process.exit(1);
+        for (const collection of collections) {
+            if (!fs.existsSync(collection.root)) {
+                console.error(`Error: ${collection.label} directory not found at`, collection.root);
+                process.exit(1);
+            }
         }
         
-        console.log('🔍 Scanning for draft blog posts...');
+        console.log('🔍 Scanning for draft blog posts and speaking entries...');
         
         // Find all MDX files
-        const mdxFiles = scanForMDXFiles(postsDir);
+        const mdxFiles = collections.flatMap(collection =>
+            scanForMDXFiles(collection.root).map(fullPath => ({ fullPath, collection }))
+        );
         const drafts = [];
         
-        for (const filePath of mdxFiles) {
+        for (const { fullPath: filePath, collection } of mdxFiles) {
             try {
                 const content = fs.readFileSync(filePath, 'utf-8');
                 const frontmatter = parseFrontmatter(content);
@@ -338,6 +345,8 @@ async function main() {
                     drafts.push({
                         filePath: relativePath,
                         fullPath: filePath,
+                        collectionRoot: collection.root,
+                        collectionLabel: collection.label,
                         title,
                         date,
                         frontmatter,
@@ -351,7 +360,7 @@ async function main() {
         }
         
         if (drafts.length === 0) {
-            console.log('📝 No draft blog posts found.');
+            console.log('📝 No draft blog posts or speaking entries found.');
             return;
         }
         
@@ -370,7 +379,7 @@ async function main() {
             return;
         }
         
-        console.log(`\n🚀 Publishing: ${selectedDraft.title}`);
+        console.log(`\n🚀 Publishing [${selectedDraft.collectionLabel}]: ${selectedDraft.title}`);
         
         // Get current date for publication
         const publishDate = new Date();
@@ -384,7 +393,7 @@ async function main() {
         const updatedContent = updateFrontmatter(selectedDraft.content, publishDate, slug);
         
         // Determine new file path
-        const newYearDir = path.join(__dirname, 'src', 'content', 'posts', publishYear.toString());
+        const newYearDir = path.join(selectedDraft.collectionRoot, publishYear.toString());
         const newFilePath = path.join(newYearDir, `${filename}.mdx`);
         
         // Create year directory if it doesn't exist
@@ -416,7 +425,9 @@ async function main() {
         console.log(`✅ Successfully published "${selectedDraft.title}"`);
         console.log(`📅 Publication date: ${formatDateForFrontmatter(publishDate)}`);
         console.log(`🔗 Permalink: ${generatePermalink(publishDate, slug)}`);
-        console.log(`🔢 Disqus ID: ${generateDisqusIdentifier(publishDate)}`);
+        if (Object.hasOwn(selectedDraft.frontmatter, 'disqusIdentifier')) {
+            console.log(`🔢 Disqus ID: ${generateDisqusIdentifier(publishDate)}`);
+        }
         
     } catch (error) {
         console.error('Error publishing draft:', error.message);
