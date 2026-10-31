@@ -1,7 +1,7 @@
 ---
 title: "Et si l'IA arrêtait de parler pour commencer à décider ?"
-permalink: /2026/10/21/et-si-l-ia-arretait-de-parler-pour-commencer-a-decider/
-date: 10/21/2026 18:00:00
+permalink: /2026/10/31/et-si-l-ia-arretait-de-parler-pour-commencer-a-decider/
+date: 10/31/2026 11:20:32
 language: french
 tags: ["AI"]
 youtube: https://www.youtube.com/watch?v=LS1DaHxYCiE
@@ -9,13 +9,13 @@ audio:
 ---
 Extrait de la table ronde devdevdev.net d'Octobre 2026 où je vous présente le nouveau modèle system one appelé Jev de TypeSafe AI.
 
-<YouTube id="LS1DaHxYCiE" params="start=0" class="yt-width " />
-
 La plupart des applications basées sur des LLM fonctionnent aujourd'hui selon le même schéma : on envoie un prompt, on récupère du texte, puis on essaie de transformer ce texte en données exploitables par du code. Même avec le JSON mode ou le function calling, il reste toujours une part de fragilité : un champ manquant, un format inattendu ou une réponse qui ne respecte pas exactement le contrat attendu.
 
 La vision de TypeSafe AI est radicalement différente. L'objectif n'est pas de produire du texte pour des humains, mais de produire des décisions structurées pour des logiciels.
 
 Autrement dit, là où ChatGPT est conçu pour tenir une conversation, Jev est conçu pour permettre à une application de prendre une décision automatisée en toute confiance.
+
+<YouTube id="LS1DaHxYCiE" params="start=0" class="yt-width " />
 
 Ce qui rend Jev particulièrement intéressant, ce n'est pas seulement son approche orientée décision, mais aussi son rapport performance-prix. Là où un LLM traditionnel peut prendre plusieurs secondes pour produire une réponse textuelle, Jev vise des décisions en quelques centaines de millisecondes, pour un coût de seulement quelques centimes de dollar par million de tokens. Cette combinaison ouvre la porte à des millions de décisions automatisées par jour sans faire exploser les coûts d'infrastructure.
 
@@ -34,21 +34,21 @@ Par exemple :
 
 Ce sont précisément les types de décisions pour lesquelles Jev a été conçu.
 
-# L'idée clé : poser des questions typées
+## L'idée clé : poser des questions typées
 Le concept central de Jev est très simple. On fournit :
 1.  Un état ("state"), c'est-à-dire les données à analyser.
 2.  Une ou plusieurs questions à poser sur ces données.
 
 Chaque question appartient à l'un des trois primitifs fondamentaux :
 
-## Noul
+### Noul
 Question binaire.
 Exemple :
 > Ce message contient-il une demande de remboursement ?
 
 La réponse est une probabilité entre 0 et 1.
 
-## Choice
+### Choice
 Classification parmi plusieurs catégories.
 Exemple :
 
@@ -60,7 +60,7 @@ Réponse possible :
 
 Le modèle retourne la catégorie sélectionnée ainsi qu'un niveau de confiance.
 
-## Score
+### Score
 Évaluation sur une échelle graduée.
 Exemple :
 
@@ -68,69 +68,177 @@ Exemple :
 
 La réponse peut se situer entre plusieurs niveaux et est accompagnée d'un score de confiance.
 
-# Pourquoi c'est différent d'un LLM traditionnel ?
-	- L'aspect le plus intéressant est que Jev ne cherche pas à produire une réponse convaincante.
-	- Il cherche à produire une décision calibrée.
-	- TypeSafe explique que de nombreux modèles actuels sont entraînés à générer des réponses appréciées par les humains grâce au RLHF (Reinforcement Learning from Human Feedback). Jev utilise une approche différente appelée RLCD, pour "Reinforcement Learning for Calibrated Decisions".
-	- L'objectif n'est donc pas :
-	-
-	  > "Quelle réponse semble correcte ?"  
-	- mais plutôt :
-	-
-	  > "Quelle décision puis-je prendre avec un niveau de confiance mesurable ?"  
-	- C'est une différence fondamentale lorsqu'on souhaite automatiser des processus métiers.
-- # Le concept le plus puissant : la confiance
-	- Chaque réponse est accompagnée d'une mesure de confiance.
-	- Cela permet d'appliquer une stratégie très simple :
-		- Confiance élevée → action automatique.
-		- Confiance moyenne → vérification supplémentaire.
-		- Confiance faible → escalade vers un humain.
-	- Cette approche est particulièrement intéressante pour les systèmes critiques où toutes les décisions ne doivent pas être automatisées de la même manière.
-	- Consulter son solde bancaire nécessite moins de certitude qu'autoriser un virement important. Jev fournit les signaux nécessaires pour faire cette distinction.
-- # Pas des agents, mais des décisions atomiques
-	- Une autre idée forte du projet est son opposition à la tendance actuelle du tout-agent.
-	- TypeSafe ne cherche pas à créer un agent autonome capable de tout faire.
-	- Au contraire, la recommandation est :
-		- garder la logique métier dans le code ;
-		- décomposer les problèmes complexes en petites décisions ;
-		- utiliser Jev uniquement pour les jugements difficiles à coder manuellement.
-	- Par exemple, au lieu de demander :
-	-
-	  > Ce message est-il du spam ?  
-	- on peut poser plusieurs questions indépendantes :
-		- Demande-t-il des identifiants ?
-		- Crée-t-il un sentiment d'urgence ?
-		- Le domaine du lien est-il suspect ?
-		- L'expéditeur semble-t-il usurper une identité ?
-	- Le développeur conserve ensuite la maîtrise de l'algorithme final.
-- # Cas d'usage concrets
-	- Selon les exemples présentés, Jev est particulièrement adapté à :
-		- la classification de tickets de support ;
-		- le routage automatique ;
-		- la détection de fraude ;
-		- la modération ;
-		- la vérification documentaire ;
-		- l'extraction de données structurées ;
-		- la recherche et le ranking ;
-		- les guardrails autour d'autres LLM ;
-		- le choix dynamique d'un modèle plus puissant lorsque cela est nécessaire.
-- # Le message à retenir pour les développeurs .NET
-	- Dans mes articles, j'explique avoir porté le SDK TypeScript officiel vers .NET afin de pouvoir expérimenter Jev depuis C# avec un modèle objet fortement typé.
-	- Mais au-delà du SDK, l'idée importante est probablement celle-ci :
-	-
-	  > Nous utilisons souvent les LLM comme des générateurs de texte alors que beaucoup de nos besoins réels sont des problèmes de classification, de scoring, de routage ou de validation.  
-	- TypeSafe et Jev proposent justement une IA spécialisée dans ce type de décisions, avec des résultats structurés, typés et accompagnés d'un niveau de confiance exploitable directement par le code.
-	- ### Conclusion pour le podcast
-		- "Jev ne cherche pas à remplacer ChatGPT. Il cherche à résoudre un problème différent. Là où les modèles conversationnels excellent pour dialoguer avec des humains, Jev est conçu pour aider les logiciels à prendre des décisions fiables, mesurables et automatisables. C'est peut-être l'une des directions les plus intéressantes de l'IA actuelle : passer d'une IA qui parle à une IA qui décide."
+## Pourquoi c'est différent d'un LLM traditionnel ?
+L'aspect le plus intéressant est que Jev ne cherche pas à produire une réponse convaincante. Il cherche à produire une décision calibrée.
 
+TypeSafe explique que de nombreux modèles actuels sont entraînés à générer des réponses appréciées par les humains grâce au RLHF (Reinforcement Learning from Human Feedback). Jev utilise une approche différente appelée RLCD, pour "Reinforcement Learning for Calibrated Decisions".
+
+L'objectif n'est donc pas :
+
+> "Quelle réponse semble correcte ?"  
+
+mais plutôt :
+
+> "Quelle décision puis-je prendre avec un niveau de confiance mesurable ?"  
+
+C'est une différence fondamentale lorsqu'on souhaite automatiser des processus métiers.
+
+## Le concept le plus puissant : la confiance
+Chaque réponse est accompagnée d'une mesure de confiance. Cela permet d'appliquer une stratégie très simple :
+- Confiance élevée → action automatique.
+- Confiance moyenne → vérification supplémentaire.
+- Confiance faible → escalade vers un humain.
+
+Cette approche est particulièrement intéressante pour les systèmes critiques où toutes les décisions ne doivent pas être automatisées de la même manière. Consulter son solde bancaire nécessite moins de certitude qu'autoriser un virement important. Jev fournit les signaux nécessaires pour faire cette distinction.
+
+Une autre idée forte du projet est son opposition à la tendance actuelle du tout-agent. TypeSafe ne cherche pas à créer un agent autonome capable de tout faire.
+
+Au contraire, la recommandation est :
+- garder la logique métier dans le code.
+- décomposer les problèmes complexes en petites décisions.
+- utiliser Jev uniquement pour les jugements difficiles à coder manuellement.
+
+Par exemple, au lieu de demander :
+> Ce message est-il du spam ?  
+
+on peut poser plusieurs questions indépendantes :
+- Demande-t-il des identifiants ?
+- Crée-t-il un sentiment d'urgence ?
+- Le domaine du lien est-il suspect ?
+- L'expéditeur semble-t-il usurper une identité ?
+
+Le développeur conserve ensuite la maîtrise de l'algorithme final.
+
+## Cas d'usage concrets
+
+Selon les exemples présentés, Jev est particulièrement adapté à :
+
+- la classification de tickets de support
+- le routage automatique
+- la détection de fraude
+- la modération
+- la vérification documentaire
+- l'extraction de données structurées
+- la recherche et le ranking
+- les guardrails autour d'autres LLM
+- le choix dynamique d'un modèle plus puissant lorsque cela est nécessaire
+
+## Conclusion
+
+Jev ne cherche pas à remplacer ChatGPT. Il cherche à résoudre un problème différent. Là où les modèles conversationnels excellent pour dialoguer avec des humains, Jev est conçu pour aider les logiciels à prendre des décisions fiables, mesurables et automatisables. C'est peut-être l'une des directions les plus intéressantes de l'IA actuelle : passer d'une IA qui parle à une IA qui décide.
 
 ## Highlights  
 
+### [00:00:50](#timestamp-00:00:50) Présentation de Jev et du concept de décision structurée
+* Présentation de Jev, un modèle développé par TypeSafe AI.
+* Approche différente des LLM traditionnels.
+* Objectif : produire des décisions directement exploitables par un logiciel.
+* Réduction de la dépendance aux réponses textuelles et aux JSON parfois fragiles.
 
+### [00:02:17](#timestamp-00:02:17) Pourquoi les LLM ne sont pas toujours adaptés
+* Les applications IA transforment souvent du texte en données structurées.
+* Même avec le function calling, des erreurs de format restent possibles.
+* Le modèle décisionnel renvoie directement des réponses typées.
+* Accent mis sur la fiabilité et l'intégration dans les workflows.
+
+### [00:03:50](#timestamp-00:03:50) System 1 versus System 2
+* Référence aux travaux de Daniel Kahneman.
+* System 1 : rapide, intuitif et instantané.
+* System 2 : lent, analytique et réflexif.
+* Les LLM actuels ressemblent davantage à un système 2.
+* Jev tente d'apporter un équivalent logiciel du système 1.
+
+### [00:04:48](#timestamp-00:04:48) Cas d'usage typiques
+* Classification de tickets de support.
+* Routage vers la bonne équipe.
+* Détection de fraude.
+* Détection de prompt injection.
+* Validation de transactions.
+* Détermination de la nécessité d'une intervention humaine.
+
+### [00:06:50](#timestamp-00:06:50) Les trois primitives fondamentales
+* **Noul**
+  * Réponse binaire sous forme de probabilité.
+  * Exemple : une demande contient-elle une requête de remboursement ?
+* **Choice**
+  * Classification parmi plusieurs catégories.
+  * Retour d'un score de confiance.
+  * Possibilité d'automatiser selon un seuil défini.
+* **Score**
+  * Évaluation sur une échelle graduée.
+  * Exemple : calcul du niveau d'urgence d'une demande.
+
+### [00:08:00](#timestamp-00:08:00) La confiance comme mécanisme de gouvernance
+* Les décisions sont accompagnées d'un indice de confiance.
+* Possibilité d'automatiser uniquement lorsque le score est élevé.
+* Les cas ambigus peuvent être redirigés vers un opérateur humain.
+* Mise en place simple de workflows hybrides humain + IA.
+
+### [00:09:30](#timestamp-00:09:30) Limites du modèle
+* Contexte plus réduit que celui des LLM classiques.
+* Difficulté à traiter des problématiques nécessitant un raisonnement complexe.
+* Moins adapté à l'analyse de longs dossiers ou d'historiques complets.
+* Nécessité de poser des questions simples et bien cadrées.
+
+### [00:10:20](#timestamp-00:10:20) Quand préférer un agent classique
+* Raisonnement multi-étapes.
+* Recherche dans une base de connaissances.
+* Corrélation de plusieurs sources d'information.
+* Analyse détaillée d'un historique client.
+* Les LLM restent plus adaptés lorsque la compréhension globale est nécessaire.
+
+### [00:11:40](#timestamp-00:11:40) Exécution locale et open source
+* Apparition de variantes locales basées sur Qwen.
+* Hébergement possible via Ollama.
+* Possibilité de créer des moteurs de décision spécialisés sur des données internes.
+* Intérêt pour les entreprises manipulant des données sensibles.
+
+### [00:12:00](#timestamp-00:12:00) Applications aux agents IA, MCP et skills
+* Sélection automatique de skills.
+* Choix du bon serveur MCP.
+* Routage entre plusieurs agents.
+* Choix dynamique du modèle le plus adapté à une tâche.
+* Réduction du coût d'orchestration des systèmes multi-agents.
+
+### [00:14:20](#timestamp-00:14:20) Routage intelligent dans les architectures d'agents
+* Utilisation potentielle dans des frameworks de type Squad.
+* Les décisions de routage pourraient être confiées à un modèle System 1.
+* Remplacement d'un LLM coûteux par un moteur décisionnel pour les tâches simples.
+* Optimisation des performances et des coûts.
+
+### [00:15:10](#timestamp-00:15:10) Parallèle avec la robotique
+* Comparaison avec la moelle épinière humaine.
+* Réactions rapides gérées localement.
+* Raisonnements complexes délégués au "cortex" représenté par le LLM.
+* Architecture hybride combinant réflexes et réflexion.
+
+### [00:17:50](#timestamp-00:17:50) Cas d'usage concrets évoqués
+* Classification de tickets.
+* Modération automatique.
+* Détection de fraude.
+* Validation documentaire.
+* Recherche et ranking.
+* Guardrails pour agents IA.
+* Choix dynamique de modèles.
+
+### [00:18:30](#timestamp-00:18:30) Message clé pour les développeurs
+* Beaucoup de besoins métier relèvent davantage du routage ou de la classification que de la génération de texte.
+* Les modèles décisionnels permettent d'obtenir des réponses fiables, typées et mesurables.
+* Ils ne remplacent pas ChatGPT ou les LLM.
+* Ils complètent l'écosystème IA en occupant une nouvelle couche de décision rapide.
+
+## À retenir
+
+Les modèles décisionnels comme Jev représentent une évolution intéressante de l'écosystème IA. Là où les LLM excellent dans le dialogue, la génération et le raisonnement complexe, les systèmes de type System 1 visent la vitesse, le coût réduit et la prise de décision fiable. Leur potentiel semble particulièrement important dans les architectures d'agents, les workflows d'entreprise, le routage de skills, les serveurs MCP et les mécanismes d'orchestration multi-modèles.
 
 # Aller plus loin
+
+Avec le code source disponible sur GitHub.
+<GitHubCard user="laurentkempe" repo="TypeSafeJevPlayground" />
 
 Voir mes blog posts en anglais : 
 * [TypeSafe's Jev AI Model in .NET: A Community SDK for Structured AI Output in C#](/2026/09/19/typesafe-jev-dotnet-sdk-introduction/).
 * [Building a TypeSafe's Jev MCP server with .NET](/2026/10/10/building-a-typesafe-jev-mcp-server-dotnet/).
 * [TypeSafe Jev .NET SDK 0.7.0: Experimental Images and Bounding Boxes](/2026/10/17/typesafe-dotnet-sdk-v0-7-0/).
+
+Voir la [table ronde devdevdev.net d'Octobre 2026](https://devdevdev.net/tr10-2026-table-ronde-100-ia/) en entier.
